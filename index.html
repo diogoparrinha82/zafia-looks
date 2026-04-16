@@ -36,7 +36,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 /* SCREENS */
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;}
 .screen.hidden{display:none;}
-.nav-bar{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--safe-top) + 12px) 16px 12px;background:var(--c-bg);border-bottom:1px solid var(--c-border);flex-shrink:0;z-index:10;}
+.nav-bar{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--safe-top)+12px) 16px 12px;background:var(--c-bg);border-bottom:1px solid var(--c-border);flex-shrink:0;z-index:10;}
 .nav-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;color:var(--c-accent);}
 .nav-sub{font-size:.62rem;color:var(--c-text3);letter-spacing:.1em;text-transform:uppercase;}
 .nav-btn{height:36px;padding:0 12px;border-radius:18px;border:none;background:var(--c-surface);color:var(--c-text);font-size:.78rem;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;}
@@ -48,7 +48,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .tab-label{font-size:.62rem;color:var(--c-text3);font-weight:500;letter-spacing:.04em;text-transform:uppercase;}
 .tab-item.on .tab-label{color:var(--c-accent);}
 .tab-item.on .tab-icon{transform:scale(1.1);}
-
 .scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .scroll-area::-webkit-scrollbar{display:none;}
 .filter-strip{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;flex-shrink:0;scrollbar-width:none;}
@@ -58,23 +57,23 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .prog-bar{height:3px;background:var(--c-border);flex-shrink:0;}
 .prog-bar-fill{height:100%;background:var(--c-accent);transition:width .4s ease;}
 
-/* LOOKS / CAROUSEL */
+/* LOOKS */
 #screen-looks{background:var(--c-bg);}
-.looks-header{padding:calc(var(--safe-top) + 10px) 16px 10px;background:var(--c-bg);border-bottom:1px solid var(--c-border);flex-shrink:0;display:flex;align-items:center;gap:10px;}
+.looks-header{padding:calc(var(--safe-top)+10px) 16px 10px;background:var(--c-bg);border-bottom:1px solid var(--c-border);flex-shrink:0;display:flex;align-items:center;gap:10px;}
 .looks-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--c-accent);font-weight:600;flex:1;}
 .looks-counter{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--c-text3);}
-.carousel-viewport{flex:1;overflow:hidden;position:relative;}
+.carousel-viewport{flex:1;overflow:hidden;position:relative;display:flex;align-items:stretch;}
 .carousel-track{display:flex;height:100%;transition:transform .35s cubic-bezier(.4,0,.2,1);will-change:transform;}
 .carousel-track.no-anim{transition:none;}
-
-/* LOOK CARD */
 .look-card{min-width:100%;width:100%;height:100%;background:var(--c-card);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;position:relative;}
+@media(min-width:700px){
+  .carousel-track{justify-content:center;}
+  .look-card{min-width:min(100%,560px);width:min(100%,560px);margin:0 auto;border-left:1px solid var(--c-border);border-right:1px solid var(--c-border);}
+}
 .card-color-bar{height:5px;flex-shrink:0;}
 .card-header{padding:10px 16px 8px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
 .card-num{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--c-text3);}
 .card-cat{padding:3px 11px;border-radius:50px;font-size:.7rem;font-weight:700;letter-spacing:.04em;}
-
-/* status badge top-right */
 .card-status-btn{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:50px;border:none;cursor:pointer;font-family:'Jost',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.04em;transition:all .2s;}
 .card-status-btn.idle{background:var(--c-surface);color:var(--c-text3);border:1.5px solid var(--c-border);}
 .card-status-btn.shooting{background:rgba(220,50,50,.15);color:#ff4444;border:1.5px solid #ff4444;animation:blink 1.2s infinite;}
@@ -84,14 +83,29 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .card-status-btn.shooting .status-dot{background:#ff4444;animation:blink 1s infinite;}
 .card-status-btn.done .status-dot{background:var(--c-done);}
 
-/* 2×2 photo grid */
-.card-photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 12px 8px;flex-shrink:0;height:clamp(180px,38vh,300px);}
-.photo-cell{border-radius:9px;overflow:hidden;background:var(--c-surface);position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-.photo-cell img{width:100%;height:100%;object-fit:cover;}
+/* 2x2 photo grid */
+.card-photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 12px 8px;flex-shrink:0;aspect-ratio:2/1.1;}
+.photo-cell{border-radius:9px;overflow:hidden;background:var(--c-surface);position:relative;display:flex;align-items:center;justify-content:center;min-height:0;}
+.photo-cell img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
 .photo-cell.contain img{object-fit:contain;background:#0a0a1a;}
 .photo-cell-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--c-text3);font-size:.6rem;width:100%;height:100%;}
 .photo-cell-ph .icon{font-size:1.5rem;}
-.photo-cell-lbl{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:linear-gradient(transparent,rgba(0,0,0,.7));font-size:.58rem;color:rgba(255,255,255,.85);pointer-events:none;}
+.photo-cell-lbl{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:linear-gradient(transparent,rgba(0,0,0,.7));font-size:.58rem;color:rgba(255,255,255,.85);pointer-events:none;z-index:1;}
+
+/* outfit mini-carousel in top-left cell */
+.outfit-mini-carousel{position:relative;width:100%;height:100%;}
+.outfit-mini-track{display:flex;height:100%;transition:transform .3s cubic-bezier(.4,0,.2,1);}
+.outfit-mini-track.no-anim{transition:none;}
+.outfit-mini-slide{min-width:100%;width:100%;height:100%;position:relative;flex-shrink:0;overflow:hidden;border-radius:9px;}
+.outfit-mini-slide img{width:100%;height:100%;object-fit:cover;cursor:pointer;}
+.outfit-mini-slide-ph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--c-text3);font-size:.65rem;}
+.outfit-mini-slide-ph .icon{font-size:1.8rem;}
+.outfit-mini-btn{position:absolute;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;border:none;background:rgba(0,0,0,.55);color:white;font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;}
+.outfit-mini-btn.prev{left:4px;}
+.outfit-mini-btn.next{right:4px;}
+.outfit-mini-dots{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);display:flex;gap:3px;z-index:5;}
+.outfit-mini-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.4);}
+.outfit-mini-dot.on{background:white;}
 
 /* card fields */
 .card-fields{flex:1;overflow-y:auto;padding:0 12px 10px;display:flex;flex-direction:column;gap:5px;}
@@ -102,7 +116,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .field-sel option{background:#1E1E3A;color:white;}
 .field-inp{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'Jost',sans-serif;font-size:.88rem;outline:none;}
 .field-inp::placeholder{color:var(--c-text3);}
-
 .card-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;padding-bottom:calc(8px + var(--safe-bottom));border-top:1px solid var(--c-border);flex-shrink:0;}
 .card-nav-btn{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--c-border);background:var(--c-surface);color:var(--c-text);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .card-nav-btn:hover,.card-nav-btn:active{background:var(--c-accent);border-color:var(--c-accent);color:var(--c-bg);}
@@ -167,7 +180,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .cfg-hint.err{color:#ff6b6b;}
 .cfg-hint strong{color:var(--c-text);}
 .cat-row{display:flex;align-items:center;gap:10px;padding:4px 0 10px;border-bottom:1px solid var(--c-border);margin-bottom:10px;}
-.cat-name-inp{flex:1;padding:10px 12px;border:1.5px solid var(--c-border);border-radius:var(--radius-sm);background:var(--c-surface);color:var(--c-text);font-family:'Jost',sans-serif;font-size:.9rem;outline:none;border-color:var(--c-border);}
+.cat-name-inp{flex:1;padding:10px 12px;border:1.5px solid var(--c-border);border-radius:var(--radius-sm);background:var(--c-surface);color:var(--c-text);font-family:'Jost',sans-serif;font-size:.9rem;outline:none;}
 .cat-name-inp:focus{border-color:var(--c-accent);}
 .cat-count-wrap{display:flex;flex-direction:column;align-items:center;background:var(--c-surface);border-radius:var(--radius-sm);padding:6px 12px;min-width:64px;border:1.5px solid var(--c-border);}
 .cat-count-inp{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'DM Mono',monospace;font-size:.92rem;outline:none;text-align:center;}
@@ -242,12 +255,11 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .mtl{font-size:.68rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.06em;}
 .mtv{font-family:'DM Mono',monospace;color:var(--c-accent);font-size:.95rem;}
 .add-member-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:calc(100% - 32px);margin:10px 16px;padding:13px;background:transparent;border:2px dashed var(--c-border);border-radius:var(--radius);color:var(--c-text2);font-family:'Jost',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;}
-
 .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:999;display:none;align-items:center;justify-content:center;}
 .lightbox.show{display:flex;}
 .lightbox img{max-width:94vw;max-height:94vh;border-radius:10px;object-fit:contain;}
-.lb-close{position:absolute;top:calc(var(--safe-top) + 14px);right:16px;color:white;font-size:1.6rem;cursor:pointer;padding:6px;}
-.toast{position:fixed;bottom:calc(var(--safe-bottom) + 70px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--c-surface);color:var(--c-accent);padding:9px 20px;border-radius:50px;font-size:.78rem;font-weight:500;border:1px solid var(--c-border);opacity:0;transition:all .3s;pointer-events:none;z-index:100;white-space:nowrap;}
+.lb-close{position:absolute;top:calc(var(--safe-top)+14px);right:16px;color:white;font-size:1.6rem;cursor:pointer;padding:6px;}
+.toast{position:fixed;bottom:calc(var(--safe-bottom)+70px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--c-surface);color:var(--c-accent);padding:9px 20px;border-radius:50px;font-size:.78rem;font-weight:500;border:1px solid var(--c-border);opacity:0;transition:all .3s;pointer-events:none;z-index:100;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 #loading{position:fixed;inset:0;background:var(--c-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:150;}
 #loading.hidden{display:none;}
@@ -271,7 +283,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
   <div class="login-err" id="login-err"></div>
 </div>
 
-<!-- LOOKS -->
 <div class="screen hidden" id="screen-looks">
   <div class="looks-header">
     <div><div class="looks-title">Art of Scarves</div></div>
@@ -293,7 +304,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
   </div>
 </div>
 
-<!-- GALLERY -->
 <div class="screen hidden" id="screen-gallery">
   <div class="nav-bar">
     <button class="nav-btn" onclick="switchTab('looks')">← Voltar</button>
@@ -316,7 +326,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
   <div class="scroll-area" id="gallery-scroll"></div>
 </div>
 
-<!-- CONFIG -->
 <div class="screen hidden" id="screen-config">
   <div class="nav-bar">
     <div style="width:60px"></div>
@@ -328,13 +337,16 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
       <div style="font-size:.85rem;font-weight:600;">Sessão activa</div>
       <div class="sync-badge" style="margin-left:auto"><div class="sync-dot" id="sync-dot2"></div><span id="sync-txt2">sync</span></div>
     </div>
-    <div class="cfg-section" id="cs-io"><div class="cfg-section-hdr" onclick="toggleCS('cs-io')"><div><div class="cfg-section-title">📦 Backup</div></div><span class="cfg-chevron">▾</span></div>
+    <div class="cfg-section" id="cs-io">
+      <div class="cfg-section-hdr" onclick="toggleCS('cs-io')"><div><div class="cfg-section-title">📦 Backup</div></div><span class="cfg-chevron">▾</span></div>
       <div class="cfg-section-body"><div style="display:flex;gap:8px;"><button class="mini-btn accent" style="flex:1" onclick="exportData()">⬇ Exportar</button><label class="mini-btn" style="flex:1;text-align:center;cursor:pointer">⬆ Importar<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label></div></div>
     </div>
-    <div class="cfg-section" id="cs-colors"><div class="cfg-section-hdr" onclick="toggleCS('cs-colors')"><div><div class="cfg-section-title">🎨 Cores</div></div><span class="cfg-chevron">▾</span></div>
+    <div class="cfg-section" id="cs-colors">
+      <div class="cfg-section-hdr" onclick="toggleCS('cs-colors')"><div><div class="cfg-section-title">🎨 Cores</div></div><span class="cfg-chevron">▾</span></div>
       <div class="cfg-section-body"><div class="color-grid" id="color-grid"></div><button class="mini-btn" style="margin-top:12px;width:100%" onclick="resetColors()">↺ Repor</button></div>
     </div>
-    <div class="cfg-section" id="cs-locs"><div class="cfg-section-hdr" onclick="toggleCS('cs-locs')"><div><div class="cfg-section-title">📍 Locais</div></div><span class="cfg-chevron">▾</span></div>
+    <div class="cfg-section" id="cs-locs">
+      <div class="cfg-section-hdr" onclick="toggleCS('cs-locs')"><div><div class="cfg-section-title">📍 Locais</div></div><span class="cfg-chevron">▾</span></div>
       <div class="cfg-section-body">
         <div class="cfg-grid-3">
           <div class="cfg-field"><label class="cfg-lbl">Estúdio</label><input class="cfg-inp num" type="number" min="0" id="loc-studio" value="30" oninput="updateLocHint()"></div>
@@ -344,16 +356,20 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
         <div class="cfg-hint" id="loc-hint">Total: <strong>100</strong> / 100</div>
       </div>
     </div>
-    <div class="cfg-section" id="cs-cats"><div class="cfg-section-hdr" onclick="toggleCS('cs-cats')"><div><div class="cfg-section-title">🏷 Categorias & Tutoriais</div></div><span class="cfg-chevron">▾</span></div>
+    <div class="cfg-section" id="cs-cats">
+      <div class="cfg-section-hdr" onclick="toggleCS('cs-cats')"><div><div class="cfg-section-title">🏷 Categorias & Tutoriais</div></div><span class="cfg-chevron">▾</span></div>
       <div class="cfg-section-body"><div id="cat-inputs"></div><div class="cfg-hint" id="cat-hint">Total: <strong>0</strong> / 100</div></div>
     </div>
-    <div class="cfg-section" id="cs-outfits"><div class="cfg-section-hdr" onclick="toggleCS('cs-outfits')"><div><div class="cfg-section-title">👗 Roupas & Peças</div></div><span class="cfg-chevron">▾</span></div>
+    <div class="cfg-section" id="cs-outfits">
+      <div class="cfg-section-hdr" onclick="toggleCS('cs-outfits')"><div><div class="cfg-section-title">👗 Roupas & Peças</div></div><span class="cfg-chevron">▾</span></div>
       <div class="cfg-section-body"><div id="outfit-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addOutfit()">+ Roupa</button><button class="mini-btn danger" onclick="removeOutfit()">− Última</button></div></div>
     </div>
-    <div class="cfg-section" id="cs-scarves"><div class="cfg-section-hdr" onclick="toggleCS('cs-scarves')"><div><div class="cfg-section-title">🧣 Lenços</div></div><span class="cfg-chevron">▾</span></div>
+    <div class="cfg-section" id="cs-scarves">
+      <div class="cfg-section-hdr" onclick="toggleCS('cs-scarves')"><div><div class="cfg-section-title">🧣 Lenços</div></div><span class="cfg-chevron">▾</span></div>
       <div class="cfg-section-body"><div id="scarf-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addItem('scarves')">+ Adicionar</button><button class="mini-btn danger" onclick="removeItem('scarves')">− Remover</button></div></div>
     </div>
-    <div class="cfg-section" id="cs-models"><div class="cfg-section-hdr" onclick="toggleCS('cs-models')"><div><div class="cfg-section-title">👤 Modelos</div></div><span class="cfg-chevron">▾</span></div>
+    <div class="cfg-section" id="cs-models">
+      <div class="cfg-section-hdr" onclick="toggleCS('cs-models')"><div><div class="cfg-section-title">👤 Modelos</div></div><span class="cfg-chevron">▾</span></div>
       <div class="cfg-section-body"><div id="model-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addItem('models')">+ Adicionar</button><button class="mini-btn danger" onclick="removeItem('models')">− Remover</button></div></div>
     </div>
     <button class="apply-btn" onclick="applyConfig()">▶ Aplicar e Gerar Looks</button>
@@ -361,7 +377,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
   </div>
 </div>
 
-<!-- EQUIPA -->
 <div class="screen hidden" id="screen-equipa">
   <div class="nav-bar"><div style="width:60px"></div><div><div class="nav-title">Equipa & Custos</div></div><div style="width:60px"></div></div>
   <div class="grand-total-strip">
@@ -391,25 +406,13 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const fbApp = initializeApp({apiKey:"AIzaSyAZZ-q7zM8gLZb8MMOL8Pj9zFeLLrtDAhk",authDomain:"book-claudya.firebaseapp.com",projectId:"book-claudya",storageBucket:"book-claudya.firebasestorage.app",messagingSenderId:"724090676677",appId:"1:724090676677:web:520ddb7efc45f839d917ac"});
-const db = getFirestore(fbApp);
+const fbApp=initializeApp({apiKey:"AIzaSyAZZ-q7zM8gLZb8MMOL8Pj9zFeLLrtDAhk",authDomain:"book-claudya.firebaseapp.com",projectId:"book-claudya",storageBucket:"book-claudya.firebasestorage.app",messagingSenderId:"724090676677",appId:"1:724090676677:web:520ddb7efc45f839d917ac"});
+const db=getFirestore(fbApp);
 
-// ── PASSWORD ── use localStorage so refresh keeps session
-const ACCESS_PASSWORD = "bookcm2026";
-const SESSION_KEY = "zafia_auth";
-window.doLogin = function(){
-  const pwd = document.getElementById('login-pwd').value.trim();
-  if(pwd === ACCESS_PASSWORD){ localStorage.setItem(SESSION_KEY,'1'); document.getElementById('screen-login').classList.add('hidden'); initApp(); }
-  else{ document.getElementById('login-err').textContent='⛔ Senha incorrecta.'; document.getElementById('login-pwd').value=''; }
-};
-window.doLogout = function(){
-  if(!confirm('Sair da sessão?')) return;
-  localStorage.removeItem(SESSION_KEY);
-  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
-  document.getElementById('screen-login').classList.remove('hidden');
-};
+const ACCESS_PASSWORD="bookcm2026";
+const SESSION_KEY="zafia_auth";
 
-// ── CONSTANTS ──
+// ── CONSTANTS ──────────────────────────────────────────────────────────────
 const DEFAULT_CATS=[["Acessório",15,[]],["Cabelo",12,[]],["Pescoço",3,[]],["Saia",15,[]],["Vestido",4,[]],["Embrulho",9,[]],["Mala",15,[]],["Tops",5,[]],["Cover Up",17,[]],["Elevate Style",5,[]]];
 const DEFAULT_OUTFITS=["Vestido Branco Linho","Calças Pretas Clássicas","Conjunto Bege Alfaiataria","Vestido Azul Marinho","Saia Midi Floral","Conjunto Castanho Camel","Calças Brancas + Blusa Seda","Vestido Terracota","Conjunto Xadrez Neutro","Calças Creme + Top Malha","Vestido Verde Oliva","Conjunto Azul Ganga","Saia Lápis Preta + Blusa Branca","Vestido Coral","Conjunto Cinzento Mescla","Calças Mostarda + Camisola Branca","Vestido Estampado Geométrico","Conjunto Burgundy","Calças Azul Royal + Blusa Neutra","Vestido Off-White Fluido"];
 const DEFAULT_SCARVES=["Lenço Vermelho Geométrico","Lenço Azul Estampado Floral","Lenço Dourado Animal Print","Lenço Verde Esmeralda Liso","Lenço Rosa Pálido Bordado","Lenço Laranja Boho","Lenço Preto e Branco Gráfico","Lenço Castanho Paisley","Lenço Multicolor Tribal","Lenço Azul Céu Tie-Dye","Lenço Lilás Seda","Lenço Terracota Listrado","Lenço Prata Lurex","Lenço Mostarda Jacquard","Lenço Cinzento Degradé","Lenço Coral Floral","Lenço Turquesa Geométrico","Lenço Creme com Franja","Lenço Verde Água Liso","Lenço Bordeaux Estampado"];
@@ -422,23 +425,37 @@ const DEFAULT_THEME={bg:'#12122A',surface:'#1E1E3A',card:'#252545',accent:'#C9A8
 const COLOR_LABELS={bg:'Fundo',surface:'Superfície',card:'Cards',accent:'Destaque (ouro)',accent2:'Destaque claro',text:'Texto',done:'Feito ✓'};
 const PIECE_TYPES=['Peça principal','Peça 2','Peça 3','Acessório','Acessório 2','Sapatos'];
 
-// ── STATE ──
-window.state = {
+// ── STATE ──────────────────────────────────────────────────────────────────
+window.state={
   config:{locs:{studio:30,pt:30,cv:40},cats:JSON.parse(JSON.stringify(DEFAULT_CATS)),outfits:DEFAULT_OUTFITS.map(n=>({name:n,pieces:[{name:'',photo:'',type:'Peça principal'}]})),scarves:DEFAULT_SCARVES.map(n=>({name:n,photo:''})),models:DEFAULT_MODELS.map(n=>({name:n,photo:''})),theme:{...DEFAULT_THEME}},
   looks:[],team:[],ui:{currentIdx:0,filter:'',galleryView:'grid'}
 };
-window.currentScreen = 'screen-looks';
+window.currentScreen='screen-looks';
 
-// ── SYNC ──
+// per-card outfit slide index (not persisted)
+const outfitSlideIdx={};
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtEur(v){return(parseFloat(v)||0).toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
+function outfitColor(n){const i=state.config.outfits.findIndex(o=>o.name===n);return OUTFIT_PALETTE[(i<0?0:i)%OUTFIT_PALETTE.length];}
+function outfitObj(n){return state.config.outfits.find(o=>o.name===n)||null;}
+function photoOf(type,name){const item=state.config[type].find(x=>x.name===name);return item?.photo||'';}
+function catColorIdx(cat){return state.config.cats.findIndex(([c])=>c===cat);}
+function tutorialOf(look){const cat=state.config.cats.find(([c])=>c===look.category);if(!cat||!cat[2]||!cat[2].length)return null;return cat[2][look.tutorialIdx||0]||cat[2][0]||null;}
+function compressImage(file,maxW,quality){return new Promise(resolve=>{const reader=new FileReader();reader.onload=e=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxW/img.width);const w=Math.round(img.width*scale);const h=Math.round(img.height*scale);const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);resolve(canvas.toDataURL('image/jpeg',quality));};img.src=e.target.result;};reader.readAsDataURL(file);});}
+function normaliseOutfits(outfits){return(outfits||[]).map(o=>{if(typeof o==='string')return{name:o,pieces:[{name:'',photo:'',type:'Peça principal'}]};if(!o.pieces)return{...o,pieces:[{name:'',photo:o.photo||'',type:'Peça principal'}]};return o;});}
+
+// ── SYNC STATUS ────────────────────────────────────────────────────────────
 function setSyncStatus(s){
   ['sync-dot','sync-dot2'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.className='sync-dot'+(s==='syncing'?' syncing':s==='offline'?' offline':'');});
   const txt=s==='syncing'?'a guardar…':s==='offline'?'offline':'guardado';
   ['sync-txt','sync-txt2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=txt;});
 }
+
+// ── FIRESTORE ──────────────────────────────────────────────────────────────
 function catsToFS(cats){return cats.map(([name,n,tutorials])=>({name,n,tutorials:tutorials||[]}));}
 function catsFromFS(arr){if(!arr||!arr.length)return[];if(Array.isArray(arr[0]))return arr.map(c=>[c[0],c[1],c[2]||[]]);return arr.map(c=>[c.name,c.n,c.tutorials||[]]);}
-function normaliseOutfits(outfits){return(outfits||[]).map(o=>{if(typeof o==='string')return{name:o,pieces:[{name:'',photo:'',type:'Peça principal'}]};if(!o.pieces)return{...o,pieces:[{name:'',photo:o.photo||'',type:'Peça principal'}]};return o;});}
-
 let saveTimer=null;
 function scheduleSave(){clearTimeout(saveTimer);setSyncStatus('syncing');saveTimer=setTimeout(doSave,1200);}
 async function doSave(){
@@ -448,9 +465,9 @@ async function doSave(){
       setDoc(base('config'),{locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme,ts:Date.now()}),
       setDoc(base('outfits'),{items:state.config.outfits}),
       setDoc(base('scarves'),{items:state.config.scarves}),
-      setDoc(base('models'), {items:state.config.models}),
-      setDoc(base('looks'),  {items:state.looks}),
-      setDoc(base('team'),   {items:state.team,ui:state.ui})
+      setDoc(base('models'),{items:state.config.models}),
+      setDoc(base('looks'),{items:state.looks}),
+      setDoc(base('team'),{items:state.team,ui:state.ui})
     ]);
     try{localStorage.setItem('zafia_cache',JSON.stringify(state));}catch(e){}
     setSyncStatus('ok');
@@ -459,89 +476,47 @@ async function doSave(){
 async function loadFromFirestore(){
   try{
     const base=n=>doc(db,'shared','data','docs',n);
-    const [cfgSnap,outSnap,scaSnap,modSnap,looksSnap,teamSnap]=await Promise.all([
-      getDoc(base('config')),getDoc(base('outfits')),getDoc(base('scarves')),
-      getDoc(base('models')),getDoc(base('looks')),getDoc(base('team'))
-    ]);
-    if(!cfgSnap.exists()&&!looksSnap.exists()){
-      state.looks=genLooks();state.team=defaultTeam();doSave();
-    } else {
+    const [cfgSnap,outSnap,scaSnap,modSnap,looksSnap,teamSnap]=await Promise.all([getDoc(base('config')),getDoc(base('outfits')),getDoc(base('scarves')),getDoc(base('models')),getDoc(base('looks')),getDoc(base('team'))]);
+    if(!cfgSnap.exists()&&!looksSnap.exists()){state.looks=genLooks();state.team=defaultTeam();doSave();}
+    else{
       if(cfgSnap.exists()){const c=cfgSnap.data();state.config.locs=c.locs||state.config.locs;state.config.cats=catsFromFS(c.cats)||state.config.cats;state.config.theme=c.theme||state.config.theme;}
-      if(outSnap.exists())  state.config.outfits=normaliseOutfits(outSnap.data().items);
-      if(scaSnap.exists())  state.config.scarves=scaSnap.data().items||state.config.scarves;
-      if(modSnap.exists())  state.config.models =modSnap.data().items||state.config.models;
+      if(outSnap.exists())state.config.outfits=normaliseOutfits(outSnap.data().items);
+      if(scaSnap.exists())state.config.scarves=scaSnap.data().items||state.config.scarves;
+      if(modSnap.exists())state.config.models=modSnap.data().items||state.config.models;
       if(looksSnap.exists())state.looks=looksSnap.data().items||[];
       if(teamSnap.exists()){state.team=teamSnap.data().items||[];if(teamSnap.data().ui)state.ui={...state.ui,...teamSnap.data().ui};}
     }
     applyTheme();renderFilters();buildCarousel();updateCounter();setSyncStatus('ok');
-    // update local cache
     try{localStorage.setItem('zafia_cache',JSON.stringify(state));}catch(e){}
-  }catch(e){
-    console.error('Firebase load error:',e);
-    setSyncStatus('offline');
-    // already showing cached data, nothing more to do
-  }
+  }catch(e){console.error('Firebase error:',e);setSyncStatus('offline');}
 }
-function initApp(){
-  // always show something immediately from cache
-  try{
-    const c=localStorage.getItem('zafia_cache');
-    if(c){
-      const d=JSON.parse(c);
-      if(d.config){state.config=d.config;state.config.outfits=normaliseOutfits(state.config.outfits);}
-      if(d.looks) state.looks=d.looks;
-      if(d.team)  state.team=d.team;
-      applyTheme();
-    }
-  }catch(e){}
 
-  // show app immediately with cached data
+// ── AUTH ───────────────────────────────────────────────────────────────────
+window.doLogin=function(){
+  const pwd=document.getElementById('login-pwd').value.trim();
+  if(pwd===ACCESS_PASSWORD){localStorage.setItem(SESSION_KEY,'1');document.getElementById('screen-login').classList.add('hidden');initApp();}
+  else{document.getElementById('login-err').textContent='⛔ Senha incorrecta.';document.getElementById('login-pwd').value='';}
+};
+window.doLogout=function(){if(!confirm('Sair da sessão?'))return;localStorage.removeItem(SESSION_KEY);document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById('screen-login').classList.remove('hidden');};
+
+function loadCache(){try{const c=localStorage.getItem('zafia_cache');if(c){const d=JSON.parse(c);if(d.config){state.config=d.config;state.config.outfits=normaliseOutfits(state.config.outfits);}if(d.looks)state.looks=d.looks;if(d.team)state.team=d.team;}}catch(e){}}
+
+function initApp(){
+  loadCache();
+  applyTheme();
   document.getElementById('loading').classList.add('hidden');
   renderFilters();buildCarousel();updateCounter();switchTab('looks');
-
-  // then sync with Firebase in background
-  // safety timeout — if Firebase doesn't respond in 6s, stay with cache
-  const fbTimeout=setTimeout(()=>{
-    setSyncStatus('offline');
-    showToast('A usar dados locais');
-  }, 6000);
-
-  loadFromFirestore().then(()=>clearTimeout(fbTimeout)).catch(()=>{
-    clearTimeout(fbTimeout);
-    setSyncStatus('offline');
-  });
+  // Firebase in background
+  const fbTO=setTimeout(()=>setSyncStatus('offline'),8000);
+  loadFromFirestore().then(()=>clearTimeout(fbTO)).catch(()=>{clearTimeout(fbTO);setSyncStatus('offline');});
 }
 
-// ── EMERGENCY FALLBACK ──
-setTimeout(()=>{
-  const anyVisible=[...document.querySelectorAll('.screen,#screen-login')].some(el=>!el.classList.contains('hidden'));
-  if(!anyVisible){
-    document.getElementById('loading').classList.add('hidden');
-    if(localStorage.getItem(SESSION_KEY)==='1') initApp();
-    else document.getElementById('screen-login').classList.remove('hidden');
-  }
-},3000);
-
-// ── EXPORT/IMPORT ──
-window.exportData=function(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');const d=new Date();a.href=url;a.download=`aos-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;a.click();URL.revokeObjectURL(url);showToast('⬇ Exportado!');};
-window.importData=function(input){if(!input.files[0])return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(!d.config||!d.looks)throw new Error();window.state=d;state.config.outfits=normaliseOutfits(state.config.outfits);applyTheme();renderFilters();buildCarousel();updateCounter();scheduleSave();showToast('⬆ Importado!');}catch(e){showToast('✗ Ficheiro inválido');}};r.readAsText(input.files[0]);input.value='';};
-
-// ── HELPERS ──
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function fmtEur(v){return(parseFloat(v)||0).toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
-function outfitColor(n){const i=state.config.outfits.findIndex(o=>o.name===n);return OUTFIT_PALETTE[(i<0?0:i)%OUTFIT_PALETTE.length];}
-function outfitObj(n){return state.config.outfits.find(o=>o.name===n)||null;}
-function photoOf(type,name){const item=state.config[type].find(x=>x.name===name);return item?.photo||'';}
-function catColorIdx(cat){return state.config.cats.findIndex(([c])=>c===cat);}
-function compressImage(file,maxW,quality){return new Promise(resolve=>{const reader=new FileReader();reader.onload=e=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxW/img.width);const w=Math.round(img.width*scale);const h=Math.round(img.height*scale);const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);resolve(canvas.toDataURL('image/jpeg',quality));};img.src=e.target.result;};reader.readAsDataURL(file);});}
-function tutorialOf(look){const cat=state.config.cats.find(([c])=>c===look.category);if(!cat||!cat[2]||!cat[2].length)return null;return cat[2][look.tutorialIdx||0]||cat[2][0]||null;}
-
-// ── THEME ──
+// ── THEME ──────────────────────────────────────────────────────────────────
 function applyTheme(){const th=state.config.theme,r=document.documentElement;r.style.setProperty('--c-bg',th.bg);r.style.setProperty('--c-surface',th.surface);r.style.setProperty('--c-card',th.card);r.style.setProperty('--c-accent',th.accent);r.style.setProperty('--c-accent2',th.accent2||'#E8D5A3');r.style.setProperty('--c-text',th.text);r.style.setProperty('--c-done',th.done);document.querySelector('meta[name=theme-color]').content=th.bg;}
 window.resetColors=function(){state.config.theme={...DEFAULT_THEME};applyTheme();renderColorGrid();scheduleSave();};
 function renderColorGrid(){const th=state.config.theme;document.getElementById('color-grid').innerHTML=Object.keys(DEFAULT_THEME).map(key=>`<div class="color-field"><div class="cfg-lbl">${COLOR_LABELS[key]}</div><div class="color-picker-wrap" onclick="document.getElementById('cp-${key}').click()"><div class="color-swatch" style="background:${th[key]}"></div><span class="color-hex">${th[key]}</span><input type="color" class="color-picker" id="cp-${key}" value="${th[key]}" oninput="state.config.theme['${key}']=this.value;applyTheme();this.previousElementSibling.previousElementSibling.style.background=this.value;this.previousElementSibling.textContent=this.value;scheduleSave()"></div></div>`).join('');}
 
-// ── RNG/GEN ──
+// ── RNG/GEN ────────────────────────────────────────────────────────────────
 function rng(seed){let s=seed;return()=>{s=(s*1664525+1013904223)&0xFFFFFFFF;return(s>>>0)/0xFFFFFFFF;};}
 function shuf(arr,r){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function genLooks(){
@@ -565,7 +540,7 @@ function genLooks(){
 }
 function defaultTeam(){return[{id:1,name:'',role:'Fotógrafo Principal',location:'PT Est+Ext+CV',phone:'',email:'',notes:'',photo:'',viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true}];}
 
-// ── SCREENS ──
+// ── SCREENS ────────────────────────────────────────────────────────────────
 window.switchTab=function(tab){
   const map={looks:'screen-looks',gallery:'screen-gallery',config:'screen-config',equipa:'screen-equipa'};
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
@@ -574,12 +549,12 @@ window.switchTab=function(tab){
   const el=document.getElementById('tab-'+tab);if(el)el.classList.add('on');
   window.currentScreen=map[tab];
   if(tab==='gallery')renderGallery();
-  if(tab==='config') renderConfig();
-  if(tab==='equipa') renderTeam();
+  if(tab==='config')renderConfig();
+  if(tab==='equipa')renderTeam();
 };
 window.toggleCS=function(id){document.getElementById(id).classList.toggle('open');};
 
-// ── FILTERS ──
+// ── FILTERS ────────────────────────────────────────────────────────────────
 function filteredLooks(){
   const f=state.ui.filter;
   if(!f)return state.looks;
@@ -597,7 +572,7 @@ function renderFilters(){
 window.setFilter=function(v){state.ui.filter=v;state.ui.currentIdx=0;renderFilters();buildCarousel();updateCounter();};
 window.setGalleryFilter=function(v){state.ui.filter=v;state.ui.currentIdx=0;renderFilters();renderGallery();};
 
-// ── COUNTER ──
+// ── COUNTER ────────────────────────────────────────────────────────────────
 function updateCounter(){
   const fl=filteredLooks();
   const idx=Math.min(state.ui.currentIdx,Math.max(0,fl.length-1));
@@ -609,41 +584,58 @@ function updateCounter(){
   document.getElementById('btn-next').disabled=idx>=fl.length-1;
 }
 
-// ── CARD BUILD ── key insight: never rebuild entire carousel on field change
-// instead, update individual card elements in-place
+// ── CAROUSEL ───────────────────────────────────────────────────────────────
+function cardW(){const fc=document.getElementById('carousel-track').firstElementChild;return fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;}
+
 function buildCard(look){
   const ci=catColorIdx(look.category);
   const catColor=CAT_COLORS[ci]||'#888';
   const oColor=outfitColor(look.outfit);
   const outfit=outfitObj(look.outfit);
-  const pieces=outfit?.pieces||[];
-  const firstPiecePhoto=pieces.find(p=>p.photo)?.photo||'';
-  const firstPieceName=pieces.find(p=>p.photo)?.name||pieces.find(p=>p.photo)?.type||'Roupa';
+  const pieces=(outfit?.pieces||[]).filter(p=>p.photo);
   const sPhoto=photoOf('scarves',look.scarf);
-  const mPhoto=photoOf('models',look.model);
   const tut=tutorialOf(look);
   const tPhoto=tut?.photo||'';
   const tName=tut?.name||'Tutorial';
-  const sPhoto2=look.shootingPhoto||'';
+  const shootingPhoto=look.shootingPhoto||'';
   const status=look.status||'';
 
   const outfitOpts=state.config.outfits.map(o=>`<option${o.name===look.outfit?' selected':''}>${esc(o.name)}</option>`).join('');
-  const scarfOpts =state.config.scarves.map(s=>`<option${s.name===look.scarf?' selected':''}>${esc(s.name)}</option>`).join('');
-  const modelOpts =state.config.models.map(m=>`<option${m.name===look.model?' selected':''}>${esc(m.name)}</option>`).join('');
-  const locOpts   =["Portugal – Estúdio","Portugal – Exterior","Cabo Verde – Exterior"].map(l=>`<option${l===look.location?' selected':''}>${l}</option>`).join('');
+  const scarfOpts=state.config.scarves.map(s=>`<option${s.name===look.scarf?' selected':''}>${esc(s.name)}</option>`).join('');
+  const modelOpts=state.config.models.map(m=>`<option${m.name===look.model?' selected':''}>${esc(m.name)}</option>`).join('');
+  const locOpts=["Portugal – Estúdio","Portugal – Exterior","Cabo Verde – Exterior"].map(l=>`<option${l===look.location?' selected':''}>${l}</option>`).join('');
   const cat=state.config.cats.find(([c])=>c===look.category);
   const tutorials=cat?.[2]||[];
   const tutOpts=tutorials.length?tutorials.map((t,ti)=>`<option value="${ti}"${(look.tutorialIdx||0)===ti?' selected':''}>${esc(t.name||`Tutorial ${ti+1}`)}</option>`).join(''):`<option value="">— sem tutoriais —</option>`;
 
-  // status badge
   const statusClass=status==='done'?'done':status==='shooting'?'shooting':'idle';
   const statusLabel=status==='done'?'Feito':status==='shooting'?'Shooting':'Pronto';
-  const statusIcon=status==='done'?'✓':status==='shooting'?'●':'📷';
 
-  function photoCell(photo,label,contain,onclick){
-    return`<div class="photo-cell${contain?' contain':''}" ${photo&&onclick?`onclick="${onclick}"`:''}>
-      ${photo?`<img src="${photo}" alt="${esc(label)}"><div class="photo-cell-lbl">${esc(label)}</div>`:`<div class="photo-cell-ph"><span class="icon">${contain?'📋':label==='Lenço'?'🧣':label==='Modelo'?'👤':'📸'}</span><span>${esc(label)}</span></div>`}
+  // outfit mini-carousel html
+  const slideNum=look.num;
+  const curSlide=outfitSlideIdx[slideNum]||0;
+  let outfitCellHtml='';
+  if(pieces.length===0){
+    outfitCellHtml=`<div class="photo-cell-ph"><span class="icon">👗</span><span>Roupa</span></div>`;
+  } else if(pieces.length===1){
+    outfitCellHtml=`<img src="${pieces[0].photo}" alt="${esc(pieces[0].name||pieces[0].type||'Roupa')}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;cursor:pointer" onclick="openLb('${pieces[0].photo}')"><div class="photo-cell-lbl">${esc(pieces[0].name||pieces[0].type||'Roupa')}</div>`;
+  } else {
+    const slides=pieces.map((p,pi)=>`<div class="outfit-mini-slide"><img src="${p.photo}" alt="${esc(p.name||p.type||'')}" onclick="openLb('${p.photo}')"><div class="photo-cell-lbl">${esc(p.name||p.type||'Peça '+(pi+1))}</div></div>`).join('');
+    const dots=pieces.map((_,pi)=>`<div class="outfit-mini-dot ${pi===curSlide?'on':''}"></div>`).join('');
+    outfitCellHtml=`<div class="outfit-mini-carousel">
+      <div class="outfit-mini-track${curSlide===0?' no-anim':''}" id="omt-${slideNum}" style="transform:translateX(-${curSlide*100}%)">
+        ${slides}
+      </div>
+      <button class="outfit-mini-btn prev" onclick="slideOutfit(${slideNum},-1,${pieces.length})">‹</button>
+      <button class="outfit-mini-btn next" onclick="slideOutfit(${slideNum},1,${pieces.length})">›</button>
+      <div class="outfit-mini-dots" id="omDots-${slideNum}">${dots}</div>
     </div>`;
+  }
+
+  function photoCell(html,extra){return `<div class="photo-cell${extra?' '+extra:''}">${html}</div>`;}
+  function photoCellImg(photo,label,contain){
+    if(!photo)return`<div class="photo-cell${contain?' contain':''}"><div class="photo-cell-ph"><span class="icon">${label==='Lenço'?'🧣':label==='Tutorial'?'📋':'📸'}</span><span>${label}</span></div></div>`;
+    return`<div class="photo-cell${contain?' contain':''}" onclick="openLb('${photo}')"><img src="${photo}" alt="${label}"><div class="photo-cell-lbl">${label}</div></div>`;
   }
 
   const card=document.createElement('div');
@@ -659,10 +651,10 @@ function buildCard(look){
       </button>
     </div>
     <div class="card-photo-grid">
-      ${photoCell(firstPiecePhoto, firstPieceName||'Roupa', false, `openLb('${firstPiecePhoto}')`)}
-      ${photoCell(sPhoto, 'Lenço', false, `openLb('${sPhoto}')`)}
-      ${photoCell(tPhoto, tName, true, `openLb('${tPhoto}')`)}
-      ${photoCell(sPhoto2, 'Look final', false, sPhoto2?`openLb('${sPhoto2}')`:'')}
+      ${photoCell(outfitCellHtml,'')}
+      ${photoCellImg(sPhoto,'Lenço',false)}
+      ${photoCellImg(tPhoto,tName,true)}
+      ${photoCellImg(shootingPhoto,'Look final',false)}
     </div>
     <div class="card-fields">
       <div class="field-row"><div class="field-lbl">Roupa</div>
@@ -698,6 +690,17 @@ function buildCard(look){
   return card;
 }
 
+// outfit mini-carousel slide
+window.slideOutfit=function(num,dir,total){
+  const cur=outfitSlideIdx[num]||0;
+  const next=Math.max(0,Math.min(total-1,cur+dir));
+  outfitSlideIdx[num]=next;
+  const track=document.getElementById('omt-'+num);
+  if(track){track.classList.remove('no-anim');track.style.transform=`translateX(-${next*100}%)`;}
+  const dotsEl=document.getElementById('omDots-'+num);
+  if(dotsEl){[...dotsEl.children].forEach((d,i)=>d.classList.toggle('on',i===next));}
+};
+
 window.buildCarousel=function(){
   const fl=filteredLooks();
   const track=document.getElementById('carousel-track');
@@ -706,102 +709,39 @@ window.buildCarousel=function(){
   const idx=Math.min(state.ui.currentIdx,Math.max(0,fl.length-1));
   state.ui.currentIdx=idx;
   track.classList.add('no-anim');
-  // use card width after render
   requestAnimationFrame(()=>{
-    const firstCard=track.firstElementChild;
-    const cardW=firstCard?firstCard.offsetWidth:document.getElementById('carousel-vp').offsetWidth;
-    track.style.transform=`translateX(-${idx*cardW}px)`;
+    const w=cardW();
+    track.style.transform=`translateX(-${idx*w}px)`;
     requestAnimationFrame(()=>track.classList.remove('no-anim'));
   });
   updateCounter();
 };
 
-// ── KEY FIX: update field in state only, no carousel rebuild ──
-window.updLookField=function(num,field,val){
-  const l=state.looks.find(x=>x.num===num);if(!l)return;
-  l[field]=val;
-  scheduleSave();
-  // only rebuild photos if outfit changed (affects photo display)
-  if(field==='outfit'||field==='tutorialIdx') rebuildCardPhotos(num);
-};
-
-// rebuild only the photo grid of one card without touching the selects
-function rebuildCardPhotos(num){
-  const fl=filteredLooks();
-  const idx=fl.findIndex(x=>x.num===num);
-  if(idx<0)return;
-  const cardEl=document.getElementById('carousel-track').children[idx];
-  if(!cardEl)return;
-  const look=fl[idx];
-  const outfit=outfitObj(look.outfit);
-  const pieces=outfit?.pieces||[];
-  const firstPiecePhoto=pieces.find(p=>p.photo)?.photo||'';
-  const firstPieceName=pieces.find(p=>p.photo)?.name||pieces.find(p=>p.photo)?.type||'Roupa';
-  const sPhoto=photoOf('scarves',look.scarf);
-  const tut=tutorialOf(look);
-  const tPhoto=tut?.photo||'';const tName=tut?.name||'Tutorial';
-  const sPhoto2=look.shootingPhoto||'';
-  function photoCell(photo,label,contain,onclick){return`<div class="photo-cell${contain?' contain':''}" ${photo&&onclick?`onclick="${onclick}"`:''}>
-    ${photo?`<img src="${photo}" alt="${esc(label)}"><div class="photo-cell-lbl">${esc(label)}</div>`:`<div class="photo-cell-ph"><span class="icon">${contain?'📋':label==='Lenço'?'🧣':label==='Modelo'?'👤':'📸'}</span><span>${esc(label)}</span></div>`}
-  </div>`;}
-  const grid=cardEl.querySelector('.card-photo-grid');
-  if(grid) grid.innerHTML=`${photoCell(firstPiecePhoto,firstPieceName||'Roupa',false,`openLb('${firstPiecePhoto}')`)}${photoCell(sPhoto,'Lenço',false,`openLb('${sPhoto}')`)}${photoCell(tPhoto,tName,true,`openLb('${tPhoto}')`)}${photoCell(sPhoto2,'Look final',false,sPhoto2?`openLb('${sPhoto2}')`:'')}`;
-}
-
 window.navTo=function(idx){
   const fl=filteredLooks();if(idx<0||idx>=fl.length)return;
   state.ui.currentIdx=idx;
-  // use card width, not viewport width, for correct offset on desktop
-  const firstCard=document.getElementById('carousel-track').firstElementChild;
-  const cardW=firstCard?firstCard.offsetWidth:document.getElementById('carousel-vp').offsetWidth;
-  document.getElementById('carousel-track').style.transform=`translateX(-${idx*cardW}px)`;
+  track.style.transform=`translateX(-${idx*cardW()}px)`;
+  const track2=document.getElementById('carousel-track');
+  track2.style.transform=`translateX(-${idx*cardW()}px)`;
   updateCounter();scheduleSave();
 };
-
-// ── STATUS CYCLE: idle → shooting(take photo) → done → idle ──
-window.cycleStatus=function(num){
-  const l=state.looks.find(x=>x.num===num);if(!l)return;
-  if(!l.status||l.status===''){
-    // open camera
-    const input=document.createElement('input');
-    input.type='file';input.accept='image/*';input.capture='environment';
-    input.onchange=async e=>{
-      if(!e.target.files[0])return;
-      const compressed=await compressImage(e.target.files[0],900,0.8);
-      l.shootingPhoto=compressed;l.status='shooting';
-      scheduleSave();rebuildCardPhotos(num);updateStatusBtn(num);updateCounter();
-    };
-    input.click();
-  } else if(l.status==='shooting'){
-    l.status='done';l.done=true;
-    scheduleSave();updateStatusBtn(num);updateCounter();
-    // update gallery dot
-  } else if(l.status==='done'){
-    if(confirm('Reabrir este look?')){l.status='';l.done=false;scheduleSave();updateStatusBtn(num);updateCounter();}
-  }
-};
-
-function updateStatusBtn(num){
-  const fl=filteredLooks();
-  const idx=fl.findIndex(x=>x.num===num);if(idx<0)return;
-  const cardEl=document.getElementById('carousel-track').children[idx];if(!cardEl)return;
-  const l=fl[idx];const status=l.status||'';
-  const btn=cardEl.querySelector('.card-status-btn');if(!btn)return;
-  const statusClass=status==='done'?'done':status==='shooting'?'shooting':'idle';
-  const statusLabel=status==='done'?'Feito':status==='shooting'?'Shooting':'Pronto';
-  btn.className=`card-status-btn ${statusClass}`;
-  btn.innerHTML=`<div class="status-dot"></div>${statusLabel}`;
-}
 
 // drag/swipe
 (function(){
   let sx=0,sy=0,drag=false,moved=false,vpW=0;
-  const INTERACTIVE='select,input,textarea,button,label';
-  function isUI(el){return!!el.closest(INTERACTIVE);}
-  function cardWidth(){const fc=document.getElementById('carousel-track').firstElementChild;return fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;}
-  function onStart(x,y,target){if(isUI(target))return;sx=x;sy=y;drag=true;moved=false;vpW=cardWidth();document.getElementById('carousel-track').classList.add('no-anim');}
+  const UI='select,input,textarea,button,label,.outfit-mini-btn';
+  function isUI(el){return!!el.closest(UI);}
+  function getW(){const fc=document.getElementById('carousel-track').firstElementChild;return fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;}
+  function onStart(x,y,target){if(isUI(target))return;sx=x;sy=y;drag=true;moved=false;vpW=getW();document.getElementById('carousel-track').classList.add('no-anim');}
   function onMove(x,y){if(!drag)return;const dx=x-sx,dy=y-sy;if(!moved&&Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){drag=false;return;}if(Math.abs(dx)>4)moved=true;document.getElementById('carousel-track').style.transform=`translateX(${-(state.ui.currentIdx*vpW-dx)}px)`;}
-  function onEnd(x){if(!drag)return;drag=false;const track=document.getElementById('carousel-track');track.classList.remove('no-anim');const dx=x-sx,fl=filteredLooks(),thr=vpW*0.2;if(moved&&dx<-thr&&state.ui.currentIdx<fl.length-1)window.navTo(state.ui.currentIdx+1);else if(moved&&dx>thr&&state.ui.currentIdx>0)window.navTo(state.ui.currentIdx-1);else window.navTo(state.ui.currentIdx);}
+  function onEnd(x){
+    if(!drag)return;drag=false;
+    const track=document.getElementById('carousel-track');track.classList.remove('no-anim');
+    const dx=x-sx,fl=filteredLooks(),thr=vpW*0.2;
+    if(moved&&dx<-thr&&state.ui.currentIdx<fl.length-1)window.navTo(state.ui.currentIdx+1);
+    else if(moved&&dx>thr&&state.ui.currentIdx>0)window.navTo(state.ui.currentIdx-1);
+    else window.navTo(state.ui.currentIdx);
+  }
   const vp=document.getElementById('carousel-vp');
   vp.addEventListener('mousedown',e=>{if(e.button!==0)return;if(!isUI(e.target))e.preventDefault();onStart(e.clientX,e.clientY,e.target);});
   window.addEventListener('mousemove',e=>{if(drag)onMove(e.clientX,e.clientY);});
@@ -812,7 +752,83 @@ function updateStatusBtn(num){
   window.addEventListener('keydown',e=>{if(window.currentScreen!=='screen-looks')return;if(e.key==='ArrowRight'||e.key==='ArrowDown')window.navTo(state.ui.currentIdx+1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')window.navTo(state.ui.currentIdx-1);});
 })();
 
-// ── GALLERY ──
+// ── LOOK UPDATES ───────────────────────────────────────────────────────────
+window.updLookField=function(num,field,val){
+  const l=state.looks.find(x=>x.num===num);if(!l)return;
+  l[field]=val;
+  scheduleSave();
+  // update photo grid in-place if needed (no full rebuild)
+  if(field==='outfit'||field==='tutorialIdx'||field==='scarf'){
+    rebuildCardPhotos(num);
+  }
+};
+
+function rebuildCardPhotos(num){
+  const fl=filteredLooks();
+  const idx=fl.findIndex(x=>x.num===num);if(idx<0)return;
+  const cardEl=document.getElementById('carousel-track').children[idx];if(!cardEl)return;
+  const look=fl[idx];
+  const outfit=outfitObj(look.outfit);
+  const pieces=(outfit?.pieces||[]).filter(p=>p.photo);
+  const sPhoto=photoOf('scarves',look.scarf);
+  const tut=tutorialOf(look);
+  const tPhoto=tut?.photo||'';const tName=tut?.name||'Tutorial';
+  const shootingPhoto=look.shootingPhoto||'';
+  const curSlide=outfitSlideIdx[look.num]||0;
+
+  let outfitCellHtml='';
+  if(pieces.length===0){outfitCellHtml=`<div class="photo-cell-ph"><span class="icon">👗</span><span>Roupa</span></div>`;}
+  else if(pieces.length===1){outfitCellHtml=`<img src="${pieces[0].photo}" alt="${esc(pieces[0].name||pieces[0].type||'')}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;cursor:pointer" onclick="openLb('${pieces[0].photo}')"><div class="photo-cell-lbl">${esc(pieces[0].name||pieces[0].type||'Roupa')}</div>`;}
+  else{
+    const slides=pieces.map((p,pi)=>`<div class="outfit-mini-slide"><img src="${p.photo}" alt="${esc(p.name||p.type||'')}" onclick="openLb('${p.photo}')"><div class="photo-cell-lbl">${esc(p.name||p.type||'Peça '+(pi+1))}</div></div>`).join('');
+    const dots=pieces.map((_,pi)=>`<div class="outfit-mini-dot ${pi===curSlide?'on':''}"></div>`).join('');
+    outfitCellHtml=`<div class="outfit-mini-carousel"><div class="outfit-mini-track no-anim" id="omt-${look.num}" style="transform:translateX(-${curSlide*100}%)">${slides}</div><button class="outfit-mini-btn prev" onclick="slideOutfit(${look.num},-1,${pieces.length})">‹</button><button class="outfit-mini-btn next" onclick="slideOutfit(${look.num},1,${pieces.length})">›</button><div class="outfit-mini-dots" id="omDots-${look.num}">${dots}</div></div>`;
+  }
+
+  function photoCellImg(photo,label,contain){
+    if(!photo)return`<div class="photo-cell${contain?' contain':''}"><div class="photo-cell-ph"><span class="icon">${label==='Lenço'?'🧣':label==='Tutorial'?'📋':'📸'}</span><span>${label}</span></div></div>`;
+    return`<div class="photo-cell${contain?' contain':''}" onclick="openLb('${photo}')"><img src="${photo}" alt="${label}"><div class="photo-cell-lbl">${label}</div></div>`;
+  }
+
+  const grid=cardEl.querySelector('.card-photo-grid');
+  if(grid)grid.innerHTML=`<div class="photo-cell">${outfitCellHtml}</div>${photoCellImg(sPhoto,'Lenço',false)}${photoCellImg(tPhoto,tName,true)}${photoCellImg(shootingPhoto,'Look final',false)}`;
+}
+
+// ── STATUS ─────────────────────────────────────────────────────────────────
+window.cycleStatus=function(num){
+  const l=state.looks.find(x=>x.num===num);if(!l)return;
+  if(!l.status||l.status===''){
+    const input=document.createElement('input');input.type='file';input.accept='image/*';input.capture='environment';
+    input.onchange=async e=>{
+      if(!e.target.files[0])return;
+      const compressed=await compressImage(e.target.files[0],900,0.8);
+      l.shootingPhoto=compressed;l.status='shooting';
+      scheduleSave();rebuildCardPhotos(num);updateStatusBtn(num);updateCounter();
+    };
+    input.click();
+  } else if(l.status==='shooting'){
+    l.status='done';l.done=true;scheduleSave();updateStatusBtn(num);updateCounter();
+  } else if(l.status==='done'){
+    if(confirm('Reabrir este look?')){l.status='';l.done=false;scheduleSave();updateStatusBtn(num);updateCounter();}
+  }
+};
+
+function updateStatusBtn(num){
+  const fl=filteredLooks();const idx=fl.findIndex(x=>x.num===num);if(idx<0)return;
+  const cardEl=document.getElementById('carousel-track').children[idx];if(!cardEl)return;
+  const l=fl[idx];const status=l.status||'';
+  const btn=cardEl.querySelector('.card-status-btn');if(!btn)return;
+  const cls=status==='done'?'done':status==='shooting'?'shooting':'idle';
+  const lbl=status==='done'?'Feito':status==='shooting'?'Shooting':'Pronto';
+  btn.className=`card-status-btn ${cls}`;
+  btn.innerHTML=`<div class="status-dot"></div>${lbl}`;
+}
+
+// ── EXPORT/IMPORT ──────────────────────────────────────────────────────────
+window.exportData=function(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');const d=new Date();a.href=url;a.download=`aos-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;a.click();URL.revokeObjectURL(url);showToast('⬇ Exportado!');};
+window.importData=function(input){if(!input.files[0])return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(!d.config||!d.looks)throw new Error();window.state=d;state.config.outfits=normaliseOutfits(state.config.outfits);applyTheme();renderFilters();buildCarousel();updateCounter();scheduleSave();showToast('⬆ Importado!');}catch(e){showToast('✗ Ficheiro inválido');}};r.readAsText(input.files[0]);input.value='';};
+
+// ── GALLERY ────────────────────────────────────────────────────────────────
 function getSortedLooks(){
   const fl=[...filteredLooks()];
   const sort=document.getElementById('gallery-sort')?.value||'default';
@@ -833,49 +849,52 @@ window.renderGallery=function(){
   const sort=document.getElementById('gallery-sort')?.value||'default';
   const useGroups=sort!=='default'&&sort!=='done';
   const scroll=document.getElementById('gallery-scroll');
+  const origFl=filteredLooks();
+  function cellHtml(look){
+    const i=origFl.indexOf(look);
+    const outfit=outfitObj(look.outfit);
+    const fp=outfit?.pieces?.find(p=>p.photo)?.photo||'';
+    const sPhoto=photoOf('scarves',look.scarf);
+    const tut=tutorialOf(look);const tPhoto=tut?.photo||'';
+    const catColor=CAT_COLORS[catColorIdx(look.category)]||'#888';
+    const status=look.status||'';
+    function sq(photo,icon,contain){return photo?`<img class="gallery-cell-img" src="${photo}" style="object-fit:${contain?'contain':'cover'};${contain?'background:#0a0a1a':''}" alt="">`:`<div class="gallery-cell-img-ph">${icon}</div>`;}
+    return`<div class="gallery-cell ${status==='done'?'done-cell':''}" onclick="goToLookFromGallery(${i})">
+      <div class="gallery-cell-imgs">${sq(fp,'👗',false)}${sq(sPhoto,'🧣',false)}${sq(tPhoto,'📋',true)}</div>
+      <div class="gallery-cell-body">
+        <div class="gallery-cell-num">#${look.num}</div>
+        <div class="gallery-cell-outfit">${esc(look.outfit)}</div>
+        <div class="gallery-cell-meta">${esc(look.model)} · ${look.location.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div>
+        <span class="gallery-cell-cat" style="background:${catColor}22;color:${catColor}">${look.category}${tut?.name?' · '+tut.name:''}</span>
+      </div>
+      ${status?`<div class="gallery-status-dot ${status}"></div>`:''}
+    </div>`;
+  }
+  function rowHtml(look){
+    const i=origFl.indexOf(look);
+    const outfit=outfitObj(look.outfit);
+    const fp=outfit?.pieces?.find(p=>p.photo)?.photo||'';
+    const status=look.status||'';
+    return`<div class="list-item ${status==='done'?'done-item':''}" onclick="goToLookFromGallery(${i})">
+      <div class="list-color-bar" style="background:#${outfitColor(look.outfit)}"></div>
+      <span class="list-num">${look.num}</span>
+      <div class="list-content"><div class="list-outfit">${esc(look.outfit)}</div><div class="list-meta">${look.category} · ${esc(look.model)} · ${look.location.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div></div>
+      ${fp?`<img class="list-thumb" src="${fp}" alt="">`:`<div class="list-thumb-ph">👗</div>`}
+      <div class="list-status-dot ${status}"></div>
+    </div>`;
+  }
   if(v==='grid'){
-    if(useGroups){const groups=[];let lastKey=null,cg=null;fl.forEach(look=>{const key=getGroupKey(look,sort);if(key!==lastKey){lastKey=key;cg={key,looks:[]};groups.push(cg);}cg.looks.push({look,i:filteredLooks().indexOf(look)});});scroll.innerHTML=groups.map(g=>`<div class="group-header">${esc(g.key)}<span class="group-count">${g.looks.length} look${g.looks.length!==1?'s':''}</span></div><div class="gallery-grid">${g.looks.map(({look,i})=>galleryCell(look,i)).join('')}</div>`).join('')+'<div style="height:20px"></div>';}
-    else scroll.innerHTML=`<div class="gallery-grid">${fl.map(look=>galleryCell(look,filteredLooks().indexOf(look))).join('')}</div><div style="height:20px"></div>`;
+    if(useGroups){const groups=[];let lastKey=null,cg=null;fl.forEach(look=>{const key=getGroupKey(look,sort);if(key!==lastKey){lastKey=key;cg={key,looks:[]};groups.push(cg);}cg.looks.push(look);});scroll.innerHTML=groups.map(g=>`<div class="group-header">${esc(g.key)}<span class="group-count">${g.looks.length} look${g.looks.length!==1?'s':''}</span></div><div class="gallery-grid">${g.looks.map(cellHtml).join('')}</div>`).join('')+'<div style="height:20px"></div>';}
+    else scroll.innerHTML=`<div class="gallery-grid">${fl.map(cellHtml).join('')}</div><div style="height:20px"></div>`;
   } else {
-    if(useGroups){const groups=[];let lastKey=null,cg=null;fl.forEach(look=>{const key=getGroupKey(look,sort);if(key!==lastKey){lastKey=key;cg={key,looks:[]};groups.push(cg);}cg.looks.push(look);});scroll.innerHTML=groups.map(g=>`<div class="group-header">${esc(g.key)}<span class="group-count">${g.looks.length} look${g.looks.length!==1?'s':''}</span></div>${g.looks.map(look=>listRow(look,filteredLooks().indexOf(look))).join('')}`).join('')+'<div style="height:20px"></div>';}
-    else scroll.innerHTML=fl.map(look=>listRow(look,filteredLooks().indexOf(look))).join('')+'<div style="height:20px"></div>';
+    if(useGroups){const groups=[];let lastKey=null,cg=null;fl.forEach(look=>{const key=getGroupKey(look,sort);if(key!==lastKey){lastKey=key;cg={key,looks:[]};groups.push(cg);}cg.looks.push(look);});scroll.innerHTML=groups.map(g=>`<div class="group-header">${esc(g.key)}<span class="group-count">${g.looks.length} look${g.looks.length!==1?'s':''}</span></div>${g.looks.map(rowHtml).join('')}`).join('')+'<div style="height:20px"></div>';}
+    else scroll.innerHTML=fl.map(rowHtml).join('')+'<div style="height:20px"></div>';
   }
 };
-function galleryCell(look,i){
-  const outfit=outfitObj(look.outfit);
-  const fp=outfit?.pieces?.find(p=>p.photo)?.photo||'';
-  const sPhoto=photoOf('scarves',look.scarf);
-  const tut=tutorialOf(look);const tPhoto=tut?.photo||'';
-  const catColor=CAT_COLORS[catColorIdx(look.category)]||'#888';
-  const status=look.status||'';
-  function sq(photo,icon,contain){return photo?`<img class="gallery-cell-img" src="${photo}" alt="" style="object-fit:${contain?'contain':'cover'};${contain?'background:#0a0a1a':''}">`:`<div class="gallery-cell-img-ph">${icon}</div>`;}
-  return`<div class="gallery-cell ${status==='done'?'done-cell':''}" onclick="goToLookFromGallery(${i})">
-    <div class="gallery-cell-imgs">${sq(fp,'👗',false)}${sq(sPhoto,'🧣',false)}${sq(tPhoto,'📋',true)}</div>
-    <div class="gallery-cell-body">
-      <div class="gallery-cell-num">#${look.num}</div>
-      <div class="gallery-cell-outfit">${esc(look.outfit)}</div>
-      <div class="gallery-cell-meta">${esc(look.model)} · ${look.location.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div>
-      <span class="gallery-cell-cat" style="background:${catColor}22;color:${catColor}">${look.category}${tut?.name?' · '+tut.name:''}</span>
-    </div>
-    ${status?`<div class="gallery-status-dot ${status}"></div>`:''}
-  </div>`;
-}
-function listRow(look,i){
-  const outfit=outfitObj(look.outfit);
-  const fp=outfit?.pieces?.find(p=>p.photo)?.photo||'';
-  const status=look.status||'';
-  return`<div class="list-item ${status==='done'?'done-item':''}" onclick="goToLookFromGallery(${i})">
-    <div class="list-color-bar" style="background:#${outfitColor(look.outfit)}"></div>
-    <span class="list-num">${look.num}</span>
-    <div class="list-content"><div class="list-outfit">${esc(look.outfit)}</div><div class="list-meta">${look.category} · ${esc(look.model)} · ${look.location.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div></div>
-    ${fp?`<img class="list-thumb" src="${fp}" alt="">`:`<div class="list-thumb-ph">👗</div>`}
-    <div class="list-status-dot ${status}"></div>
-  </div>`;
-}
 window.setGalleryView=function(v){state.ui.galleryView=v;document.getElementById('gv-grid').className='mini-btn'+(v==='grid'?' accent':'');document.getElementById('gv-list').className='mini-btn'+(v==='list'?' accent':'');renderGallery();};
 window.goToLookFromGallery=function(idx){state.ui.currentIdx=idx;switchTab('looks');buildCarousel();};
 
-// ── CONFIG ──
+// ── CONFIG ─────────────────────────────────────────────────────────────────
 function renderConfig(){
   document.getElementById('loc-studio').value=state.config.locs.studio;
   document.getElementById('loc-pt').value=state.config.locs.pt;
@@ -885,7 +904,7 @@ function renderConfig(){
     const tuts=tutorials||[];
     return`<div style="border-bottom:1px solid var(--c-border);padding-bottom:14px;margin-bottom:14px;">
       <div class="cat-row">
-        <input class="cat-name-inp" type="text" value="${esc(cat)}" placeholder="Nome da categoria…" onchange="state.config.cats[${i}][0]=this.value;scheduleSave()">
+        <input class="cat-name-inp" type="text" value="${esc(cat)}" placeholder="Nome…" onchange="state.config.cats[${i}][0]=this.value;scheduleSave()">
         <div class="cat-count-wrap"><input class="cat-count-inp" type="number" min="0" value="${n}" onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint()"><span class="cat-count-lbl">looks</span></div>
       </div>
       <div style="font-size:.62rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Tutoriais</div>
@@ -905,7 +924,6 @@ function renderConfig(){
   renderItemFields('models','model-inputs');
   renderColorGrid();
 }
-
 function renderOutfitInputs(){
   document.getElementById('outfit-inputs').innerHTML=state.config.outfits.map((outfit,oi)=>{
     const pieces=outfit.pieces||[];
@@ -925,14 +943,7 @@ function renderOutfitInputs(){
     </div>`;
   }).join('');
 }
-function pieceCell(oi,pi,p){
-  return`<div class="piece-cell">
-    ${p.photo?`<img class="piece-img" src="${p.photo}" onclick="openLb('${p.photo}')">`:`<div class="piece-img-ph" onclick="document.getElementById('fp-${oi}-${pi}').click()"><span>${p.type?.includes('Sapato')?'👟':p.type?.includes('Aces')?'💍':'👗'}</span><span>${esc(p.type||'Peça')}</span></div>`}
-    <input type="file" accept="image/*" id="fp-${oi}-${pi}" style="display:none" onchange="handlePiecePhoto(${oi},${pi},this)">
-    <input class="piece-name-inp" type="text" value="${esc(p.name||p.type||'')}" placeholder="${esc(p.type||'Nome…')}" onchange="state.config.outfits[${oi}].pieces[${pi}].name=this.value;scheduleSave()">
-    <div class="piece-actions"><span class="piece-act-btn" onclick="document.getElementById('fp-${oi}-${pi}').click()">${p.photo?'🔄':'📷'}</span><span class="piece-act-btn del" onclick="removePiece(${oi},${pi})">✕</span></div>
-  </div>`;
-}
+function pieceCell(oi,pi,p){return`<div class="piece-cell"><div>${p.photo?`<img class="piece-img" src="${p.photo}" onclick="openLb('${p.photo}')">`:`<div class="piece-img-ph" onclick="document.getElementById('fp-${oi}-${pi}').click()"><span>${p.type?.includes('Sapato')?'👟':p.type?.includes('Aces')?'💍':'👗'}</span><span>${esc(p.type||'Peça')}</span></div>`}</div><input type="file" accept="image/*" id="fp-${oi}-${pi}" style="display:none" onchange="handlePiecePhoto(${oi},${pi},this)"><input class="piece-name-inp" type="text" value="${esc(p.name||p.type||'')}" placeholder="${esc(p.type||'Nome…')}" onchange="state.config.outfits[${oi}].pieces[${pi}].name=this.value;scheduleSave()"><div class="piece-actions"><span class="piece-act-btn" onclick="document.getElementById('fp-${oi}-${pi}').click()">${p.photo?'🔄':'📷'}</span><span class="piece-act-btn del" onclick="removePiece(${oi},${pi})">✕</span></div></div>`;}
 window.toggleOutfitCard=function(oi){document.getElementById('ocard-'+oi).classList.toggle('open');};
 window.addPiece=function(oi,type){state.config.outfits[oi].pieces.push({name:'',photo:'',type});renderOutfitInputs();document.getElementById('ocard-'+oi).classList.add('open');};
 window.removePiece=function(oi,pi){state.config.outfits[oi].pieces.splice(pi,1);scheduleSave();renderOutfitInputs();buildCarousel();};
@@ -942,63 +953,17 @@ window.removeOutfit=function(){if(state.config.outfits.length>1){state.config.ou
 window.addTutorial=function(ci){if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2].push({name:'',photo:''});renderConfig();};
 window.removeTutorial=function(ci,ti){state.config.cats[ci][2].splice(ti,1);scheduleSave();renderConfig();};
 window.handleTutorialPhoto=async function(ci,ti,input){if(!input.files[0])return;const c=await compressImage(input.files[0],600,0.7);if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2][ti].photo=c;scheduleSave();renderConfig();buildCarousel();};
-
-function renderItemFields(type,cid){
-  document.getElementById(cid).innerHTML=`<div class="photo-grid">${state.config[type].map((item,i)=>`
-    <div class="photo-row">
-      ${item.photo?`<img class="photo-mini" src="${item.photo}" onclick="openLb('${item.photo}')">`:`<div class="photo-mini-ph" onclick="document.getElementById('f-${type}-${i}').click()">📷</div>`}
-      <input type="file" accept="image/*" id="f-${type}-${i}" style="display:none" onchange="handleSimplePhoto('${type}',${i},this)">
-      <input class="photo-name-inp" type="text" value="${esc(item.name)}" placeholder="Nome…" onchange="state.config['${type}'][${i}].name=this.value;scheduleSave()">
-      <div class="photo-row-actions">
-        <span style="font-size:.7rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px" onclick="document.getElementById('f-${type}-${i}').click()">${item.photo?'🔄':'📷'}</span>
-        ${item.photo?`<span style="font-size:.7rem;color:#ff6b6b;cursor:pointer;padding:2px 6px;border:1px solid rgba(255,107,107,.3);border-radius:4px" onclick="state.config['${type}'][${i}].photo='';scheduleSave();renderItemFields('${type}','${cid}')">✕</span>`:''}
-      </div>
-    </div>`).join('')}</div>`;
-}
+function renderItemFields(type,cid){document.getElementById(cid).innerHTML=`<div class="photo-grid">${state.config[type].map((item,i)=>`<div class="photo-row">${item.photo?`<img class="photo-mini" src="${item.photo}" onclick="openLb('${item.photo}')">`:`<div class="photo-mini-ph" onclick="document.getElementById('f-${type}-${i}').click()">📷</div>`}<input type="file" accept="image/*" id="f-${type}-${i}" style="display:none" onchange="handleSimplePhoto('${type}',${i},this)"><input class="photo-name-inp" type="text" value="${esc(item.name)}" placeholder="Nome…" onchange="state.config['${type}'][${i}].name=this.value;scheduleSave()"><div class="photo-row-actions"><span style="font-size:.7rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px" onclick="document.getElementById('f-${type}-${i}').click()">${item.photo?'🔄':'📷'}</span>${item.photo?`<span style="font-size:.7rem;color:#ff6b6b;cursor:pointer;padding:2px 6px;border:1px solid rgba(255,107,107,.3);border-radius:4px" onclick="state.config['${type}'][${i}].photo='';scheduleSave();renderItemFields('${type}','${cid}')">✕</span>`:''}</div></div>`).join('')}</div>`;}
 window.handleSimplePhoto=async function(type,i,input){if(!input.files[0])return;const map={scarves:'scarf-inputs',models:'model-inputs'};const c=await compressImage(input.files[0],400,0.55);state.config[type][i].photo=c;scheduleSave();renderItemFields(type,map[type]);buildCarousel();};
 window.addItem=function(type){state.config[type].push({name:'',photo:''});renderConfig();};
 window.removeItem=function(type){if(state.config[type].length>1){state.config[type].pop();renderConfig();}};
 window.updateLocHint=function(){const s=parseInt(document.getElementById('loc-studio').value)||0;const p=parseInt(document.getElementById('loc-pt').value)||0;const c=parseInt(document.getElementById('loc-cv').value)||0;const h=document.getElementById('loc-hint');h.innerHTML=`Total: <strong>${s+p+c}</strong> / 100`;h.className='cfg-hint'+((s+p+c)!==100?' err':'');};
 window.updateCatHint=function(){const t=state.config.cats.reduce((s,[,n])=>s+n,0);const h=document.getElementById('cat-hint');h.innerHTML=`Total: <strong>${t}</strong> / 100`;h.className='cfg-hint'+(t!==100?' err':'');};
-window.applyConfig=function(){
-  state.config.locs.studio=parseInt(document.getElementById('loc-studio').value)||0;
-  state.config.locs.pt=parseInt(document.getElementById('loc-pt').value)||0;
-  state.config.locs.cv=parseInt(document.getElementById('loc-cv').value)||0;
-  const ct=state.config.cats.reduce((s,[,n])=>s+n,0);const lt=state.config.locs.studio+state.config.locs.pt+state.config.locs.cv;
-  if(ct!==100){alert(`Total categorias: ${ct}. Deve ser 100.`);return;}
-  if(lt!==100){alert(`Total locais: ${lt}. Deve ser 100.`);return;}
-  state.looks=genLooks();state.ui.currentIdx=0;state.ui.filter='';
-  scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');
-};
+window.applyConfig=function(){state.config.locs.studio=parseInt(document.getElementById('loc-studio').value)||0;state.config.locs.pt=parseInt(document.getElementById('loc-pt').value)||0;state.config.locs.cv=parseInt(document.getElementById('loc-cv').value)||0;const ct=state.config.cats.reduce((s,[,n])=>s+n,0);const lt=state.config.locs.studio+state.config.locs.pt+state.config.locs.cv;if(ct!==100){alert(`Total categorias: ${ct}. Deve ser 100.`);return;}if(lt!==100){alert(`Total locais: ${lt}. Deve ser 100.`);return;}state.looks=genLooks();state.ui.currentIdx=0;state.ui.filter='';scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');};
 
-// ── EQUIPA ──
+// ── EQUIPA ─────────────────────────────────────────────────────────────────
 function renderTeam(){renderGrandTotal();document.getElementById('team-cards').innerHTML=state.team.map(m=>renderMemberCard(m)).join('');}
-function renderMemberCard(m){
-  const total=COST_FIELDS.reduce((s,f)=>s+(parseFloat(m[f])||0),0);
-  const initials=m.name?m.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase():'?';
-  return`<div class="member-card ${m.open?'open':''}" id="mc-${m.id}">
-    <div class="member-hdr" onclick="toggleMember(${m.id})">
-      <div class="member-avatar">${m.photo?`<img src="${m.photo}" alt="">`:`${initials}`}</div>
-      <div><div class="member-name">${m.name||'Novo Membro'}</div><div class="member-role">${m.role||'Função'}</div></div>
-      <div class="member-total">${fmtEur(total)}</div><span class="member-chevron">▾</span>
-    </div>
-    <div class="member-body">
-      <div class="member-field"><div class="member-lbl">Foto</div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
-          ${m.photo?`<img src="${m.photo}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--c-border);cursor:pointer" onclick="openLb('${m.photo}')">`:`<div style="width:48px;height:48px;border-radius:50%;border:2px dashed var(--c-border);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--c-text3)">👤</div>`}
-          <label style="padding:8px 14px;border:1.5px solid var(--c-border);border-radius:8px;font-size:.78rem;color:var(--c-text2);cursor:pointer">${m.photo?'Trocar':'Adicionar foto'}<input type="file" accept="image/*" style="display:none" onchange="handleMemberPhoto(${m.id},this)"></label>
-          ${m.photo?`<button class="mini-btn danger" style="width:auto;padding:8px 10px;flex:unset" onclick="remMemberPhoto(${m.id})">✕</button>`:''}
-        </div>
-      </div>
-      ${[['name','text','Nome completo','Nome…'],['role','text','Função','Fotógrafo…'],['location','text','Local(is)','PT Est…'],['phone','tel','Telemóvel','+351…'],['email','email','Email','email@…'],['notes','text','Notas','Obs…']].map(([f,t,l,p])=>`<div class="member-field"><div class="member-lbl">${l}</div><input class="member-inp" type="${t}" value="${esc(m[f]||'')}" placeholder="${p}" oninput="updMember(${m.id},'${f}',this.value)"></div>`).join('')}
-      <div class="member-field"><div class="member-lbl">Despesas</div>
-        <div class="cost-grid-2">${COST_FIELDS.map((f,i)=>`<div><div style="font-size:.6rem;color:var(--c-text3);text-transform:uppercase;margin-bottom:3px">${COST_LABELS[i]}</div><input class="member-inp mono" type="number" min="0" step="0.01" value="${m[f]||''}" placeholder="0,00" oninput="updMember(${m.id},'${f}',parseFloat(this.value)||0)"></div>`).join('')}</div>
-        <div class="member-total-row"><span class="mtl">Total</span><span class="mtv" id="mt-${m.id}">${fmtEur(total)}</span></div>
-      </div>
-      <button class="mini-btn danger" style="width:100%;margin-top:8px" onclick="removeMember(${m.id})">✕ Remover membro</button>
-    </div>
-  </div>`;
-}
+function renderMemberCard(m){const total=COST_FIELDS.reduce((s,f)=>s+(parseFloat(m[f])||0),0);const initials=m.name?m.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase():'?';return`<div class="member-card ${m.open?'open':''}" id="mc-${m.id}"><div class="member-hdr" onclick="toggleMember(${m.id})"><div class="member-avatar">${m.photo?`<img src="${m.photo}" alt="">`:`${initials}`}</div><div><div class="member-name">${m.name||'Novo Membro'}</div><div class="member-role">${m.role||'Função'}</div></div><div class="member-total">${fmtEur(total)}</div><span class="member-chevron">▾</span></div><div class="member-body"><div class="member-field"><div class="member-lbl">Foto</div><div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">${m.photo?`<img src="${m.photo}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--c-border);cursor:pointer" onclick="openLb('${m.photo}')">`:`<div style="width:48px;height:48px;border-radius:50%;border:2px dashed var(--c-border);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--c-text3)">👤</div>`}<label style="padding:8px 14px;border:1.5px solid var(--c-border);border-radius:8px;font-size:.78rem;color:var(--c-text2);cursor:pointer">${m.photo?'Trocar':'Adicionar foto'}<input type="file" accept="image/*" style="display:none" onchange="handleMemberPhoto(${m.id},this)"></label>${m.photo?`<button class="mini-btn danger" style="width:auto;padding:8px 10px;flex:unset" onclick="remMemberPhoto(${m.id})">✕</button>`:''}</div></div>${[['name','text','Nome completo','Nome…'],['role','text','Função','Fotógrafo…'],['location','text','Local(is)','PT Est…'],['phone','tel','Telemóvel','+351…'],['email','email','Email','email@…'],['notes','text','Notas','Obs…']].map(([f,t,l,p])=>`<div class="member-field"><div class="member-lbl">${l}</div><input class="member-inp" type="${t}" value="${esc(m[f]||'')}" placeholder="${p}" oninput="updMember(${m.id},'${f}',this.value)"></div>`).join('')}<div class="member-field"><div class="member-lbl">Despesas</div><div class="cost-grid-2">${COST_FIELDS.map((f,i)=>`<div><div style="font-size:.6rem;color:var(--c-text3);text-transform:uppercase;margin-bottom:3px">${COST_LABELS[i]}</div><input class="member-inp mono" type="number" min="0" step="0.01" value="${m[f]||''}" placeholder="0,00" oninput="updMember(${m.id},'${f}',parseFloat(this.value)||0)"></div>`).join('')}</div><div class="member-total-row"><span class="mtl">Total</span><span class="mtv" id="mt-${m.id}">${fmtEur(total)}</span></div></div><button class="mini-btn danger" style="width:100%;margin-top:8px" onclick="removeMember(${m.id})">✕ Remover membro</button></div></div>`;}
 function renderGrandTotal(){const totals={};COST_FIELDS.forEach(f=>{totals[f]=state.team.reduce((s,m)=>s+(parseFloat(m[f])||0),0);});const grand=Object.values(totals).reduce((s,v)=>s+v,0);document.getElementById('gt-amount').textContent=fmtEur(grand);document.getElementById('gt-breakdown').innerHTML=COST_FIELDS.map((f,i)=>`<div class="gt-bk"><span class="gt-bk-val">${fmtEur(totals[f])}</span><span class="gt-bk-lbl">${COST_LABELS[i]}</span></div>`).join('');}
 window.toggleMember=function(id){const m=state.team.find(t=>t.id===id);if(!m)return;m.open=!m.open;scheduleSave();renderTeam();};
 window.updMember=function(id,field,val){const m=state.team.find(t=>t.id===id);if(!m)return;m[field]=val;const total=COST_FIELDS.reduce((s,f)=>s+(parseFloat(m[f])||0),0);const el=document.getElementById('mt-'+id);if(el)el.textContent=fmtEur(total);renderGrandTotal();scheduleSave();};
@@ -1007,15 +972,17 @@ window.remMemberPhoto=function(id){const m=state.team.find(t=>t.id===id);if(!m)r
 window.addMember=function(){state.team.push({id:Date.now(),name:'',role:'',location:'',phone:'',email:'',notes:'',photo:'',viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true});scheduleSave();renderTeam();};
 window.removeMember=function(id){if(!confirm('Remover?'))return;state.team=state.team.filter(m=>m.id!==id);scheduleSave();renderTeam();};
 
+// ── LIGHTBOX / TOAST ───────────────────────────────────────────────────────
 window.openLb=function(src){if(!src)return;document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('show');};
 window.closeLightbox=function(){document.getElementById('lightbox').classList.remove('show');};
-window.showToast=function(msg='✓ Guardado'){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);};
+window.showToast=function(msg){const t=document.getElementById('toast');t.textContent=msg||'✓ Guardado';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);};
 window.scheduleSave=scheduleSave;
 window.renderItemFields=renderItemFields;
+window.renderOutfitInputs=renderOutfitInputs;
 window.applyTheme=applyTheme;
 window.renderColorGrid=renderColorGrid;
 
-// ── BOOT — must be last, after all functions are defined ──────────────────
+// ── BOOT — MUST BE LAST ────────────────────────────────────────────────────
 document.getElementById('loading').classList.add('hidden');
 if(localStorage.getItem(SESSION_KEY)==='1'){
   initApp();
