@@ -161,12 +161,13 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .cfg-hint{font-size:.72rem;color:var(--c-text3);margin-top:6px;}
 .cfg-hint.err{color:#ff6b6b;}
 .cfg-hint strong{color:var(--c-text);}
-.photo-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--c-border);}
-.photo-row:last-child{border-bottom:none;}
-.photo-mini{width:40px;height:40px;border-radius:6px;object-fit:cover;cursor:pointer;flex-shrink:0;}
-.photo-mini-ph{width:40px;height:40px;border-radius:6px;border:2px dashed var(--c-border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer;flex-shrink:0;color:var(--c-text3);}
-.photo-name-inp{flex:1;background:transparent;border:none;color:var(--c-text);font-family:'Jost',sans-serif;font-size:.88rem;outline:none;padding:4px 0;border-bottom:1px solid transparent;transition:border-color .2s;}
+.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.photo-row{display:flex;flex-direction:column;gap:6px;padding:8px 0;}
+.photo-mini{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;cursor:pointer;display:block;}
+.photo-mini-ph{width:100%;aspect-ratio:1;border-radius:10px;border:2px dashed var(--c-border);display:flex;align-items:center;justify-content:center;font-size:2rem;cursor:pointer;color:var(--c-text3);background:var(--c-surface);}
+.photo-name-inp{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'Jost',sans-serif;font-size:.82rem;outline:none;padding:4px 0;border-bottom:1px solid transparent;transition:border-color .2s;text-align:center;}
 .photo-name-inp:focus{border-bottom-color:var(--c-accent);}
+.photo-row-actions{display:flex;justify-content:center;gap:6px;}
 .color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .color-field{display:flex;flex-direction:column;gap:5px;}
 .color-picker-wrap{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px solid var(--c-border);border-radius:var(--radius-sm);background:var(--c-surface);cursor:pointer;}
@@ -931,19 +932,28 @@ function renderConfig(){
   renderColorGrid();
 }
 function renderItemFields(type,cid){
-  document.getElementById(cid).innerHTML=state.config[type].map((item,i)=>`
+  document.getElementById(cid).innerHTML=`<div class="photo-grid">${state.config[type].map((item,i)=>`
     <div class="photo-row">
-      ${item.photo?`<img class="photo-mini" src="${item.photo}" onclick="openLb('${item.photo}')">`:`<div class="photo-mini-ph" onclick="document.getElementById('f-${type}-${i}').click()">📷</div>`}
+      ${item.photo
+        ?`<img class="photo-mini" src="${item.photo}" onclick="openLb('${item.photo}')">`
+        :`<div class="photo-mini-ph" onclick="document.getElementById('f-${type}-${i}').click()">📷</div>`}
       <input type="file" accept="image/*" id="f-${type}-${i}" style="display:none" onchange="handlePhoto('${type}',${i},this)">
       <input class="photo-name-inp" type="text" value="${esc(item.name)}" placeholder="Nome…" onchange="state.config['${type}'][${i}].name=this.value;scheduleSave()">
-      ${item.photo?`<span style="color:var(--c-text3);cursor:pointer;font-size:.8rem;padding:4px" onclick="state.config['${type}'][${i}].photo='';scheduleSave();renderItemFields('${type}','${cid}')">✕</span>`:''}
-    </div>`).join('');
+      <div class="photo-row-actions">
+        <span style="font-size:.7rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px" onclick="document.getElementById('f-${type}-${i}').click()">${item.photo?'🔄':'📷'}</span>
+        ${item.photo?`<span style="font-size:.7rem;color:#ff6b6b;cursor:pointer;padding:2px 6px;border:1px solid rgba(255,107,107,.3);border-radius:4px" onclick="state.config['${type}'][${i}].photo='';scheduleSave();renderItemFields('${type}','${cid}')">✕</span>`:''}
+      </div>
+    </div>`).join('')}</div>`;
 }
 window.handlePhoto=async function(type,i,input){
   if(!input.files[0])return;
   const map={outfits:'outfit-inputs',scarves:'scarf-inputs',models:'model-inputs'};
   const compressed=await compressImage(input.files[0],400,0.55);
-  state.config[type][i].photo=compressed;scheduleSave();renderItemFields(type,map[type]);
+  state.config[type][i].photo=compressed;
+  scheduleSave();
+  renderItemFields(type,map[type]);
+  // refresh carousel so photos update immediately
+  buildCarousel();
 };
 window.addItem=function(type){state.config[type].push({name:'',photo:''});renderConfig();};
 window.removeItem=function(type){if(state.config[type].length>1){state.config[type].pop();renderConfig();}};
