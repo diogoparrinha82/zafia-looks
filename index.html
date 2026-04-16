@@ -581,16 +581,34 @@ window.doSignOut = async function(){
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
 };
 
-onAuthStateChanged(auth, user=>{
+async function checkAuthorized(email){
+  try{
+    const snap = await getDoc(doc(db,'access','allowed'));
+    if(!snap.exists()) return false;
+    const emails = snap.data().emails || [];
+    return emails.map(e=>e.toLowerCase()).includes(email.toLowerCase());
+  } catch(e){ console.error('Access check error:',e); return false; }
+}
+
+onAuthStateChanged(auth, async user=>{
   document.getElementById('loading').classList.add('hidden');
   if(user){
+    document.getElementById('loading').classList.remove('hidden');
+    document.getElementById('loading').querySelector('.loading-txt').textContent = 'A verificar acesso…';
+    const allowed = await checkAuthorized(user.email);
+    document.getElementById('loading').classList.add('hidden');
+    if(!allowed){
+      await fbSignOut(auth);
+      document.getElementById('screen-login').classList.remove('hidden');
+      document.getElementById('login-status').textContent = '⛔ Acesso não autorizado: ' + user.email;
+      return;
+    }
     currentUser = user;
     document.getElementById('screen-login').classList.add('hidden');
     const ph = document.getElementById('user-photo');
     if(user.photoURL){ ph.src=user.photoURL; ph.style.display='block'; }
     document.getElementById('user-name').textContent  = user.displayName || '';
     document.getElementById('user-email').textContent = user.email || '';
-    // show cached data instantly while loading from Firestore
     try{
       const c = localStorage.getItem('zafia_cache');
       if(c){
@@ -828,7 +846,16 @@ window.navTo = function(idx){
 // drag / swipe
 (function(){
   let sx=0,sy=0,drag=false,moved=false,vpW=0;
-  function onStart(x,y){ sx=x;sy=y;drag=true;moved=false;vpW=document.getElementById('carousel-vp').offsetWidth;document.getElementById('carousel-track').classList.add('no-anim');document.getElementById('carousel-vp').classList.add('dragging'); }
+  const INTERACTIVE = 'select,input,textarea,button,label,option';
+  function isInteractive(el){ return !!el.closest(INTERACTIVE); }
+
+  function onStart(x,y,target){
+    if(isInteractive(target)) return;
+    sx=x;sy=y;drag=true;moved=false;
+    vpW=document.getElementById('carousel-vp').offsetWidth;
+    document.getElementById('carousel-track').classList.add('no-anim');
+    document.getElementById('carousel-vp').classList.add('dragging');
+  }
   function onMove(x,y){
     if(!drag) return;
     const dx=x-sx,dy=y-sy;
@@ -846,11 +873,11 @@ window.navTo = function(idx){
     else window.navTo(state.ui.currentIdx);
   }
   const vp=document.getElementById('carousel-vp');
-  vp.addEventListener('mousedown',e=>{if(e.button!==0)return;onStart(e.clientX,e.clientY);e.preventDefault();});
+  vp.addEventListener('mousedown',e=>{if(e.button!==0)return;onStart(e.clientX,e.clientY,e.target);e.target.closest(INTERACTIVE)||e.preventDefault();});
   window.addEventListener('mousemove',e=>onMove(e.clientX,e.clientY));
   window.addEventListener('mouseup',e=>onEnd(e.clientX));
-  vp.addEventListener('touchstart',e=>onStart(e.touches[0].clientX,e.touches[0].clientY),{passive:true});
-  vp.addEventListener('touchmove',e=>onMove(e.touches[0].clientX,e.touches[0].clientY),{passive:true});
+  vp.addEventListener('touchstart',e=>{onStart(e.touches[0].clientX,e.touches[0].clientY,e.target);},{passive:true});
+  vp.addEventListener('touchmove',e=>{if(!drag)return;onMove(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
   vp.addEventListener('touchend',e=>onEnd(e.changedTouches[0].clientX));
   window.addEventListener('keydown',e=>{
     if(window.currentScreen!=='screen-looks') return;
