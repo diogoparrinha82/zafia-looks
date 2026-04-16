@@ -779,6 +779,10 @@ function buildCard(look){
           ${dotsHtml}
         </div>
       </div>
+      <!-- lenço -->
+      <div class="tutorial-slot" style="height:clamp(130px,26vh,220px);width:clamp(70px,18%,100px)" ${sPhoto?`onclick="openLb('${sPhoto}')"`:''}">
+        ${sPhoto?`<img src="${sPhoto}" alt="Lenço" style="object-fit:cover;width:100%;height:100%"><div class="tutorial-label">Lenço</div>`:`<div class="tutorial-slot-ph"><span class="icon">🧣</span><span>Lenço</span></div>`}
+      </div>
       <!-- tutorial -->
       <div class="tutorial-slot" style="height:clamp(130px,26vh,220px)" ${tPhoto?`onclick="openLb('${tPhoto}')"`:''}">
         ${tPhoto?`<img src="${tPhoto}" alt="${esc(tName)}"><div class="tutorial-label">${esc(tName)}</div>`:`<div class="tutorial-slot-ph"><span class="icon">📋</span><span>${esc(tName)||'Tutorial'}</span></div>`}
@@ -983,10 +987,16 @@ function renderConfig(){
   document.getElementById('cat-inputs').innerHTML=state.config.cats.map(([cat,n,tutorials],i)=>{
     const tuts=tutorials||[];
     return`<div style="border-bottom:1px solid var(--c-border);padding-bottom:14px;margin-bottom:14px;">
-      <div style="display:flex;align-items:center;gap:10px;padding:4px 0 10px">
-        <input class="cat-name-inp" type="text" value="${esc(cat)}" placeholder="Nome da categoria…"
-          onchange="state.config.cats[${i}][0]=this.value;scheduleSave()">
-        <input class="cfg-inp num" type="number" min="0" value="${n}" style="width:70px;flex-shrink:0" onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint()">
+      <div style="display:flex;align-items:center;gap:10px;padding:4px 0 10px;border-bottom:1px solid var(--c-border);margin-bottom:10px;">
+        <div style="flex:1;display:flex;align-items:center;gap:6px;background:var(--c-surface);border-radius:var(--radius-sm);padding:8px 12px;">
+          <span style="font-size:.7rem;color:var(--c-text3)">✎</span>
+          <input class="cat-name-inp" type="text" value="${esc(cat)}" placeholder="Nome da categoria…"
+            onchange="state.config.cats[${i}][0]=this.value;scheduleSave()">
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;background:var(--c-surface);border-radius:var(--radius-sm);padding:6px 12px;min-width:64px;">
+          <input class="cfg-inp num" type="number" min="0" value="${n}" style="width:100%;padding:0;background:transparent;border:none;font-size:.92rem;text-align:center;" onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint()">
+          <span style="font-size:.56rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.06em">looks</span>
+        </div>
       </div>
       <div style="font-size:.62rem;color:var(--c-text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Tutoriais</div>
       <div class="pieces-grid">${tuts.map((t,ti)=>`
