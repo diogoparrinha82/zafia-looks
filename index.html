@@ -459,9 +459,13 @@ async function doSave(){
 async function loadFromFirestore(){
   try{
     const base=n=>doc(db,'shared','data','docs',n);
-    const [cfgSnap,outSnap,scaSnap,modSnap,looksSnap,teamSnap]=await Promise.all([getDoc(base('config')),getDoc(base('outfits')),getDoc(base('scarves')),getDoc(base('models')),getDoc(base('looks')),getDoc(base('team'))]);
-    if(!cfgSnap.exists()&&!looksSnap.exists()){state.looks=genLooks();state.team=defaultTeam();doSave();}
-    else{
+    const [cfgSnap,outSnap,scaSnap,modSnap,looksSnap,teamSnap]=await Promise.all([
+      getDoc(base('config')),getDoc(base('outfits')),getDoc(base('scarves')),
+      getDoc(base('models')),getDoc(base('looks')),getDoc(base('team'))
+    ]);
+    if(!cfgSnap.exists()&&!looksSnap.exists()){
+      state.looks=genLooks();state.team=defaultTeam();doSave();
+    } else {
       if(cfgSnap.exists()){const c=cfgSnap.data();state.config.locs=c.locs||state.config.locs;state.config.cats=catsFromFS(c.cats)||state.config.cats;state.config.theme=c.theme||state.config.theme;}
       if(outSnap.exists())  state.config.outfits=normaliseOutfits(outSnap.data().items);
       if(scaSnap.exists())  state.config.scarves=scaSnap.data().items||state.config.scarves;
@@ -470,16 +474,51 @@ async function loadFromFirestore(){
       if(teamSnap.exists()){state.team=teamSnap.data().items||[];if(teamSnap.data().ui)state.ui={...state.ui,...teamSnap.data().ui};}
     }
     applyTheme();renderFilters();buildCarousel();updateCounter();setSyncStatus('ok');
-  }catch(e){console.error(e);setSyncStatus('offline');applyTheme();renderFilters();buildCarousel();updateCounter();}
+    // update local cache
+    try{localStorage.setItem('zafia_cache',JSON.stringify(state));}catch(e){}
+  }catch(e){
+    console.error('Firebase load error:',e);
+    setSyncStatus('offline');
+    // already showing cached data, nothing more to do
+  }
 }
 function initApp(){
-  try{const c=localStorage.getItem('zafia_cache');if(c){const d=JSON.parse(c);if(d.config){state.config=d.config;state.config.outfits=normaliseOutfits(state.config.outfits);}if(d.looks)state.looks=d.looks;if(d.team)state.team=d.team;applyTheme();}}catch(e){}
-  renderFilters();buildCarousel();updateCounter();switchTab('looks');loadFromFirestore();
+  // always show something immediately from cache
+  try{
+    const c=localStorage.getItem('zafia_cache');
+    if(c){
+      const d=JSON.parse(c);
+      if(d.config){state.config=d.config;state.config.outfits=normaliseOutfits(state.config.outfits);}
+      if(d.looks) state.looks=d.looks;
+      if(d.team)  state.team=d.team;
+      applyTheme();
+    }
+  }catch(e){}
+
+  // show app immediately with cached data
+  document.getElementById('loading').classList.add('hidden');
+  renderFilters();buildCarousel();updateCounter();switchTab('looks');
+
+  // then sync with Firebase in background
+  // safety timeout — if Firebase doesn't respond in 6s, stay with cache
+  const fbTimeout=setTimeout(()=>{
+    setSyncStatus('offline');
+    showToast('A usar dados locais');
+  }, 6000);
+
+  loadFromFirestore().then(()=>clearTimeout(fbTimeout)).catch(()=>{
+    clearTimeout(fbTimeout);
+    setSyncStatus('offline');
+  });
 }
 
+// boot immediately — don't wait for Firebase
 document.getElementById('loading').classList.add('hidden');
-if(localStorage.getItem(SESSION_KEY)==='1') initApp();
-else document.getElementById('screen-login').classList.remove('hidden');
+if(localStorage.getItem(SESSION_KEY)==='1'){
+  initApp();
+} else {
+  document.getElementById('screen-login').classList.remove('hidden');
+}
 
 // ── EXPORT/IMPORT ──
 window.exportData=function(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');const d=new Date();a.href=url;a.download=`aos-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;a.click();URL.revokeObjectURL(url);showToast('⬇ Exportado!');};
