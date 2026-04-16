@@ -477,7 +477,10 @@ window.doLogout = function(){
 };
 
 // ── CONSTANTS ──────────────────────────────────────────────────────────────
-const DEFAULT_CATS=[["Acessório",15],["Cabelo",12],["Pescoço",3],["Saia",15],["Vestido",4],["Embrulho",9],["Mala",15],["Tops",5],["Cover Up",17],["Elevate Style",5]];
+const DEFAULT_CATS=[
+  ["Acessório",15,[]],["Cabelo",12,[]],["Pescoço",3,[]],["Saia",15,[]],["Vestido",4,[]],
+  ["Embrulho",9,[]],["Mala",15,[]],["Tops",5,[]],["Cover Up",17,[]],["Elevate Style",5,[]]
+];
 const DEFAULT_OUTFITS=["Vestido Branco Linho","Calças Pretas Clássicas","Conjunto Bege Alfaiataria","Vestido Azul Marinho","Saia Midi Floral","Conjunto Castanho Camel","Calças Brancas + Blusa Seda","Vestido Terracota","Conjunto Xadrez Neutro","Calças Creme + Top Malha","Vestido Verde Oliva","Conjunto Azul Ganga","Saia Lápis Preta + Blusa Branca","Vestido Coral","Conjunto Cinzento Mescla","Calças Mostarda + Camisola Branca","Vestido Estampado Geométrico","Conjunto Burgundy","Calças Azul Royal + Blusa Neutra","Vestido Off-White Fluido"];
 const DEFAULT_SCARVES=["Lenço Vermelho Geométrico","Lenço Azul Estampado Floral","Lenço Dourado Animal Print","Lenço Verde Esmeralda Liso","Lenço Rosa Pálido Bordado","Lenço Laranja Boho","Lenço Preto e Branco Gráfico","Lenço Castanho Paisley","Lenço Multicolor Tribal","Lenço Azul Céu Tie-Dye","Lenço Lilás Seda","Lenço Terracota Listrado","Lenço Prata Lurex","Lenço Mostarda Jacquard","Lenço Cinzento Degradé","Lenço Coral Floral","Lenço Turquesa Geométrico","Lenço Creme com Franja","Lenço Verde Água Liso","Lenço Bordeaux Estampado"];
 const DEFAULT_MODELS=["Claudya Moreira","Modelo B","Modelo C"];
@@ -514,11 +517,11 @@ function setSyncStatus(s){
   ['sync-txt','sync-txt2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=txt;});
 }
 
-function catsToFS(cats){ return cats.map(([name,n])=>({name,n})); }
+function catsToFS(cats){ return cats.map(([name,n,tutorials])=>({name,n,tutorials:tutorials||[]})); }
 function catsFromFS(arr){
   if(!arr||!arr.length) return [];
-  if(Array.isArray(arr[0])) return arr;
-  return arr.map(c=>[c.name,c.n]);
+  if(Array.isArray(arr[0])) return arr.map(c=>[c[0],c[1],c[2]||[]]);
+  return arr.map(c=>[c.name, c.n, c.tutorials||[]]);
 }
 
 let saveTimer=null;
@@ -708,17 +711,36 @@ function updateCounter(){
 }
 
 // ── CAROUSEL ───────────────────────────────────────────────────────────────
+function tutorialOf(look){
+  const cat=state.config.cats.find(([c])=>c===look.category);
+  if(!cat||!cat[2]||!cat[2].length) return null;
+  const tutorials=cat[2];
+  if(look.tutorialIdx!==undefined && tutorials[look.tutorialIdx]) return tutorials[look.tutorialIdx];
+  return tutorials[0]||null;
+}
+
 function buildCard(look){
   const ci=catColorIdx(look.category);
   const catColor=CAT_COLORS[ci]||'#888';
   const oColor=outfitColor(look.outfit);
   const oPhoto=photoOf('outfits',look.outfit);
   const sPhoto=photoOf('scarves',look.scarf);
-  const mPhoto=photoOf('models',look.model);
+  const tut=tutorialOf(look);
+  const tPhoto=tut?.photo||'';
+  const tName=tut?.name||'';
+
+  // build tutorial selector options
+  const cat=state.config.cats.find(([c])=>c===look.category);
+  const tutorials=cat?.[2]||[];
+  const tutOpts=tutorials.length
+    ? tutorials.map((t,ti)=>`<option value="${ti}" ${(look.tutorialIdx||0)===ti?'selected':''}>${esc(t.name||`Tutorial ${ti+1}`)}</option>`).join('')
+    : '<option value="">— sem tutoriais —</option>';
+
   const outfitOpts=state.config.outfits.map(o=>`<option${o.name===look.outfit?' selected':''}>${esc(o.name)}</option>`).join('');
   const scarfOpts =state.config.scarves.map(s=>`<option${s.name===look.scarf?' selected':''}>${esc(s.name)}</option>`).join('');
   const modelOpts =state.config.models.map(m=>`<option${m.name===look.model?' selected':''}>${esc(m.name)}</option>`).join('');
   const locOpts   =["Portugal – Estúdio","Portugal – Exterior","Cabo Verde – Exterior"].map(l=>`<option${l===look.location?' selected':''}>${l}</option>`).join('');
+
   const card=document.createElement('div');
   card.className='look-card';
   card.innerHTML=`
@@ -731,13 +753,14 @@ function buildCard(look){
     <div class="card-photos">
       <div class="card-photo-slot">${oPhoto?`<img src="${oPhoto}" alt="Roupa" onclick="openLb('${oPhoto}')"><div class="card-photo-label">Roupa</div>`:`<div class="card-photo-placeholder"><span class="icon">👗</span><span>Sem foto</span></div>`}</div>
       <div class="card-photo-slot">${sPhoto?`<img src="${sPhoto}" alt="Lenço" onclick="openLb('${sPhoto}')"><div class="card-photo-label">Lenço</div>`:`<div class="card-photo-placeholder"><span class="icon">🧣</span><span>Sem foto</span></div>`}</div>
-      <div class="card-photo-slot">${mPhoto?`<img src="${mPhoto}" alt="Modelo" onclick="openLb('${mPhoto}')"><div class="card-photo-label">Modelo</div>`:`<div class="card-photo-placeholder"><span class="icon">👤</span><span>Sem foto</span></div>`}</div>
+      <div class="card-photo-slot">${tPhoto?`<img src="${tPhoto}" alt="Tutorial" onclick="openLb('${tPhoto}')" style="object-fit:contain;background:#111"><div class="card-photo-label">${esc(tName)}</div>`:`<div class="card-photo-placeholder"><span class="icon">📋</span><span>Tutorial</span></div>`}</div>
     </div>
     <div class="card-fields">
       <div class="field-row"><div class="field-lbl">Roupa</div><select class="field-sel" onchange="updLook(${look.num},'outfit',this.value)">${outfitOpts}</select></div>
       <div class="field-row"><div class="field-lbl">Lenço</div><select class="field-sel" onchange="updLook(${look.num},'scarf',this.value)">${scarfOpts}</select></div>
       <div class="field-row"><div class="field-lbl">Local</div><select class="field-sel" onchange="updLook(${look.num},'location',this.value)">${locOpts}</select></div>
       <div class="field-row"><div class="field-lbl">Modelo</div><select class="field-sel" onchange="updLook(${look.num},'model',this.value)">${modelOpts}</select></div>
+      <div class="field-row"><div class="field-lbl">Tutorial (${look.category})</div><select class="field-sel" onchange="updLook(${look.num},'tutorialIdx',parseInt(this.value));buildCarousel()">${tutOpts}</select></div>
       <div class="field-row"><div class="field-lbl">Notas</div><input class="field-inp" type="text" value="${esc(look.notes||'')}" placeholder="Adicionar nota…" onchange="updLook(${look.num},'notes',this.value)"></div>
     </div>`;
   return card;
@@ -877,17 +900,17 @@ window.renderGallery=function(){
 function galleryCell(look,i){
   const oPhoto=photoOf('outfits',look.outfit);
   const sPhoto=photoOf('scarves',look.scarf);
-  const mPhoto=photoOf('models',look.model);
+  const tut=tutorialOf(look);
+  const tPhoto=tut?.photo||'';
   const catColor=CAT_COLORS[catColorIdx(look.category)]||'#888';
-  // 3 square photos: outfit, scarf, model
-  function sq(photo,icon){return photo?`<img class="gallery-cell-img" src="${photo}" alt="" style="object-fit:cover">`:`<div class="gallery-cell-img-ph">${icon}</div>`;}
+  function sq(photo,icon,contain){return photo?`<img class="gallery-cell-img" src="${photo}" alt="" style="object-fit:${contain?'contain':'cover'};background:${contain?'#111':'transparent'}">`:`<div class="gallery-cell-img-ph">${icon}</div>`;}
   return`<div class="gallery-cell ${look.done?'done-cell':''}" onclick="goToLookFromGallery(${i})">
-    <div class="gallery-cell-imgs">${sq(oPhoto,'👗')}${sq(sPhoto,'🧣')}${sq(mPhoto,'👤')}</div>
+    <div class="gallery-cell-imgs">${sq(oPhoto,'👗',false)}${sq(sPhoto,'🧣',false)}${sq(tPhoto,'📋',true)}</div>
     <div class="gallery-cell-body">
       <div class="gallery-cell-num">#${look.num}</div>
       <div class="gallery-cell-outfit">${esc(look.outfit)}</div>
       <div class="gallery-cell-meta">${esc(look.model)} · ${look.location.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div>
-      <span class="gallery-cell-cat" style="background:${catColor}22;color:${catColor}">${look.category}</span>
+      <span class="gallery-cell-cat" style="background:${catColor}22;color:${catColor}">${look.category}${tut?.name?' · '+tut.name:''}</span>
     </div>
     <div class="gallery-done-badge ${look.done?'done':''}">${look.done?'✓':''}</div>
   </div>`;
@@ -920,11 +943,27 @@ function renderConfig(){
   document.getElementById('loc-pt').value=state.config.locs.pt;
   document.getElementById('loc-cv').value=state.config.locs.cv;
   updateLocHint();
-  document.getElementById('cat-inputs').innerHTML=state.config.cats.map(([cat,n],i)=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--c-border)">
-      <span style="font-size:.88rem">${cat}</span>
-      <input class="cfg-inp num" type="number" min="0" value="${n}" style="width:70px" onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint()">
-    </div>`).join('');
+  document.getElementById('cat-inputs').innerHTML=state.config.cats.map(([cat,n,tutorials],i)=>{
+    const tuts=tutorials||[];
+    return`<div style="border-bottom:1px solid var(--c-border);padding-bottom:14px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 10px">
+        <span style="font-size:.92rem;font-weight:600;color:var(--c-accent)">${cat}</span>
+        <input class="cfg-inp num" type="number" min="0" value="${n}" style="width:70px" onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint()">
+      </div>
+      <div style="font-size:.62rem;color:var(--c-text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Tutoriais</div>
+      <div class="photo-grid" id="tut-grid-${i}">${tuts.map((t,ti)=>`
+        <div class="photo-row">
+          ${t.photo?`<img class="photo-mini" src="${t.photo}" onclick="openLb('${t.photo}')" style="object-fit:contain;background:#111">`:`<div class="photo-mini-ph" onclick="document.getElementById('ft-${i}-${ti}').click()">📋</div>`}
+          <input type="file" accept="image/*" id="ft-${i}-${ti}" style="display:none" onchange="handleTutorialPhoto(${i},${ti},this)">
+          <input class="photo-name-inp" type="text" value="${esc(t.name||'')}" placeholder="Nome do tutorial…" onchange="state.config.cats[${i}][2][${ti}].name=this.value;scheduleSave()">
+          <div class="photo-row-actions">
+            <span style="font-size:.7rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px" onclick="document.getElementById('ft-${i}-${ti}').click()">${t.photo?'🔄':'📋'}</span>
+            <span style="font-size:.7rem;color:#ff6b6b;cursor:pointer;padding:2px 6px;border:1px solid rgba(255,107,107,.3);border-radius:4px" onclick="removeTutorial(${i},${ti})">✕</span>
+          </div>
+        </div>`).join('')}</div>
+      <button class="mini-btn" style="width:100%;margin-top:8px;font-size:.75rem" onclick="addTutorial(${i})">+ Adicionar tutorial</button>
+    </div>`;
+  }).join('');
   updateCatHint();
   renderItemFields('outfits','outfit-inputs');
   renderItemFields('scarves','scarf-inputs');
@@ -954,6 +993,22 @@ window.handlePhoto=async function(type,i,input){
   renderItemFields(type,map[type]);
   // refresh carousel so photos update immediately
   buildCarousel();
+};
+window.addTutorial=function(catIdx){
+  if(!state.config.cats[catIdx][2]) state.config.cats[catIdx][2]=[];
+  state.config.cats[catIdx][2].push({name:'',photo:''});
+  renderConfig();
+};
+window.removeTutorial=function(catIdx,tutIdx){
+  state.config.cats[catIdx][2].splice(tutIdx,1);
+  scheduleSave();renderConfig();
+};
+window.handleTutorialPhoto=async function(catIdx,tutIdx,input){
+  if(!input.files[0])return;
+  const compressed=await compressImage(input.files[0],600,0.7);
+  if(!state.config.cats[catIdx][2]) state.config.cats[catIdx][2]=[];
+  state.config.cats[catIdx][2][tutIdx].photo=compressed;
+  scheduleSave();renderConfig();buildCarousel();
 };
 window.addItem=function(type){state.config[type].push({name:'',photo:''});renderConfig();};
 window.removeItem=function(type){if(state.config[type].length>1){state.config[type].pop();renderConfig();}};
