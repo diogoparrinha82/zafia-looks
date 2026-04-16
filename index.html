@@ -3,52 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#12122A">
 <title>Plano de Looks – ZAFIA</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --c-bg:#12122A; --c-surface:#1E1E3A; --c-card:#252545;
-  --c-accent:#C9A84C; --c-accent2:#E8D5A3; --c-text:#FFFFFF;
-  --c-text2:rgba(255,255,255,.55); --c-text3:rgba(255,255,255,.28);
-  --c-border:rgba(255,255,255,.1); --c-done:#4CAF7D;
-  --radius:14px; --radius-sm:8px;
-  --safe-top:env(safe-area-inset-top,0px); --safe-bottom:env(safe-area-inset-bottom,0px);
-}
+:root{--c-bg:#12122A;--c-surface:#1E1E3A;--c-card:#252545;--c-accent:#C9A84C;--c-accent2:#E8D5A3;--c-text:#FFFFFF;--c-text2:rgba(255,255,255,.55);--c-text3:rgba(255,255,255,.28);--c-border:rgba(255,255,255,.1);--c-done:#4CAF7D;--radius:14px;--radius-sm:8px;--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text);font-family:'Jost',sans-serif;}
 
-/* ── LOGIN SCREEN ── */
 #screen-login{position:fixed;inset:0;background:var(--c-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;z-index:200;padding:40px;}
 #screen-login.hidden{display:none;}
 .login-logo{font-family:'Cormorant Garamond',serif;font-size:2.4rem;color:var(--c-accent);font-weight:700;letter-spacing:.08em;text-align:center;}
 .login-sub{font-size:.82rem;color:var(--c-text3);text-align:center;line-height:1.6;max-width:280px;}
 .login-btn{display:flex;align-items:center;gap:10px;background:white;color:#333;border:none;border-radius:50px;padding:13px 28px;font-family:'Jost',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.3);}
 .login-btn:active{opacity:.85;}
-.login-btn img{width:20px;height:20px;}
 .login-status{font-size:.75rem;color:var(--c-text3);text-align:center;}
 
-/* ── SYNC BADGE ── */
 .sync-badge{display:flex;align-items:center;gap:5px;font-size:.65rem;color:var(--c-text3);padding:3px 8px;border-radius:50px;border:1px solid var(--c-border);}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--c-done);}
 .sync-dot.syncing{background:var(--c-accent);animation:pulse 1s infinite;}
 .sync-dot.offline{background:#ff6b6b;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
 
-/* ── SCREENS ── */
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;}
 .screen.hidden{display:none;}
 
-/* ── NAV BAR ── */
 .nav-bar{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--safe-top) + 12px) 16px 12px;background:var(--c-bg);border-bottom:1px solid var(--c-border);flex-shrink:0;z-index:10;}
 .nav-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;color:var(--c-accent);}
 .nav-sub{font-size:.62rem;color:var(--c-text3);letter-spacing:.1em;text-transform:uppercase;}
 .nav-btn{height:36px;padding:0 12px;border-radius:18px;border:none;background:var(--c-surface);color:var(--c-text);font-size:.78rem;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;}
 .nav-btn:active{opacity:.7;}
 
-/* ── TAB BAR ── */
 .tab-bar{display:flex;background:var(--c-surface);border-top:1px solid var(--c-border);padding-bottom:var(--safe-bottom);flex-shrink:0;}
 .tab-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px;cursor:pointer;gap:3px;border:none;background:none;}
 .tab-icon{font-size:1.3rem;}
@@ -56,21 +44,17 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .tab-item.on .tab-label{color:var(--c-accent);}
 .tab-item.on .tab-icon{transform:scale(1.1);}
 
-/* ── SCROLL ── */
 .scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .scroll-area::-webkit-scrollbar{display:none;}
 
-/* ── FILTER STRIP ── */
 .filter-strip{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;flex-shrink:0;scrollbar-width:none;}
 .filter-strip::-webkit-scrollbar{display:none;}
 .filter-chip{padding:5px 13px;border-radius:50px;font-size:.74rem;font-weight:500;border:1.5px solid var(--c-border);color:var(--c-text2);background:transparent;white-space:nowrap;cursor:pointer;transition:all .15s;flex-shrink:0;}
 .filter-chip.on{background:var(--c-accent);border-color:var(--c-accent);color:var(--c-bg);font-weight:600;}
 
-/* ── PROG BAR ── */
 .prog-bar{height:3px;background:var(--c-border);flex-shrink:0;}
 .prog-bar-fill{height:100%;background:var(--c-accent);transition:width .4s ease;}
 
-/* ── CAROUSEL ── */
 #screen-looks{background:var(--c-bg);}
 .looks-header{padding:calc(var(--safe-top) + 10px) 16px 10px;background:var(--c-bg);border-bottom:1px solid var(--c-border);flex-shrink:0;display:flex;align-items:center;gap:10px;}
 .looks-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--c-accent);font-weight:600;flex:1;}
@@ -108,7 +92,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .card-nav-pos{font-family:'DM Mono',monospace;font-size:.82rem;color:var(--c-text2);}
 .card-nav-hint{font-size:.6rem;color:var(--c-text3);margin-top:2px;}
 
-/* ── GALLERY ── */
 #screen-gallery{background:var(--c-bg);}
 .list-item{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--c-border);cursor:pointer;transition:background .12s;}
 .list-item:active{background:rgba(255,255,255,.04);}
@@ -139,7 +122,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .gallery-done-badge{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:white;}
 .gallery-done-badge.done{background:var(--c-done);border-color:var(--c-done);}
 
-/* ── CONFIG ── */
 #screen-config{background:var(--c-bg);}
 .cfg-section{margin-bottom:6px;}
 .cfg-section-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;background:var(--c-surface);border-bottom:1px solid var(--c-border);}
@@ -179,7 +161,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .mini-btn.danger{color:#ff6b6b;border-color:rgba(255,107,107,.3);}
 .mini-btn.accent{background:var(--c-accent);color:var(--c-bg);border-color:var(--c-accent);}
 
-/* ── EQUIPA ── */
 #screen-equipa{background:var(--c-bg);}
 .grand-total-strip{background:var(--c-accent);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
 .gt-label{font-size:.7rem;color:rgba(18,18,42,.6);font-weight:600;letter-spacing:.08em;text-transform:uppercase;}
@@ -210,7 +191,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .mtv{font-family:'DM Mono',monospace;color:var(--c-accent);font-size:.95rem;}
 .add-member-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:calc(100% - 32px);margin:10px 16px;padding:13px;background:transparent;border:2px dashed var(--c-border);border-radius:var(--radius);color:var(--c-text2);font-family:'Jost',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;}
 
-/* ── LIGHTBOX / TOAST ── */
 .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:999;display:none;align-items:center;justify-content:center;}
 .lightbox.show{display:flex;}
 .lightbox img{max-width:94vw;max-height:94vh;border-radius:10px;object-fit:contain;}
@@ -218,7 +198,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .toast{position:fixed;bottom:calc(var(--safe-bottom) + 70px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--c-surface);color:var(--c-accent);padding:9px 20px;border-radius:50px;font-size:.78rem;font-weight:500;border:1px solid var(--c-border);opacity:0;transition:all .3s;pointer-events:none;z-index:100;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* ── LOADING OVERLAY ── */
 #loading{position:fixed;inset:0;background:var(--c-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:150;}
 #loading.hidden{display:none;}
 .loading-logo{font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--c-accent);}
@@ -229,17 +208,15 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 </head>
 <body>
 
-<!-- LOADING -->
 <div id="loading">
   <div class="loading-logo">ZAFIA</div>
   <div class="loading-spinner"></div>
-  <div class="loading-txt" id="loading-txt">A ligar ao Firebase…</div>
+  <div class="loading-txt">A ligar ao Firebase…</div>
 </div>
 
-<!-- LOGIN -->
 <div id="screen-login" class="hidden">
   <div class="login-logo">ZAFIA<br><span style="font-size:1rem;color:var(--c-text2);font-weight:400">Book da Claudya</span></div>
-  <div class="login-sub">Inicia sessão com a tua conta Google para aceder e sincronizar os dados entre todos os dispositivos.</div>
+  <div class="login-sub">Inicia sessão com a tua conta Google para sincronizar os dados entre todos os dispositivos.</div>
   <button class="login-btn" onclick="signIn()">
     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
     Entrar com Google
@@ -292,24 +269,18 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
   <div class="nav-bar">
     <div style="width:60px"></div>
     <div><div class="nav-title">Configuração</div></div>
-    <button class="nav-btn danger" onclick="signOut()" style="color:#ff6b6b;border-color:rgba(255,107,107,.3)">Sair</button>
+    <button class="nav-btn" onclick="doSignOut()" style="color:#ff6b6b;">Sair</button>
   </div>
   <div class="scroll-area" id="config-scroll">
-
-    <!-- USER INFO -->
     <div id="user-info-bar" style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--c-surface);border-bottom:1px solid var(--c-border);">
       <img id="user-photo" src="" alt="" style="width:32px;height:32px;border-radius:50%;display:none">
-      <div>
-        <div id="user-name" style="font-size:.85rem;font-weight:600;"></div>
-        <div id="user-email" style="font-size:.68rem;color:var(--c-text3);"></div>
-      </div>
-      <div class="sync-badge" style="margin-left:auto" id="sync-badge2"><div class="sync-dot" id="sync-dot2"></div><span id="sync-txt2">sync</span></div>
+      <div><div id="user-name" style="font-size:.85rem;font-weight:600;"></div><div id="user-email" style="font-size:.68rem;color:var(--c-text3);"></div></div>
+      <div class="sync-badge" style="margin-left:auto"><div class="sync-dot" id="sync-dot2"></div><span id="sync-txt2">sync</span></div>
     </div>
 
-    <!-- EXPORT/IMPORT fallback -->
     <div class="cfg-section" id="cs-io">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-io')">
-        <div><div class="cfg-section-title">📦 Backup Local</div><div class="cfg-section-sub">Export/Import JSON como backup</div></div>
+        <div><div class="cfg-section-title">📦 Backup Local</div><div class="cfg-section-sub">Export/Import JSON como segurança extra</div></div>
         <span class="cfg-chevron">▾</span>
       </div>
       <div class="cfg-section-body">
@@ -321,10 +292,9 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
       </div>
     </div>
 
-    <!-- CORES -->
     <div class="cfg-section" id="cs-colors">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-colors')">
-        <div><div class="cfg-section-title">🎨 Cores da App</div><div class="cfg-section-sub">Personaliza o tema visual</div></div>
+        <div><div class="cfg-section-title">🎨 Cores da App</div></div>
         <span class="cfg-chevron">▾</span>
       </div>
       <div class="cfg-section-body">
@@ -333,7 +303,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
       </div>
     </div>
 
-    <!-- LOCAIS -->
     <div class="cfg-section" id="cs-locs">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-locs')">
         <div><div class="cfg-section-title">📍 Locais de Shooting</div></div>
@@ -349,7 +318,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
       </div>
     </div>
 
-    <!-- CATEGORIAS -->
     <div class="cfg-section" id="cs-cats">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-cats')">
         <div><div class="cfg-section-title">🏷 Categorias</div></div>
@@ -361,7 +329,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
       </div>
     </div>
 
-    <!-- ROUPAS -->
     <div class="cfg-section" id="cs-outfits">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-outfits')">
         <div><div class="cfg-section-title">👗 Roupas</div></div>
@@ -376,7 +343,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
       </div>
     </div>
 
-    <!-- LENÇOS -->
     <div class="cfg-section" id="cs-scarves">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-scarves')">
         <div><div class="cfg-section-title">🧣 Lenços</div></div>
@@ -391,7 +357,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
       </div>
     </div>
 
-    <!-- MODELOS -->
     <div class="cfg-section" id="cs-models">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-models')">
         <div><div class="cfg-section-title">👤 Modelos</div></div>
@@ -429,7 +394,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
   </div>
 </div>
 
-<!-- TAB BAR -->
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:50">
   <div class="tab-bar">
     <button class="tab-item on" id="tab-looks" onclick="switchTab('looks')"><span class="tab-icon">📸</span><span class="tab-label">Looks</span></button>
@@ -443,19 +407,15 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
   <span class="lb-close">✕</span>
   <img id="lb-img" src="" alt="">
 </div>
-<div class="toast" id="toast">✓ Guardado</div>
+<div class="toast" id="toast"></div>
 
-<!-- FIREBASE SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut as fbSignOut }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, onSnapshot, setDoc, getDoc }
+import { getFirestore, doc, setDoc, getDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getStorage, ref, uploadString, getDownloadURL, deleteObject }
-  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-// ── FIREBASE INIT ──────────────────────────────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyAZZ-q7zM8gLZb8MMOL8Pj9zFeLLrtDAhk",
   authDomain: "book-claudya.firebaseapp.com",
@@ -464,13 +424,13 @@ const firebaseConfig = {
   messagingSenderId: "724090676677",
   appId: "1:724090676677:web:520ddb7efc45f839d917ac"
 };
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
-const provider = new GoogleAuthProvider();
 
-// ── DEFAULTS ──────────────────────────────────────────────────────────────
+const fbApp  = initializeApp(firebaseConfig);
+const auth   = getAuth(fbApp);
+const db     = getFirestore(fbApp);
+const gProvider = new GoogleAuthProvider();
+
+// ── CONSTANTS ──────────────────────────────────────────────────────────────
 const DEFAULT_CATS=[["Acessório",15],["Cabelo",12],["Pescoço",3],["Saia",15],["Vestido",4],["Embrulho",9],["Mala",15],["Tops",5],["Cover Up",17],["Elevate Style",5]];
 const DEFAULT_OUTFITS=["Vestido Branco Linho","Calças Pretas Clássicas","Conjunto Bege Alfaiataria","Vestido Azul Marinho","Saia Midi Floral","Conjunto Castanho Camel","Calças Brancas + Blusa Seda","Vestido Terracota","Conjunto Xadrez Neutro","Calças Creme + Top Malha","Vestido Verde Oliva","Conjunto Azul Ganga","Saia Lápis Preta + Blusa Branca","Vestido Coral","Conjunto Cinzento Mescla","Calças Mostarda + Camisola Branca","Vestido Estampado Geométrico","Conjunto Burgundy","Calças Azul Royal + Blusa Neutra","Vestido Off-White Fluido"];
 const DEFAULT_SCARVES=["Lenço Vermelho Geométrico","Lenço Azul Estampado Floral","Lenço Dourado Animal Print","Lenço Verde Esmeralda Liso","Lenço Rosa Pálido Bordado","Lenço Laranja Boho","Lenço Preto e Branco Gráfico","Lenço Castanho Paisley","Lenço Multicolor Tribal","Lenço Azul Céu Tie-Dye","Lenço Lilás Seda","Lenço Terracota Listrado","Lenço Prata Lurex","Lenço Mostarda Jacquard","Lenço Cinzento Degradé","Lenço Coral Floral","Lenço Turquesa Geométrico","Lenço Creme com Franja","Lenço Verde Água Liso","Lenço Bordeaux Estampado"];
@@ -482,7 +442,7 @@ const COST_LABELS=["Viagem","Estadia","Alimentação","Cachet/Fee","Outros"];
 const DEFAULT_THEME={bg:'#12122A',surface:'#1E1E3A',card:'#252545',accent:'#C9A84C',accent2:'#E8D5A3',text:'#FFFFFF',done:'#4CAF7D'};
 const COLOR_LABELS={bg:'Fundo',surface:'Superfície',card:'Cards',accent:'Destaque (ouro)',accent2:'Destaque claro',text:'Texto',done:'Feito ✓'};
 
-// ── STATE ─────────────────────────────────────────────────────────────────
+// ── STATE ──────────────────────────────────────────────────────────────────
 window.state = {
   config:{
     locs:{studio:30,pt:30,cv:40},
@@ -495,114 +455,127 @@ window.state = {
   looks:[], team:[],
   ui:{currentIdx:0,filter:'',galleryView:'grid'}
 };
-let currentUser=null;
-let unsubscribe=null;
-window.currentScreen='screen-looks';
+let currentUser = null;
+window.currentScreen = 'screen-looks';
 
-// ── SYNC STATUS ───────────────────────────────────────────────────────────
-function setSyncStatus(status){ // 'ok' | 'syncing' | 'offline'
+// ── SYNC STATUS ────────────────────────────────────────────────────────────
+function setSyncStatus(s) {
   ['sync-dot','sync-dot2'].forEach(id=>{
-    const d=document.getElementById(id);if(!d)return;
-    d.className='sync-dot'+(status==='syncing'?' syncing':status==='offline'?' offline':'');
+    const el=document.getElementById(id); if(!el) return;
+    el.className='sync-dot'+(s==='syncing'?' syncing':s==='offline'?' offline':'');
   });
-  const txt=status==='syncing'?'a guardar…':status==='offline'?'offline':'guardado';
+  const txt=s==='syncing'?'a guardar…':s==='offline'?'offline':'guardado';
   ['sync-txt','sync-txt2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=txt;});
 }
 
-// ── FIRESTORE SAVE ────────────────────────────────────────────────────────
-let saveTimer=null;
+// ── FIRESTORE HELPERS ──────────────────────────────────────────────────────
+function catsToFS(cats){ return cats.map(([name,n])=>({name,n})); }
+function catsFromFS(arr){
+  if(!arr||!arr.length) return [];
+  if(Array.isArray(arr[0])) return arr;
+  return arr.map(c=>[c.name, c.n]);
+}
+
+// ── SAVE ───────────────────────────────────────────────────────────────────
+let saveTimer = null;
 function scheduleSave(){
   clearTimeout(saveTimer);
   setSyncStatus('syncing');
-  saveTimer=setTimeout(()=>saveToFirestore(),1200);
+  saveTimer = setTimeout(doSave, 1200);
 }
 
-// Firestore doesn't support nested arrays — convert cats [[name,n],...] to [{name,n},...] and back
-function catsToFirestore(cats){ return cats.map(([name,n])=>({name,n})); }
-function catsFromFirestore(cats){
-  if(!cats) return [];
-  if(Array.isArray(cats[0])) return cats; // already in correct format
-  return cats.map(c=>([c.name, c.n]));
-}
-
-async function saveToFirestore(){
+async function doSave(){
   if(!currentUser) return;
   try{
-    const uid=currentUser.uid;
-    const configToSave={
-      ...state.config,
-      cats: catsToFirestore(state.config.cats)
-    };
-    const toSave={
-      config: configToSave,
-      looks: state.looks,
-      team: state.team,
-      ui: state.ui,
-      updatedAt: Date.now()
-    };
-    await setDoc(doc(db,'users',uid,'data','main'), toSave);
-    // also cache locally
-    try{localStorage.setItem('zafia_cache',JSON.stringify(toSave));}catch(e){}
+    const uid = currentUser.uid;
+    const base = (name) => doc(db,'users',uid,'data',name);
+    // Split into 6 separate docs — avoids Firestore 1MB limit
+    await Promise.all([
+      setDoc(base('config'), {
+        locs: state.config.locs,
+        cats: catsToFS(state.config.cats),
+        theme: state.config.theme,
+        ts: Date.now()
+      }),
+      setDoc(base('outfits'), { items: state.config.outfits }),
+      setDoc(base('scarves'), { items: state.config.scarves }),
+      setDoc(base('models'),  { items: state.config.models  }),
+      setDoc(base('looks'),   { items: state.looks           }),
+      setDoc(base('team'),    { items: state.team, ui: state.ui })
+    ]);
+    try{ localStorage.setItem('zafia_cache', JSON.stringify(state)); }catch(e){}
     setSyncStatus('ok');
-  }catch(e){
-    console.error(e);
+  } catch(e){
+    console.error('Save error:', e);
     setSyncStatus('offline');
     showToast('⚠️ Erro ao guardar');
   }
 }
 
-// ── FIRESTORE LOAD (realtime) ─────────────────────────────────────────────
-function subscribeToFirestore(uid){
-  if(unsubscribe) unsubscribe();
-  const docRef=doc(db,'users',uid,'data','main');
-  unsubscribe=onSnapshot(docRef, snap=>{
-    if(snap.exists()){
-      const data=snap.data();
-      // merge carefully — convert cats back from Firestore format
-      const cfg=data.config||state.config;
-      cfg.cats=catsFromFirestore(cfg.cats);
-      window.state.config=cfg;
-      window.state.looks=data.looks||[];
-      window.state.team=data.team||[];
-      if(data.ui) window.state.ui={...state.ui,...data.ui};
-      if(!state.config.theme) state.config.theme={...DEFAULT_THEME};
-      // ensure photo fields exist
-      ['outfits','scarves','models'].forEach(k=>{
-        if(state.config[k]&&typeof state.config[k][0]==='string')
-          state.config[k]=state.config[k].map(n=>({name:n,photo:''}));
-      });
-      applyTheme();
-      renderFilters();
-      buildCarousel();
-      updateCounter();
-      setSyncStatus('ok');
+// ── LOAD ───────────────────────────────────────────────────────────────────
+async function loadFromFirestore(uid){
+  try{
+    const base = (name) => doc(db,'users',uid,'data',name);
+    const [cfgSnap,outSnap,scaSnap,modSnap,looksSnap,teamSnap] = await Promise.all([
+      getDoc(base('config')),
+      getDoc(base('outfits')),
+      getDoc(base('scarves')),
+      getDoc(base('models')),
+      getDoc(base('looks')),
+      getDoc(base('team'))
+    ]);
+    const isNew = !cfgSnap.exists() && !looksSnap.exists();
+    if(isNew){
+      state.looks = genLooks();
+      state.team  = defaultTeam();
+      doSave();
     } else {
-      // first time — generate defaults and save
-      state.looks=genLooks();
-      state.team=defaultTeam();
-      saveToFirestore();
+      if(cfgSnap.exists()){
+        const c = cfgSnap.data();
+        state.config.locs  = c.locs  || state.config.locs;
+        state.config.cats  = catsFromFS(c.cats) || state.config.cats;
+        state.config.theme = c.theme || state.config.theme;
+      }
+      if(outSnap.exists())   state.config.outfits = outSnap.data().items  || state.config.outfits;
+      if(scaSnap.exists())   state.config.scarves = scaSnap.data().items  || state.config.scarves;
+      if(modSnap.exists())   state.config.models  = modSnap.data().items  || state.config.models;
+      if(looksSnap.exists()) state.looks          = looksSnap.data().items || [];
+      if(teamSnap.exists()){
+        state.team = teamSnap.data().items || [];
+        if(teamSnap.data().ui) state.ui = {...state.ui, ...teamSnap.data().ui};
+      }
     }
-  }, err=>{
-    console.error(err);
+    applyTheme();
+    renderFilters();
+    buildCarousel();
+    updateCounter();
+    setSyncStatus('ok');
+  } catch(e){
+    console.error('Load error:', e);
     setSyncStatus('offline');
     // fallback to local cache
     try{
-      const c=localStorage.getItem('zafia_cache');
-      if(c){const d=JSON.parse(c);window.state.looks=d.looks||[];window.state.team=d.team||[];window.state.config=d.config||state.config;}
-    }catch(e){}
-    renderFilters();buildCarousel();updateCounter();
-  });
+      const c = localStorage.getItem('zafia_cache');
+      if(c){
+        const d = JSON.parse(c);
+        if(d.config) state.config = d.config;
+        if(d.looks)  state.looks  = d.looks;
+        if(d.team)   state.team   = d.team;
+        if(d.ui)     state.ui     = {...state.ui,...d.ui};
+      }
+    }catch(e2){}
+    applyTheme(); renderFilters(); buildCarousel(); updateCounter();
+  }
 }
 
-// ── AUTH ──────────────────────────────────────────────────────────────────
-window.signIn=async function(){
-  document.getElementById('login-status').textContent='A entrar…';
-  try{ await signInWithPopup(auth,provider); }
-  catch(e){ document.getElementById('login-status').textContent='Erro: '+e.message; }
+// ── AUTH ───────────────────────────────────────────────────────────────────
+window.signIn = async function(){
+  document.getElementById('login-status').textContent = 'A entrar…';
+  try{ await signInWithPopup(auth, gProvider); }
+  catch(e){ document.getElementById('login-status').textContent = 'Erro: ' + e.message; }
 };
-window.signOut=async function(){
-  if(!confirm('Sair da conta?'))return;
-  if(unsubscribe){unsubscribe();unsubscribe=null;}
+window.doSignOut = async function(){
+  if(!confirm('Sair da conta?')) return;
   await fbSignOut(auth);
   document.getElementById('screen-login').classList.remove('hidden');
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
@@ -611,73 +584,105 @@ window.signOut=async function(){
 onAuthStateChanged(auth, user=>{
   document.getElementById('loading').classList.add('hidden');
   if(user){
-    currentUser=user;
+    currentUser = user;
     document.getElementById('screen-login').classList.add('hidden');
-    // show user info
-    const ph=document.getElementById('user-photo');
-    if(user.photoURL){ph.src=user.photoURL;ph.style.display='block';}
-    document.getElementById('user-name').textContent=user.displayName||'';
-    document.getElementById('user-email').textContent=user.email||'';
-    // try local cache first for instant render
+    const ph = document.getElementById('user-photo');
+    if(user.photoURL){ ph.src=user.photoURL; ph.style.display='block'; }
+    document.getElementById('user-name').textContent  = user.displayName || '';
+    document.getElementById('user-email').textContent = user.email || '';
+    // show cached data instantly while loading from Firestore
     try{
-      const c=localStorage.getItem('zafia_cache');
-      if(c){const d=JSON.parse(c);window.state.looks=d.looks||[];window.state.team=d.team||[];if(d.config)window.state.config=d.config;applyTheme();}
+      const c = localStorage.getItem('zafia_cache');
+      if(c){
+        const d = JSON.parse(c);
+        if(d.config) state.config = d.config;
+        if(d.looks)  state.looks  = d.looks;
+        if(d.team)   state.team   = d.team;
+        applyTheme();
+      }
     }catch(e){}
-    renderFilters();buildCarousel();updateCounter();
+    renderFilters(); buildCarousel(); updateCounter();
     switchTab('looks');
-    subscribeToFirestore(user.uid);
+    loadFromFirestore(user.uid);
   } else {
-    currentUser=null;
+    currentUser = null;
     document.getElementById('screen-login').classList.remove('hidden');
   }
 });
 
-// ── EXPORT / IMPORT (backup) ───────────────────────────────────────────────
-window.exportData=function(){
-  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  const d=new Date();
-  a.href=url;a.download=`zafia-backup-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
-  a.click();URL.revokeObjectURL(url);showToast('⬇ Exportado!');
+// ── EXPORT / IMPORT ────────────────────────────────────────────────────────
+window.exportData = function(){
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const d    = new Date();
+  a.href     = url;
+  a.download = `zafia-backup-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast('⬇ Exportado!');
 };
-window.importData=function(input){
-  if(!input.files[0])return;
-  const r=new FileReader();
-  r.onload=e=>{
+window.importData = function(input){
+  if(!input.files[0]) return;
+  const r = new FileReader();
+  r.onload = e=>{
     try{
-      const d=JSON.parse(e.target.result);
-      if(!d.config||!d.looks) throw new Error();
-      window.state=d;
-      if(!state.ui) state.ui={currentIdx:0,filter:'',galleryView:'grid'};
-      applyTheme();renderFilters();buildCarousel();updateCounter();
-      scheduleSave();showToast('⬆ Importado e guardado!');
-    }catch(e){showToast('✗ Ficheiro inválido');}
+      const d = JSON.parse(e.target.result);
+      if(!d.config || !d.looks) throw new Error();
+      window.state = d;
+      if(!state.ui) state.ui = {currentIdx:0,filter:'',galleryView:'grid'};
+      applyTheme(); renderFilters(); buildCarousel(); updateCounter();
+      scheduleSave(); showToast('⬆ Importado!');
+    }catch(e){ showToast('✗ Ficheiro inválido'); }
   };
-  r.readAsText(input.files[0]);input.value='';
+  r.readAsText(input.files[0]); input.value='';
 };
 
-// ── HELPERS ───────────────────────────────────────────────────────────────
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function fmtEur(v){return(parseFloat(v)||0).toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
-function outfitColor(n){const i=state.config.outfits.findIndex(o=>o.name===n);return OUTFIT_PALETTE[(i<0?0:i)%OUTFIT_PALETTE.length];}
-function photoOf(type,name){const item=state.config[type].find(x=>x.name===name);return item?.photo||'';}
-function catColorIdx(cat){return state.config.cats.findIndex(([c])=>c===cat);}
-function readFile(f){return new Promise(r=>{const fr=new FileReader();fr.onload=e=>r(e.target.result);fr.readAsDataURL(f);});}
+// ── HELPERS ────────────────────────────────────────────────────────────────
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtEur(v){ return (parseFloat(v)||0).toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'; }
+function outfitColor(n){ const i=state.config.outfits.findIndex(o=>o.name===n); return OUTFIT_PALETTE[(i<0?0:i)%OUTFIT_PALETTE.length]; }
+function photoOf(type,name){ const item=state.config[type].find(x=>x.name===name); return item?.photo||''; }
+function catColorIdx(cat){ return state.config.cats.findIndex(([c])=>c===cat); }
 
-// ── THEME ─────────────────────────────────────────────────────────────────
-function applyTheme(){
-  const th=state.config.theme,r=document.documentElement;
-  r.style.setProperty('--c-bg',th.bg);r.style.setProperty('--c-surface',th.surface);
-  r.style.setProperty('--c-card',th.card);r.style.setProperty('--c-accent',th.accent);
-  r.style.setProperty('--c-accent2',th.accent2||'#E8D5A3');r.style.setProperty('--c-text',th.text);
-  r.style.setProperty('--c-done',th.done);
-  document.querySelector('meta[name=theme-color]').content=th.bg;
+function readFile(f){
+  return new Promise(r=>{const fr=new FileReader(); fr.onload=e=>r(e.target.result); fr.readAsDataURL(f);});
 }
-window.resetColors=function(){state.config.theme={...DEFAULT_THEME};applyTheme();renderColorGrid();scheduleSave();};
+function compressImage(file, maxW, quality){
+  return new Promise(resolve=>{
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const img = new Image();
+      img.onload = ()=>{
+        const scale = Math.min(1, maxW/img.width);
+        const w = Math.round(img.width*scale);
+        const h = Math.round(img.height*scale);
+        const canvas = document.createElement('canvas');
+        canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── THEME ──────────────────────────────────────────────────────────────────
+function applyTheme(){
+  const th=state.config.theme, r=document.documentElement;
+  r.style.setProperty('--c-bg',th.bg);
+  r.style.setProperty('--c-surface',th.surface);
+  r.style.setProperty('--c-card',th.card);
+  r.style.setProperty('--c-accent',th.accent);
+  r.style.setProperty('--c-accent2',th.accent2||'#E8D5A3');
+  r.style.setProperty('--c-text',th.text);
+  r.style.setProperty('--c-done',th.done);
+  document.querySelector('meta[name=theme-color]').content = th.bg;
+}
+window.resetColors = function(){ state.config.theme={...DEFAULT_THEME}; applyTheme(); renderColorGrid(); scheduleSave(); };
 function renderColorGrid(){
-  const th=state.config.theme;
-  document.getElementById('color-grid').innerHTML=Object.keys(DEFAULT_THEME).map(key=>`
+  const th = state.config.theme;
+  document.getElementById('color-grid').innerHTML = Object.keys(DEFAULT_THEME).map(key=>`
     <div class="color-field"><div class="cfg-lbl">${COLOR_LABELS[key]}</div>
       <div class="color-picker-wrap" onclick="document.getElementById('cp-${key}').click()">
         <div class="color-swatch" style="background:${th[key]}"></div>
@@ -687,50 +692,50 @@ function renderColorGrid(){
       </div></div>`).join('');
 }
 
-// ── RNG / GEN ─────────────────────────────────────────────────────────────
-function rng(seed){let s=seed;return()=>{s=(s*1664525+1013904223)&0xFFFFFFFF;return(s>>>0)/0xFFFFFFFF;};}
-function shuf(arr,r){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+// ── RNG / GEN ──────────────────────────────────────────────────────────────
+function rng(seed){ let s=seed; return ()=>{ s=(s*1664525+1013904223)&0xFFFFFFFF; return(s>>>0)/0xFFFFFFFF; }; }
+function shuf(arr,r){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } return a; }
 function genLooks(){
   const{locs,cats,outfits,scarves,models}=state.config;
-  const total=cats.reduce((s,[,n])=>s+n,0);if(!total)return[];
+  const total=cats.reduce((s,[,n])=>s+n,0); if(!total) return [];
   const r=rng(99);
   const locPool=shuf([...Array(locs.studio).fill("Portugal – Estúdio"),...Array(locs.pt).fill("Portugal – Exterior"),...Array(locs.cv).fill("Cabo Verde – Exterior")],r);
   const sp=shuf([...scarves,...scarves,...scarves,...scarves,...scarves,...scarves].map(s=>s.name),r);
-  const oNames=outfits.map(o=>o.name),mNames=models.map(m=>m.name);
-  let li=0,si=0;const byCat=[];
+  const oNames=outfits.map(o=>o.name), mNames=models.map(m=>m.name);
+  let li=0,si=0; const byCat=[];
   for(const[cat,count]of cats){
-    if(!count){byCat.push([]);continue;}
-    const pairs=[];for(const o of oNames)for(const m of mNames)pairs.push([o,m]);
+    if(!count){ byCat.push([]); continue; }
+    const pairs=[]; for(const o of oNames) for(const m of mNames) pairs.push([o,m]);
     const sel=shuf(pairs,r).slice(0,Math.min(count,pairs.length));
-    while(sel.length<count){const ex=shuf(pairs,r);for(const p of ex){if(sel.length>=count)break;sel.push(p);}}
+    while(sel.length<count){ const ex=shuf(pairs,r); for(const p of ex){ if(sel.length>=count) break; sel.push(p); } }
     byCat.push(sel.slice(0,count).map(([outfit,model])=>({category:cat,outfit,scarf:sp[si++%sp.length],location:locPool[li++%locPool.length],model,done:false,notes:""})));
   }
-  const flat=[];const ml=Math.max(...byCat.map(c=>c.length));
-  for(let i=0;i<ml;i++)for(const cl of byCat)if(i<cl.length)flat.push(cl[i]);
-  for(let i=1;i<flat.length;i++){if(flat[i].outfit===flat[i-1].outfit){for(let j=i+1;j<flat.length;j++){if(flat[j].outfit!==flat[i-1].outfit){[flat[i],flat[j]]=[flat[j],flat[i]];break;}}}}
+  const flat=[]; const ml=Math.max(...byCat.map(c=>c.length));
+  for(let i=0;i<ml;i++) for(const cl of byCat) if(i<cl.length) flat.push(cl[i]);
+  for(let i=1;i<flat.length;i++){ if(flat[i].outfit===flat[i-1].outfit){ for(let j=i+1;j<flat.length;j++){ if(flat[j].outfit!==flat[i-1].outfit){[flat[i],flat[j]]=[flat[j],flat[i]];break;} } } }
   return flat.map((l,i)=>({...l,num:i+1}));
 }
-function defaultTeam(){return[{id:1,name:"",role:"Fotógrafo Principal",location:"PT Est+Ext+CV",phone:"",email:"",notes:"",photo:"",viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true}];}
+function defaultTeam(){ return [{id:1,name:"",role:"Fotógrafo Principal",location:"PT Est+Ext+CV",phone:"",email:"",notes:"",photo:"",viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true}]; }
 
-// ── SCREENS ───────────────────────────────────────────────────────────────
-window.switchTab=function(tab){
+// ── SCREENS ────────────────────────────────────────────────────────────────
+window.switchTab = function(tab){
   const map={looks:'screen-looks',gallery:'screen-gallery',config:'screen-config',equipa:'screen-equipa'};
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
   document.getElementById(map[tab]).classList.remove('hidden');
   document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('on'));
-  const el=document.getElementById('tab-'+tab);if(el)el.classList.add('on');
-  window.currentScreen=map[tab];
-  if(tab==='gallery'){renderGallery();setGalleryView(state.ui.galleryView||'grid');}
-  if(tab==='config') renderConfig();
-  if(tab==='equipa') renderTeam();
+  const el=document.getElementById('tab-'+tab); if(el) el.classList.add('on');
+  window.currentScreen = map[tab];
+  if(tab==='gallery'){ renderGallery(); setGalleryView(state.ui.galleryView||'grid'); }
+  if(tab==='config')  renderConfig();
+  if(tab==='equipa')  renderTeam();
 };
-window.toggleCS=function(id){document.getElementById(id).classList.toggle('open');};
+window.toggleCS = function(id){ document.getElementById(id).classList.toggle('open'); };
 
-// ── FILTERS ───────────────────────────────────────────────────────────────
+// ── FILTERS ────────────────────────────────────────────────────────────────
 function filteredLooks(){
   const f=state.ui.filter;
   if(!f) return state.looks;
-  if(f==='done') return state.looks.filter(l=>l.done);
+  if(f==='done')    return state.looks.filter(l=>l.done);
   if(f==='pending') return state.looks.filter(l=>!l.done);
   return state.looks.filter(l=>l.category===f||l.location===f||l.model===f);
 }
@@ -738,26 +743,25 @@ function renderFilters(){
   const cats=[...new Set(state.looks.map(l=>l.category))];
   const locs=[...new Set(state.looks.map(l=>l.location))];
   const chips=[{v:'',l:'Todos'},{v:'done',l:'✓ Feitos'},{v:'pending',l:'⏳ Por fazer'},...cats.map(c=>({v:c,l:c})),...locs.map(l=>({v:l,l:l.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}))];
-  const mk=(fn)=>chips.map(c=>`<span class="filter-chip ${state.ui.filter===c.v?'on':''}" onclick="${fn}('${c.v}')">${c.l}</span>`).join('');
-  document.getElementById('filter-strip').innerHTML=mk('setFilter');
-  document.getElementById('gallery-filter-strip').innerHTML=mk('setGalleryFilter');
+  document.getElementById('filter-strip').innerHTML         = chips.map(c=>`<span class="filter-chip ${state.ui.filter===c.v?'on':''}" onclick="setFilter('${c.v}')">${c.l}</span>`).join('');
+  document.getElementById('gallery-filter-strip').innerHTML = chips.map(c=>`<span class="filter-chip ${state.ui.filter===c.v?'on':''}" onclick="setGalleryFilter('${c.v}')">${c.l}</span>`).join('');
 }
-window.setFilter=function(v){state.ui.filter=v;state.ui.currentIdx=0;renderFilters();buildCarousel();updateCounter();scheduleSave();};
-window.setGalleryFilter=function(v){state.ui.filter=v;state.ui.currentIdx=0;renderFilters();renderGallery();};
+window.setFilter = function(v){ state.ui.filter=v; state.ui.currentIdx=0; renderFilters(); buildCarousel(); updateCounter(); scheduleSave(); };
+window.setGalleryFilter = function(v){ state.ui.filter=v; state.ui.currentIdx=0; renderFilters(); renderGallery(); };
 
-// ── COUNTER ───────────────────────────────────────────────────────────────
+// ── COUNTER ────────────────────────────────────────────────────────────────
 function updateCounter(){
   const fl=filteredLooks();
-  const idx=Math.min(state.ui.currentIdx,Math.max(0,fl.length-1));
-  document.getElementById('looks-counter').textContent=fl.length?`${idx+1}/${fl.length}`:'0/0';
-  document.getElementById('nav-pos').textContent=fl.length?`${idx+1} / ${fl.length}`:'– / –';
+  const idx=Math.min(state.ui.currentIdx, Math.max(0,fl.length-1));
+  document.getElementById('looks-counter').textContent = fl.length ? `${idx+1}/${fl.length}` : '0/0';
+  document.getElementById('nav-pos').textContent       = fl.length ? `${idx+1} / ${fl.length}` : '– / –';
   const done=fl.filter(l=>l.done).length;
-  document.getElementById('prog-fill').style.width=fl.length?(done/fl.length*100)+'%':'0%';
-  document.getElementById('btn-prev').disabled=idx===0;
-  document.getElementById('btn-next').disabled=idx>=fl.length-1;
+  document.getElementById('prog-fill').style.width = fl.length ? (done/fl.length*100)+'%' : '0%';
+  document.getElementById('btn-prev').disabled = idx===0;
+  document.getElementById('btn-next').disabled = idx>=fl.length-1;
 }
 
-// ── CAROUSEL ──────────────────────────────────────────────────────────────
+// ── CAROUSEL ───────────────────────────────────────────────────────────────
 function buildCard(look){
   const ci=catColorIdx(look.category);
   const catColor=CAT_COLORS[ci]||'#888';
@@ -766,9 +770,9 @@ function buildCard(look){
   const sPhoto=photoOf('scarves',look.scarf);
   const mPhoto=photoOf('models',look.model);
   const outfitOpts=state.config.outfits.map(o=>`<option${o.name===look.outfit?' selected':''}>${esc(o.name)}</option>`).join('');
-  const scarfOpts=state.config.scarves.map(s=>`<option${s.name===look.scarf?' selected':''}>${esc(s.name)}</option>`).join('');
-  const modelOpts=state.config.models.map(m=>`<option${m.name===look.model?' selected':''}>${esc(m.name)}</option>`).join('');
-  const locOpts=["Portugal – Estúdio","Portugal – Exterior","Cabo Verde – Exterior"].map(l=>`<option${l===look.location?' selected':''}>${l}</option>`).join('');
+  const scarfOpts =state.config.scarves.map(s=>`<option${s.name===look.scarf ?' selected':''}>${esc(s.name)}</option>`).join('');
+  const modelOpts =state.config.models.map(m=>`<option${m.name===look.model ?' selected':''}>${esc(m.name)}</option>`).join('');
+  const locOpts   =["Portugal – Estúdio","Portugal – Exterior","Cabo Verde – Exterior"].map(l=>`<option${l===look.location?' selected':''}>${l}</option>`).join('');
   const card=document.createElement('div');
   card.className='look-card';
   card.innerHTML=`
@@ -799,12 +803,12 @@ function buildCard(look){
   return card;
 }
 
-window.buildCarousel=function(){
+window.buildCarousel = function(){
   const fl=filteredLooks();
   const track=document.getElementById('carousel-track');
   track.innerHTML='';
   fl.forEach(look=>track.appendChild(buildCard(look)));
-  const idx=Math.min(state.ui.currentIdx,Math.max(0,fl.length-1));
+  const idx=Math.min(state.ui.currentIdx, Math.max(0,fl.length-1));
   state.ui.currentIdx=idx;
   track.classList.add('no-anim');
   track.style.transform=`translateX(-${idx*100}%)`;
@@ -812,7 +816,7 @@ window.buildCarousel=function(){
   updateCounter();
 };
 
-window.navTo=function(idx){
+window.navTo = function(idx){
   const fl=filteredLooks();
   if(idx<0||idx>=fl.length) return;
   state.ui.currentIdx=idx;
@@ -821,21 +825,22 @@ window.navTo=function(idx){
   scheduleSave();
 };
 
-// pointer/touch drag
+// drag / swipe
 (function(){
   let sx=0,sy=0,drag=false,moved=false,vpW=0;
-  function onStart(x,y){sx=x;sy=y;drag=true;moved=false;vpW=document.getElementById('carousel-vp').offsetWidth;document.getElementById('carousel-track').classList.add('no-anim');document.getElementById('carousel-vp').classList.add('dragging');}
+  function onStart(x,y){ sx=x;sy=y;drag=true;moved=false;vpW=document.getElementById('carousel-vp').offsetWidth;document.getElementById('carousel-track').classList.add('no-anim');document.getElementById('carousel-vp').classList.add('dragging'); }
   function onMove(x,y){
-    if(!drag)return;const dx=x-sx,dy=y-sy;
+    if(!drag) return;
+    const dx=x-sx,dy=y-sy;
     if(!moved&&Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){drag=false;return;}
-    if(Math.abs(dx)>4)moved=true;
+    if(Math.abs(dx)>4) moved=true;
     document.getElementById('carousel-track').style.transform=`translateX(${-(state.ui.currentIdx*vpW-dx)}px)`;
   }
   function onEnd(x){
-    if(!drag)return;drag=false;
+    if(!drag) return; drag=false;
     document.getElementById('carousel-vp').classList.remove('dragging');
-    const track=document.getElementById('carousel-track');track.classList.remove('no-anim');
-    const dx=x-sx,fl=filteredLooks(),thr=vpW*0.2;
+    const track=document.getElementById('carousel-track'); track.classList.remove('no-anim');
+    const dx=x-sx, fl=filteredLooks(), thr=vpW*0.2;
     if(moved&&dx<-thr&&state.ui.currentIdx<fl.length-1) window.navTo(state.ui.currentIdx+1);
     else if(moved&&dx>thr&&state.ui.currentIdx>0) window.navTo(state.ui.currentIdx-1);
     else window.navTo(state.ui.currentIdx);
@@ -848,30 +853,30 @@ window.navTo=function(idx){
   vp.addEventListener('touchmove',e=>onMove(e.touches[0].clientX,e.touches[0].clientY),{passive:true});
   vp.addEventListener('touchend',e=>onEnd(e.changedTouches[0].clientX));
   window.addEventListener('keydown',e=>{
-    if(window.currentScreen!=='screen-looks')return;
+    if(window.currentScreen!=='screen-looks') return;
     if(e.key==='ArrowRight'||e.key==='ArrowDown') window.navTo(state.ui.currentIdx+1);
-    if(e.key==='ArrowLeft'||e.key==='ArrowUp') window.navTo(state.ui.currentIdx-1);
+    if(e.key==='ArrowLeft'||e.key==='ArrowUp')   window.navTo(state.ui.currentIdx-1);
   });
 })();
 
-// ── LOOK UPDATES ──────────────────────────────────────────────────────────
-window.updLook=function(num,field,val){
-  const l=state.looks.find(x=>x.num===num);if(!l)return;
-  l[field]=val;scheduleSave();
+// ── LOOK UPDATES ───────────────────────────────────────────────────────────
+window.updLook = function(num,field,val){
+  const l=state.looks.find(x=>x.num===num); if(!l) return;
+  l[field]=val; scheduleSave();
 };
-window.toggleDone=function(num){
-  const l=state.looks.find(x=>x.num===num);if(!l)return;
-  l.done=!l.done;scheduleSave();
+window.toggleDone = function(num){
+  const l=state.looks.find(x=>x.num===num); if(!l) return;
+  l.done=!l.done; scheduleSave();
   const fl=filteredLooks();
   const idx=fl.findIndex(x=>x.num===num);
   if(idx>=0){
     const cards=document.getElementById('carousel-track').children;
-    if(cards[idx]){const b=cards[idx].querySelector('.card-done-badge');if(b){b.classList.toggle('done',l.done);b.textContent=l.done?'✓':'○';}}
+    if(cards[idx]){ const b=cards[idx].querySelector('.card-done-badge'); if(b){b.classList.toggle('done',l.done);b.textContent=l.done?'✓':'○';} }
   }
   updateCounter();
 };
 
-// ── GALLERY ───────────────────────────────────────────────────────────────
+// ── GALLERY ────────────────────────────────────────────────────────────────
 function renderGallery(){
   const fl=filteredLooks();
   document.getElementById('gallery-sub').textContent=`${fl.filter(l=>l.done).length} / ${fl.length} feitos`;
@@ -880,7 +885,7 @@ function renderGallery(){
   const scroll=document.getElementById('gallery-scroll');
   if(v==='grid'){
     scroll.innerHTML=`<div class="gallery-grid">${fl.map((look,i)=>{
-      const oPhoto=photoOf('outfits',look.outfit),sPhoto=photoOf('scarves',look.scarf);
+      const oPhoto=photoOf('outfits',look.outfit), sPhoto=photoOf('scarves',look.scarf);
       const catColor=CAT_COLORS[catColorIdx(look.category)]||'#888';
       return`<div class="gallery-cell ${look.done?'done-cell':''}" onclick="goToLookFromGallery(${i})">
         <div class="gallery-cell-imgs">
@@ -897,31 +902,34 @@ function renderGallery(){
       </div>`;
     }).join('')}</div><div style="height:20px"></div>`;
   } else {
-    scroll.innerHTML=fl.map((look,i)=>`<div class="list-item ${look.done?'done-item':''}" onclick="goToLookFromGallery(${i})">
-      <div class="list-color-bar" style="background:#${outfitColor(look.outfit)}"></div>
-      <span class="list-num">${look.num}</span>
-      <div class="list-content"><div class="list-outfit">${esc(look.outfit)}</div>
-        <div class="list-meta">${look.category} · ${look.model} · ${look.location.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div></div>
-      ${photoOf('outfits',look.outfit)?`<img class="list-thumb" src="${photoOf('outfits',look.outfit)}" alt="">`:`<div class="list-thumb-ph">👗</div>`}
-      <div class="list-done-dot ${look.done?'done':''}"></div>
-    </div>`).join('');
+    scroll.innerHTML=fl.map((look,i)=>`
+      <div class="list-item ${look.done?'done-item':''}" onclick="goToLookFromGallery(${i})">
+        <div class="list-color-bar" style="background:#${outfitColor(look.outfit)}"></div>
+        <span class="list-num">${look.num}</span>
+        <div class="list-content">
+          <div class="list-outfit">${esc(look.outfit)}</div>
+          <div class="list-meta">${look.category} · ${look.model} · ${look.location.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div>
+        </div>
+        ${photoOf('outfits',look.outfit)?`<img class="list-thumb" src="${photoOf('outfits',look.outfit)}" alt="">`:`<div class="list-thumb-ph">👗</div>`}
+        <div class="list-done-dot ${look.done?'done':''}"></div>
+      </div>`).join('');
   }
 }
-window.setGalleryView=function(v){
+window.setGalleryView = function(v){
   state.ui.galleryView=v;
   document.getElementById('gv-grid').className='mini-btn'+(v==='grid'?' accent':'');
   document.getElementById('gv-list').className='mini-btn'+(v==='list'?' accent':'');
   renderGallery();
 };
-window.goToLookFromGallery=function(idx){state.ui.currentIdx=idx;switchTab('looks');buildCarousel();};
+window.goToLookFromGallery = function(idx){ state.ui.currentIdx=idx; switchTab('looks'); buildCarousel(); };
 
-// ── CONFIG ────────────────────────────────────────────────────────────────
+// ── CONFIG ─────────────────────────────────────────────────────────────────
 function renderConfig(){
-  document.getElementById('loc-studio').value=state.config.locs.studio;
-  document.getElementById('loc-pt').value=state.config.locs.pt;
-  document.getElementById('loc-cv').value=state.config.locs.cv;
+  document.getElementById('loc-studio').value = state.config.locs.studio;
+  document.getElementById('loc-pt').value     = state.config.locs.pt;
+  document.getElementById('loc-cv').value     = state.config.locs.cv;
   updateLocHint();
-  document.getElementById('cat-inputs').innerHTML=state.config.cats.map(([cat,n],i)=>`
+  document.getElementById('cat-inputs').innerHTML = state.config.cats.map(([cat,n],i)=>`
     <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--c-border)">
       <span style="font-size:.88rem">${cat}</span>
       <input class="cfg-inp num" type="number" min="0" value="${n}" style="width:70px"
@@ -933,26 +941,35 @@ function renderConfig(){
   renderItemFields('models','model-inputs');
   renderColorGrid();
 }
-function renderItemFields(type,cid){
-  document.getElementById(cid).innerHTML=state.config[type].map((item,i)=>`
+
+function renderItemFields(type, cid){
+  document.getElementById(cid).innerHTML = state.config[type].map((item,i)=>`
     <div class="photo-row">
-      ${item.photo?`<img class="photo-mini" src="${item.photo}" onclick="openLb('${item.photo}')">`:`<div class="photo-mini-ph" onclick="document.getElementById('f-${type}-${i}').click()">📷</div>`}
+      ${item.photo&&item.photo!=='loading'
+        ? `<img class="photo-mini" src="${item.photo}" onclick="openLb('${item.photo}')">`
+        : `<div class="photo-mini-ph" onclick="document.getElementById('f-${type}-${i}').click()">${item.photo==='loading'?'⏳':'📷'}</div>`}
       <input type="file" accept="image/*" id="f-${type}-${i}" style="display:none" onchange="handlePhoto('${type}',${i},this)">
       <input class="photo-name-inp" type="text" value="${esc(item.name)}" placeholder="Nome…"
         onchange="state.config['${type}'][${i}].name=this.value;scheduleSave()">
-      ${item.photo?`<span style="color:var(--c-text3);cursor:pointer;font-size:.8rem;padding:4px" onclick="state.config['${type}'][${i}].photo='';scheduleSave();renderItemFields('${type}','${cid}')">✕</span>`:''}
+      ${item.photo&&item.photo!=='loading'
+        ? `<span style="color:var(--c-text3);cursor:pointer;font-size:.8rem;padding:4px" onclick="state.config['${type}'][${i}].photo='';scheduleSave();renderItemFields('${type}','${cid}')">✕</span>`
+        : ''}
     </div>`).join('');
 }
-window.handlePhoto=async function(type,i,input){
-  if(!input.files[0])return;
-  const data=await readFile(input.files[0]);
-  state.config[type][i].photo=data;scheduleSave();
+
+window.handlePhoto = async function(type, i, input){
+  if(!input.files[0]) return;
   const map={outfits:'outfit-inputs',scarves:'scarf-inputs',models:'model-inputs'};
-  renderItemFields(type,map[type]);
+  const compressed = await compressImage(input.files[0], 400, 0.55);
+  state.config[type][i].photo = compressed;
+  scheduleSave();
+  renderItemFields(type, map[type]);
 };
-window.addItem=function(type){state.config[type].push({name:'',photo:''});renderConfig();};
-window.removeItem=function(type){if(state.config[type].length>1){state.config[type].pop();renderConfig();}};
-window.updateLocHint=function(){
+
+window.addItem    = function(type){ state.config[type].push({name:'',photo:''}); renderConfig(); };
+window.removeItem = function(type){ if(state.config[type].length>1){ state.config[type].pop(); renderConfig(); } };
+
+window.updateLocHint = function(){
   const s=parseInt(document.getElementById('loc-studio').value)||0;
   const p=parseInt(document.getElementById('loc-pt').value)||0;
   const c=parseInt(document.getElementById('loc-cv').value)||0;
@@ -960,25 +977,25 @@ window.updateLocHint=function(){
   h.innerHTML=`Total: <strong>${s+p+c}</strong> / 100`;
   h.className='cfg-hint'+((s+p+c)!==100?' err':'');
 };
-window.updateCatHint=function(){
+window.updateCatHint = function(){
   const t=state.config.cats.reduce((s,[,n])=>s+n,0);
   const h=document.getElementById('cat-hint');
   h.innerHTML=`Total: <strong>${t}</strong> / 100`;
   h.className='cfg-hint'+(t!==100?' err':'');
 };
-window.applyConfig=function(){
+window.applyConfig = function(){
   state.config.locs.studio=parseInt(document.getElementById('loc-studio').value)||0;
-  state.config.locs.pt=parseInt(document.getElementById('loc-pt').value)||0;
-  state.config.locs.cv=parseInt(document.getElementById('loc-cv').value)||0;
+  state.config.locs.pt    =parseInt(document.getElementById('loc-pt').value)||0;
+  state.config.locs.cv    =parseInt(document.getElementById('loc-cv').value)||0;
   const ct=state.config.cats.reduce((s,[,n])=>s+n,0);
   const lt=state.config.locs.studio+state.config.locs.pt+state.config.locs.cv;
-  if(ct!==100){alert(`Total categorias: ${ct}. Deve ser 100.`);return;}
-  if(lt!==100){alert(`Total locais: ${lt}. Deve ser 100.`);return;}
-  state.looks=genLooks();state.ui.currentIdx=0;state.ui.filter='';
-  scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');
+  if(ct!==100){ alert(`Total categorias: ${ct}. Deve ser 100.`); return; }
+  if(lt!==100){ alert(`Total locais: ${lt}. Deve ser 100.`); return; }
+  state.looks=genLooks(); state.ui.currentIdx=0; state.ui.filter='';
+  scheduleSave(); renderFilters(); buildCarousel(); updateCounter(); switchTab('looks');
 };
 
-// ── EQUIPA ────────────────────────────────────────────────────────────────
+// ── EQUIPA ─────────────────────────────────────────────────────────────────
 function renderTeam(){
   renderGrandTotal();
   document.getElementById('team-cards').innerHTML=state.team.map(m=>renderMemberCard(m)).join('');
@@ -1014,44 +1031,41 @@ function renderMemberCard(m){
   </div>`;
 }
 function renderGrandTotal(){
-  const totals={};COST_FIELDS.forEach(f=>{totals[f]=state.team.reduce((s,m)=>s+(parseFloat(m[f])||0),0);});
+  const totals={}; COST_FIELDS.forEach(f=>{totals[f]=state.team.reduce((s,m)=>s+(parseFloat(m[f])||0),0);});
   const grand=Object.values(totals).reduce((s,v)=>s+v,0);
   document.getElementById('gt-amount').textContent=fmtEur(grand);
   document.getElementById('gt-breakdown').innerHTML=COST_FIELDS.map((f,i)=>`<div class="gt-bk"><span class="gt-bk-val">${fmtEur(totals[f])}</span><span class="gt-bk-lbl">${COST_LABELS[i]}</span></div>`).join('');
 }
-window.toggleMember=function(id){const m=state.team.find(t=>t.id===id);if(!m)return;m.open=!m.open;scheduleSave();renderTeam();};
-window.updMember=function(id,field,val){
-  const m=state.team.find(t=>t.id===id);if(!m)return;m[field]=val;
+window.toggleMember   = function(id){ const m=state.team.find(t=>t.id===id); if(!m)return; m.open=!m.open; scheduleSave(); renderTeam(); };
+window.updMember      = function(id,field,val){
+  const m=state.team.find(t=>t.id===id); if(!m)return; m[field]=val;
   const total=COST_FIELDS.reduce((s,f)=>s+(parseFloat(m[f])||0),0);
-  const el=document.getElementById('mt-'+id);if(el)el.textContent=fmtEur(total);
-  renderGrandTotal();scheduleSave();
+  const el=document.getElementById('mt-'+id); if(el) el.textContent=fmtEur(total);
+  renderGrandTotal(); scheduleSave();
 };
-window.handleMemberPhoto=async function(id,input){
-  if(!input.files[0])return;const data=await readFile(input.files[0]);
-  const m=state.team.find(t=>t.id===id);if(!m)return;m.photo=data;scheduleSave();renderTeam();
+window.handleMemberPhoto = async function(id,input){
+  if(!input.files[0]) return;
+  const m=state.team.find(t=>t.id===id); if(!m)return;
+  const compressed=await compressImage(input.files[0],300,0.6);
+  m.photo=compressed; scheduleSave(); renderTeam();
 };
-window.remMemberPhoto=function(id){const m=state.team.find(t=>t.id===id);if(!m)return;m.photo='';scheduleSave();renderTeam();};
-window.addMember=function(){state.team.push({id:Date.now(),name:"",role:"",location:"",phone:"",email:"",notes:"",photo:"",viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true});scheduleSave();renderTeam();};
-window.removeMember=function(id){if(!confirm('Remover este membro?'))return;state.team=state.team.filter(m=>m.id!==id);scheduleSave();renderTeam();};
+window.remMemberPhoto = function(id){ const m=state.team.find(t=>t.id===id); if(!m)return; m.photo=''; scheduleSave(); renderTeam(); };
+window.addMember      = function(){ state.team.push({id:Date.now(),name:"",role:"",location:"",phone:"",email:"",notes:"",photo:"",viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true}); scheduleSave(); renderTeam(); };
+window.removeMember   = function(id){ if(!confirm('Remover este membro?'))return; state.team=state.team.filter(m=>m.id!==id); scheduleSave(); renderTeam(); };
 
-// ── LIGHTBOX / TOAST ──────────────────────────────────────────────────────
-window.openLb=function(src){document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('show');};
-window.closeLightbox=function(){document.getElementById('lightbox').classList.remove('show');};
-window.showToast=function(msg='✓ Guardado'){
-  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+// ── LIGHTBOX / TOAST ───────────────────────────────────────────────────────
+window.openLb       = function(src){ document.getElementById('lb-img').src=src; document.getElementById('lightbox').classList.add('show'); };
+window.closeLightbox= function(){ document.getElementById('lightbox').classList.remove('show'); };
+window.showToast    = function(msg='✓ Guardado'){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2000);
 };
 
-// expose for inline handlers
-window.scheduleSave=scheduleSave;
-window.renderItemFields=renderItemFields;
-window.renderFilters=renderFilters;
-window.buildCarousel=window.buildCarousel;
-window.updateCounter=updateCounter;
-window.applyTheme=applyTheme;
-window.renderColorGrid=renderColorGrid;
-window.genLooks=genLooks;
-window.defaultTeam=defaultTeam;
+// expose for inline oninput handlers
+window.scheduleSave    = scheduleSave;
+window.renderItemFields= renderItemFields;
+window.applyTheme      = applyTheme;
+window.renderColorGrid = renderColorGrid;
 </script>
 </body>
 </html>
