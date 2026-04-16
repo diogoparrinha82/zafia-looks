@@ -795,10 +795,10 @@ function buildCard(look){
         <select class="field-sel" onchange="updLook(${look.num},'outfit',this.value);buildCarousel()">${outfitOpts}</select>
         ${pieces.length>1?`<div class="outfit-pieces">${piecesRows}</div>`:''}
       </div>
-      <div class="field-row"><div class="field-lbl">Lenço</div><select class="field-sel" onchange="updLook(${look.num},'scarf',this.value)">${scarfOpts}</select></div>
-      <div class="field-row"><div class="field-lbl">Modelo</div><select class="field-sel" onchange="updLook(${look.num},'model',this.value)">${modelOpts}</select></div>
+      <div class="field-row"><div class="field-lbl">Lenço</div><select class="field-sel" onchange="updLook(${look.num},'scarf',this.value);scheduleSave()">${scarfOpts}</select></div>
+      <div class="field-row"><div class="field-lbl">Modelo</div><select class="field-sel" onchange="updLook(${look.num},'model',this.value);scheduleSave()">${modelOpts}</select></div>
       <div class="field-row"><div class="field-lbl">Tutorial (${look.category})</div><select class="field-sel" onchange="updLook(${look.num},'tutorialIdx',parseInt(this.value));buildCarousel()">${tutOpts}</select></div>
-      <div class="field-row"><div class="field-lbl">Local</div><select class="field-sel" onchange="updLook(${look.num},'location',this.value)">${locOpts}</select></div>
+      <div class="field-row"><div class="field-lbl">Local</div><select class="field-sel" onchange="updLook(${look.num},'location',this.value);scheduleSave()">${locOpts}</select></div>
       <div class="field-row"><div class="field-lbl">Notas</div><input class="field-inp" type="text" value="${esc(look.notes||'')}" placeholder="Adicionar nota…" onchange="updLook(${look.num},'notes',this.value)"></div>
     </div>`;
   return card;
@@ -988,12 +988,11 @@ function renderConfig(){
     const tuts=tutorials||[];
     return`<div style="border-bottom:1px solid var(--c-border);padding-bottom:14px;margin-bottom:14px;">
       <div style="display:flex;align-items:center;gap:10px;padding:4px 0 10px;border-bottom:1px solid var(--c-border);margin-bottom:10px;">
-        <div style="flex:1;display:flex;align-items:center;gap:6px;background:var(--c-surface);border-radius:var(--radius-sm);padding:8px 12px;">
-          <span style="font-size:.7rem;color:var(--c-text3)">✎</span>
+        <div style="flex:1;display:flex;align-items:center;gap:8px;background:var(--c-surface);border-radius:var(--radius-sm);padding:10px 12px;border:1.5px solid var(--c-border);">
           <input class="cat-name-inp" type="text" value="${esc(cat)}" placeholder="Nome da categoria…"
             onchange="state.config.cats[${i}][0]=this.value;scheduleSave()">
         </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;background:var(--c-surface);border-radius:var(--radius-sm);padding:6px 12px;min-width:64px;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;background:var(--c-surface);border-radius:var(--radius-sm);padding:6px 12px;min-width:64px;border:1.5px solid var(--c-border);">
           <input class="cfg-inp num" type="number" min="0" value="${n}" style="width:100%;padding:0;background:transparent;border:none;font-size:.92rem;text-align:center;" onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint()">
           <span style="font-size:.56rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.06em">looks</span>
         </div>
