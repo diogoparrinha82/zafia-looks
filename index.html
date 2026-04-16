@@ -517,13 +517,24 @@ function scheduleSave(){
   saveTimer=setTimeout(()=>saveToFirestore(),1200);
 }
 
+// Firestore doesn't support nested arrays — convert cats [[name,n],...] to [{name,n},...] and back
+function catsToFirestore(cats){ return cats.map(([name,n])=>({name,n})); }
+function catsFromFirestore(cats){
+  if(!cats) return [];
+  if(Array.isArray(cats[0])) return cats; // already in correct format
+  return cats.map(c=>([c.name, c.n]));
+}
+
 async function saveToFirestore(){
   if(!currentUser) return;
   try{
-    // strip base64 photos from looks (photos stored separately in Storage)
     const uid=currentUser.uid;
+    const configToSave={
+      ...state.config,
+      cats: catsToFirestore(state.config.cats)
+    };
     const toSave={
-      config: state.config,
+      config: configToSave,
       looks: state.looks,
       team: state.team,
       ui: state.ui,
@@ -547,8 +558,10 @@ function subscribeToFirestore(uid){
   unsubscribe=onSnapshot(docRef, snap=>{
     if(snap.exists()){
       const data=snap.data();
-      // merge carefully
-      window.state.config=data.config||state.config;
+      // merge carefully — convert cats back from Firestore format
+      const cfg=data.config||state.config;
+      cfg.cats=catsFromFirestore(cfg.cats);
+      window.state.config=cfg;
       window.state.looks=data.looks||[];
       window.state.team=data.team||[];
       if(data.ui) window.state.ui={...state.ui,...data.ui};
