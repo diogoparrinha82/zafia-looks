@@ -24,15 +24,14 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .login-inp:focus{border-color:var(--c-accent);}
 .login-inp::placeholder{letter-spacing:0;color:var(--c-text3);}
 .login-btn-main{width:100%;max-width:280px;padding:14px;background:var(--c-accent);color:var(--c-bg);border:none;border-radius:var(--radius-sm);font-family:'Jost',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;}
-.login-btn-main:active{opacity:.85;}
 .login-err{font-size:.78rem;color:#ff6b6b;text-align:center;min-height:20px;}
 
 /* SYNC */
 .sync-badge{display:flex;align-items:center;gap:5px;font-size:.65rem;color:var(--c-text3);padding:3px 8px;border-radius:50px;border:1px solid var(--c-border);}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--c-done);}
-.sync-dot.syncing{background:var(--c-accent);animation:pulse 1s infinite;}
+.sync-dot.syncing{background:var(--c-accent);animation:blink 1s infinite;}
 .sync-dot.offline{background:#ff6b6b;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
 
 /* SCREENS */
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;}
@@ -41,7 +40,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .nav-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;color:var(--c-accent);}
 .nav-sub{font-size:.62rem;color:var(--c-text3);letter-spacing:.1em;text-transform:uppercase;}
 .nav-btn{height:36px;padding:0 12px;border-radius:18px;border:none;background:var(--c-surface);color:var(--c-text);font-size:.78rem;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;}
-.nav-btn:active{opacity:.7;}
 
 /* TABS */
 .tab-bar{display:flex;background:var(--c-surface);border-top:1px solid var(--c-border);padding-bottom:var(--safe-bottom);flex-shrink:0;}
@@ -53,16 +51,14 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 
 .scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .scroll-area::-webkit-scrollbar{display:none;}
-
 .filter-strip{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;flex-shrink:0;scrollbar-width:none;}
 .filter-strip::-webkit-scrollbar{display:none;}
 .filter-chip{padding:5px 13px;border-radius:50px;font-size:.74rem;font-weight:500;border:1.5px solid var(--c-border);color:var(--c-text2);background:transparent;white-space:nowrap;cursor:pointer;transition:all .15s;flex-shrink:0;}
 .filter-chip.on{background:var(--c-accent);border-color:var(--c-accent);color:var(--c-bg);font-weight:600;}
-
 .prog-bar{height:3px;background:var(--c-border);flex-shrink:0;}
 .prog-bar-fill{height:100%;background:var(--c-accent);transition:width .4s ease;}
 
-/* LOOKS */
+/* LOOKS / CAROUSEL */
 #screen-looks{background:var(--c-bg);}
 .looks-header{padding:calc(var(--safe-top) + 10px) 16px 10px;background:var(--c-bg);border-bottom:1px solid var(--c-border);flex-shrink:0;display:flex;align-items:center;gap:10px;}
 .looks-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--c-accent);font-weight:600;flex:1;}
@@ -70,64 +66,49 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .carousel-viewport{flex:1;overflow:hidden;position:relative;}
 .carousel-track{display:flex;height:100%;transition:transform .35s cubic-bezier(.4,0,.2,1);will-change:transform;}
 .carousel-track.no-anim{transition:none;}
-.look-card{min-width:100%;width:100%;height:100%;background:var(--c-card);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
+
+/* LOOK CARD */
+.look-card{min-width:100%;width:100%;height:100%;background:var(--c-card);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;position:relative;}
 .card-color-bar{height:5px;flex-shrink:0;}
-.card-header{padding:12px 16px 8px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
+.card-header{padding:10px 16px 8px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
 .card-num{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--c-text3);}
 .card-cat{padding:3px 11px;border-radius:50px;font-size:.7rem;font-weight:700;letter-spacing:.04em;}
-.card-done-badge{width:26px;height:26px;border-radius:50%;border:2px solid var(--c-border);display:flex;align-items:center;justify-content:center;font-size:.75rem;cursor:pointer;transition:all .15s;background:transparent;color:var(--c-text3);}
-.card-done-badge.done{background:var(--c-done);border-color:var(--c-done);color:white;}
 
-/* OUTFIT MINI-CAROUSEL inside card */
-.outfit-carousel-wrap{position:relative;flex-shrink:0;height:clamp(130px,26vh,220px);margin:0 16px 10px;border-radius:10px;overflow:hidden;background:var(--c-surface);}
-.outfit-carousel-track{display:flex;height:100%;transition:transform .3s cubic-bezier(.4,0,.2,1);}
-.outfit-carousel-track.no-anim{transition:none;}
-.outfit-slide{min-width:100%;width:100%;height:100%;position:relative;flex-shrink:0;}
-.outfit-slide img{width:100%;height:100%;object-fit:cover;cursor:pointer;}
-.outfit-slide-ph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--c-text3);font-size:.72rem;}
-.outfit-slide-ph .icon{font-size:2rem;}
-.outfit-slide-label{position:absolute;bottom:0;left:0;right:0;padding:5px 8px;background:linear-gradient(transparent,rgba(0,0,0,.7));font-size:.62rem;color:rgba(255,255,255,.85);pointer-events:none;}
-.outfit-carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,.5);color:white;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;}
-.outfit-carousel-btn.prev{left:6px;}
-.outfit-carousel-btn.next{right:6px;}
-.outfit-carousel-dots{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);display:flex;gap:4px;z-index:5;}
-.outfit-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.4);transition:background .2s;}
-.outfit-dot.on{background:white;}
+/* status badge top-right */
+.card-status-btn{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:50px;border:none;cursor:pointer;font-family:'Jost',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.04em;transition:all .2s;}
+.card-status-btn.idle{background:var(--c-surface);color:var(--c-text3);border:1.5px solid var(--c-border);}
+.card-status-btn.shooting{background:rgba(220,50,50,.15);color:#ff4444;border:1.5px solid #ff4444;animation:blink 1.2s infinite;}
+.card-status-btn.done{background:rgba(76,175,125,.15);color:var(--c-done);border:1.5px solid var(--c-done);animation:none;}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.card-status-btn.idle .status-dot{background:var(--c-text3);}
+.card-status-btn.shooting .status-dot{background:#ff4444;animation:blink 1s infinite;}
+.card-status-btn.done .status-dot{background:var(--c-done);}
 
-/* tutorial photo (small, right side) */
-.card-top-row{display:flex;gap:8px;padding:0 16px 8px;flex-shrink:0;}
-.tutorial-slot{width:clamp(80px,22%,110px);flex-shrink:0;border-radius:10px;overflow:hidden;background:var(--c-surface);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;}
-.tutorial-slot img{width:100%;height:100%;object-fit:contain;background:#111;}
-.tutorial-slot-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--c-text3);font-size:.6rem;padding:8px;}
-.tutorial-slot-ph .icon{font-size:1.4rem;}
-.tutorial-label{position:absolute;bottom:0;left:0;right:0;padding:4px 5px;background:linear-gradient(transparent,rgba(0,0,0,.7));font-size:.55rem;color:rgba(255,255,255,.8);text-align:center;pointer-events:none;}
+/* 2×2 photo grid */
+.card-photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 12px 8px;flex-shrink:0;height:clamp(180px,38vh,300px);}
+.photo-cell{border-radius:9px;overflow:hidden;background:var(--c-surface);position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.photo-cell img{width:100%;height:100%;object-fit:cover;}
+.photo-cell.contain img{object-fit:contain;background:#0a0a1a;}
+.photo-cell-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--c-text3);font-size:.6rem;width:100%;height:100%;}
+.photo-cell-ph .icon{font-size:1.5rem;}
+.photo-cell-lbl{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:linear-gradient(transparent,rgba(0,0,0,.7));font-size:.58rem;color:rgba(255,255,255,.85);pointer-events:none;}
 
 /* card fields */
-.card-fields{flex:1;overflow-y:auto;padding:0 16px 10px;display:flex;flex-direction:column;gap:6px;}
+.card-fields{flex:1;overflow-y:auto;padding:0 12px 10px;display:flex;flex-direction:column;gap:5px;}
 .card-fields::-webkit-scrollbar{display:none;}
-.field-row{background:var(--c-surface);border-radius:var(--radius-sm);padding:8px 12px;display:flex;flex-direction:column;gap:3px;}
-.field-lbl{font-size:.62rem;color:var(--c-text3);font-weight:500;letter-spacing:.08em;text-transform:uppercase;}
+.field-row{background:var(--c-surface);border-radius:var(--radius-sm);padding:8px 11px;display:flex;flex-direction:column;gap:2px;}
+.field-lbl{font-size:.6rem;color:var(--c-text3);font-weight:500;letter-spacing:.08em;text-transform:uppercase;}
 .field-sel{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'Jost',sans-serif;font-size:.88rem;outline:none;cursor:pointer;-webkit-appearance:none;}
 .field-sel option{background:#1E1E3A;color:white;}
 .field-inp{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'Jost',sans-serif;font-size:.88rem;outline:none;}
 .field-inp::placeholder{color:var(--c-text3);}
 
-/* outfit pieces list inside field-row */
-.outfit-pieces{display:flex;flex-direction:column;gap:4px;margin-top:4px;}
-.outfit-piece-row{display:flex;align-items:center;gap:8px;}
-.outfit-piece-thumb{width:28px;height:28px;border-radius:5px;object-fit:cover;flex-shrink:0;cursor:pointer;}
-.outfit-piece-thumb-ph{width:28px;height:28px;border-radius:5px;background:var(--c-card);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;}
-.outfit-piece-sel{flex:1;background:transparent;border:none;color:var(--c-text);font-family:'Jost',sans-serif;font-size:.82rem;outline:none;cursor:pointer;-webkit-appearance:none;}
-.outfit-piece-sel option{background:#1E1E3A;color:white;}
-.outfit-piece-type{font-size:.58rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.05em;min-width:36px;}
-
 .card-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;padding-bottom:calc(8px + var(--safe-bottom));border-top:1px solid var(--c-border);flex-shrink:0;}
 .card-nav-btn{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--c-border);background:var(--c-surface);color:var(--c-text);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .card-nav-btn:hover,.card-nav-btn:active{background:var(--c-accent);border-color:var(--c-accent);color:var(--c-bg);}
 .card-nav-btn:disabled{opacity:.25;cursor:default;background:var(--c-surface);color:var(--c-text);}
-.card-nav-center{text-align:center;}
-.card-nav-pos{font-family:'DM Mono',monospace;font-size:.82rem;color:var(--c-text2);}
-.card-nav-hint{font-size:.6rem;color:var(--c-text3);margin-top:2px;}
+.card-nav-pos{font-family:'DM Mono',monospace;font-size:.82rem;color:var(--c-text2);text-align:center;}
+.card-nav-hint{font-size:.6rem;color:var(--c-text3);margin-top:2px;text-align:center;}
 
 /* GALLERY */
 #screen-gallery{background:var(--c-bg);}
@@ -137,7 +118,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 @media(min-width:900px){.gallery-grid{grid-template-columns:repeat(4,1fr);}}
 .gallery-cell{background:var(--c-card);border-radius:var(--radius-sm);overflow:hidden;cursor:pointer;position:relative;border:1px solid var(--c-border);transition:transform .12s;}
 .gallery-cell:hover{transform:scale(.97);}
-.gallery-cell.done-cell{opacity:.5;}
+.gallery-cell.done-cell{opacity:.6;}
 .gallery-cell-imgs{display:flex;height:80px;}
 .gallery-cell-img{flex:1;object-fit:cover;}
 .gallery-cell-img-ph{flex:1;display:flex;align-items:center;justify-content:center;font-size:1.2rem;background:var(--c-surface);}
@@ -146,13 +127,14 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .gallery-cell-outfit{font-size:.76rem;font-weight:600;line-height:1.2;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .gallery-cell-meta{font-size:.63rem;color:var(--c-text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .gallery-cell-cat{display:inline-block;padding:2px 7px;border-radius:50px;font-size:.56rem;font-weight:700;margin-top:3px;}
-.gallery-done-badge{position:absolute;top:5px;right:5px;width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:.55rem;color:white;}
-.gallery-done-badge.done{background:var(--c-done);border-color:var(--c-done);}
+.gallery-status-dot{position:absolute;top:5px;right:5px;width:10px;height:10px;border-radius:50%;border:2px solid rgba(0,0,0,.3);}
+.gallery-status-dot.shooting{background:#ff4444;animation:blink 1s infinite;}
+.gallery-status-dot.done{background:var(--c-done);}
 .group-header{padding:10px 16px 6px;font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--c-accent);border-bottom:1px solid var(--c-border);background:var(--c-surface);display:flex;align-items:center;justify-content:space-between;}
 .group-count{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--c-text3);font-weight:400;}
 .list-item{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--c-border);cursor:pointer;transition:background .12s;}
-.list-item:active,.list-item:hover{background:rgba(255,255,255,.04);}
-.list-item.done-item{opacity:.45;}
+.list-item:hover{background:rgba(255,255,255,.04);}
+.list-item.done-item{opacity:.5;}
 .list-color-bar{width:4px;height:36px;border-radius:2px;flex-shrink:0;}
 .list-num{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--c-text3);min-width:24px;}
 .list-content{flex:1;min-width:0;}
@@ -160,8 +142,9 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .list-meta{font-size:.72rem;color:var(--c-text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .list-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;}
 .list-thumb-ph{width:44px;height:44px;border-radius:8px;background:var(--c-surface);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
-.list-done-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--c-border);flex-shrink:0;}
-.list-done-dot.done{background:var(--c-done);border-color:var(--c-done);}
+.list-status-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--c-border);flex-shrink:0;}
+.list-status-dot.shooting{background:#ff4444;border-color:#ff4444;}
+.list-status-dot.done{background:var(--c-done);border-color:var(--c-done);}
 
 /* CONFIG */
 #screen-config{background:var(--c-bg);}
@@ -183,21 +166,16 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .cfg-hint{font-size:.72rem;color:var(--c-text3);margin-top:6px;}
 .cfg-hint.err{color:#ff6b6b;}
 .cfg-hint strong{color:var(--c-text);}
-
-/* outfit config — pieces */
-.outfit-config-card{border:1px solid var(--c-border);border-radius:var(--radius-sm);margin-bottom:12px;overflow:hidden;}
-.outfit-config-hdr{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--c-surface);cursor:pointer;}
-.outfit-config-hdr img{width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;}
-.outfit-config-hdr-ph{width:40px;height:40px;border-radius:6px;border:2px dashed var(--c-border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;color:var(--c-text3);cursor:pointer;}
-.outfit-config-name{flex:1;font-size:.88rem;font-weight:500;}
-.outfit-config-chevron{color:var(--c-text3);font-size:.75rem;transition:transform .2s;}
-.outfit-config-card.open .outfit-config-chevron{transform:rotate(180deg);}
-.outfit-config-body{display:none;padding:10px 12px;background:var(--c-card);}
-.outfit-config-card.open .outfit-config-body{display:block;}
-
+.cat-row{display:flex;align-items:center;gap:10px;padding:4px 0 10px;border-bottom:1px solid var(--c-border);margin-bottom:10px;}
+.cat-name-inp{flex:1;padding:10px 12px;border:1.5px solid var(--c-border);border-radius:var(--radius-sm);background:var(--c-surface);color:var(--c-text);font-family:'Jost',sans-serif;font-size:.9rem;outline:none;border-color:var(--c-border);}
+.cat-name-inp:focus{border-color:var(--c-accent);}
+.cat-count-wrap{display:flex;flex-direction:column;align-items:center;background:var(--c-surface);border-radius:var(--radius-sm);padding:6px 12px;min-width:64px;border:1.5px solid var(--c-border);}
+.cat-count-inp{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'DM Mono',monospace;font-size:.92rem;outline:none;text-align:center;}
+.cat-count-lbl{font-size:.56rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.06em;}
 .pieces-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
 .piece-cell{display:flex;flex-direction:column;gap:5px;}
 .piece-img{width:100%;aspect-ratio:1;border-radius:8px;object-fit:cover;cursor:pointer;display:block;}
+.piece-img.contain{object-fit:contain;background:#0a0a1a;}
 .piece-img-ph{width:100%;aspect-ratio:1;border-radius:8px;border:2px dashed var(--c-border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--c-text3);font-size:.65rem;cursor:pointer;background:var(--c-surface);}
 .piece-img-ph span{font-size:1.4rem;}
 .piece-name-inp{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'Jost',sans-serif;font-size:.78rem;outline:none;padding:3px 0;border-bottom:1px solid transparent;text-align:center;transition:border-color .2s;}
@@ -205,8 +183,15 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .piece-actions{display:flex;justify-content:center;gap:5px;}
 .piece-act-btn{font-size:.65rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px;background:transparent;}
 .piece-act-btn.del{color:#ff6b6b;border-color:rgba(255,107,107,.3);}
-
-/* photo grid (lenços/modelos) */
+.outfit-config-card{border:1px solid var(--c-border);border-radius:var(--radius-sm);margin-bottom:12px;overflow:hidden;}
+.outfit-config-hdr{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--c-surface);cursor:pointer;}
+.outfit-config-hdr img{width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;}
+.outfit-config-hdr-ph{width:40px;height:40px;border-radius:6px;border:2px dashed var(--c-border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;color:var(--c-text3);}
+.outfit-config-name{flex:1;font-size:.88rem;font-weight:500;}
+.outfit-config-chevron{color:var(--c-text3);font-size:.75rem;transition:transform .2s;}
+.outfit-config-card.open .outfit-config-chevron{transform:rotate(180deg);}
+.outfit-config-body{display:none;padding:10px 12px;background:var(--c-card);}
+.outfit-config-card.open .outfit-config-body{display:block;}
 .photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .photo-row{display:flex;flex-direction:column;gap:6px;padding:8px 0;}
 .photo-mini{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;cursor:pointer;display:block;}
@@ -214,7 +199,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .photo-name-inp{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'Jost',sans-serif;font-size:.82rem;outline:none;padding:4px 0;border-bottom:1px solid transparent;text-align:center;transition:border-color .2s;}
 .photo-name-inp:focus{border-bottom-color:var(--c-accent);}
 .photo-row-actions{display:flex;justify-content:center;gap:6px;}
-
 .color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .color-field{display:flex;flex-direction:column;gap:5px;}
 .color-picker-wrap{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px solid var(--c-border);border-radius:var(--radius-sm);background:var(--c-surface);cursor:pointer;}
@@ -222,7 +206,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .color-hex{font-family:'DM Mono',monospace;font-size:.82rem;color:var(--c-text2);flex:1;}
 .color-picker{width:0;height:0;opacity:0;position:absolute;}
 .apply-btn{display:block;width:calc(100% - 32px);margin:16px;padding:14px;background:var(--c-accent);color:var(--c-bg);border:none;border-radius:var(--radius-sm);font-family:'Jost',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;text-align:center;}
-.apply-btn:active{opacity:.8;}
 .add-remove-row{display:flex;gap:8px;margin-top:10px;}
 .mini-btn{flex:1;padding:9px;border-radius:var(--radius-sm);font-family:'Jost',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;border:1.5px solid var(--c-border);background:transparent;color:var(--c-text2);transition:all .15s;}
 .mini-btn:hover{background:var(--c-surface);}
@@ -260,7 +243,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .mtv{font-family:'DM Mono',monospace;color:var(--c-accent);font-size:.95rem;}
 .add-member-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:calc(100% - 32px);margin:10px 16px;padding:13px;background:transparent;border:2px dashed var(--c-border);border-radius:var(--radius);color:var(--c-text2);font-family:'Jost',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;}
 
-/* LIGHTBOX / TOAST / LOADING */
 .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:999;display:none;align-items:center;justify-content:center;}
 .lightbox.show{display:flex;}
 .lightbox img{max-width:94vw;max-height:94vh;border-radius:10px;object-fit:contain;}
@@ -281,9 +263,9 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 
 <div id="screen-login" class="hidden">
   <div class="login-logo">Art of Scarves<br><span style="font-size:1rem;color:var(--c-text2);font-weight:400;letter-spacing:.02em">Book da Claudya</span></div>
-  <div class="login-sub">Introduz a senha de acesso para entrar na plataforma.</div>
+  <div class="login-sub">Introduz a senha de acesso.</div>
   <div class="login-input-wrap">
-    <input class="login-inp" type="password" id="login-pwd" placeholder="Senha de acesso" onkeydown="if(event.key==='Enter')doLogin()">
+    <input class="login-inp" type="password" id="login-pwd" placeholder="Senha" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn-main" onclick="doLogin()">Entrar →</button>
   </div>
   <div class="login-err" id="login-err"></div>
@@ -295,8 +277,8 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
     <div><div class="looks-title">Art of Scarves</div></div>
     <span class="looks-counter" id="looks-counter">0/0</span>
     <div style="display:flex;gap:8px;align-items:center;">
-      <div class="sync-badge" id="sync-badge"><div class="sync-dot" id="sync-dot"></div><span id="sync-txt">sync</span></div>
-      <button class="nav-btn" onclick="switchTab('gallery')">🖼️ Galeria</button>
+      <div class="sync-badge"><div class="sync-dot" id="sync-dot"></div><span id="sync-txt">sync</span></div>
+      <button class="nav-btn" onclick="switchTab('gallery')">🖼️</button>
     </div>
   </div>
   <div class="prog-bar"><div class="prog-bar-fill" id="prog-fill"></div></div>
@@ -306,10 +288,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
   </div>
   <div class="card-nav">
     <button class="card-nav-btn" id="btn-prev" onclick="navTo(state.ui.currentIdx-1)">←</button>
-    <div class="card-nav-center">
-      <div class="card-nav-pos" id="nav-pos">– / –</div>
-      <div class="card-nav-hint">← arrasta ou clica nas setas →</div>
-    </div>
+    <div><div class="card-nav-pos" id="nav-pos">– / –</div><div class="card-nav-hint">← arrasta ou setas →</div></div>
     <button class="card-nav-btn" id="btn-next" onclick="navTo(state.ui.currentIdx+1)">→</button>
   </div>
 </div>
@@ -349,36 +328,13 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
       <div style="font-size:.85rem;font-weight:600;">Sessão activa</div>
       <div class="sync-badge" style="margin-left:auto"><div class="sync-dot" id="sync-dot2"></div><span id="sync-txt2">sync</span></div>
     </div>
-
-    <div class="cfg-section" id="cs-io">
-      <div class="cfg-section-hdr" onclick="toggleCS('cs-io')">
-        <div><div class="cfg-section-title">📦 Backup Local</div><div class="cfg-section-sub">Export/Import JSON</div></div>
-        <span class="cfg-chevron">▾</span>
-      </div>
-      <div class="cfg-section-body">
-        <div style="display:flex;gap:8px;">
-          <button class="mini-btn accent" style="flex:1" onclick="exportData()">⬇ Exportar JSON</button>
-          <label class="mini-btn" style="flex:1;text-align:center;cursor:pointer">⬆ Importar JSON<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
-        </div>
-      </div>
+    <div class="cfg-section" id="cs-io"><div class="cfg-section-hdr" onclick="toggleCS('cs-io')"><div><div class="cfg-section-title">📦 Backup</div></div><span class="cfg-chevron">▾</span></div>
+      <div class="cfg-section-body"><div style="display:flex;gap:8px;"><button class="mini-btn accent" style="flex:1" onclick="exportData()">⬇ Exportar</button><label class="mini-btn" style="flex:1;text-align:center;cursor:pointer">⬆ Importar<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label></div></div>
     </div>
-
-    <div class="cfg-section" id="cs-colors">
-      <div class="cfg-section-hdr" onclick="toggleCS('cs-colors')">
-        <div><div class="cfg-section-title">🎨 Cores da App</div></div>
-        <span class="cfg-chevron">▾</span>
-      </div>
-      <div class="cfg-section-body">
-        <div class="color-grid" id="color-grid"></div>
-        <button class="mini-btn" style="margin-top:12px;width:100%" onclick="resetColors()">↺ Repor cores padrão</button>
-      </div>
+    <div class="cfg-section" id="cs-colors"><div class="cfg-section-hdr" onclick="toggleCS('cs-colors')"><div><div class="cfg-section-title">🎨 Cores</div></div><span class="cfg-chevron">▾</span></div>
+      <div class="cfg-section-body"><div class="color-grid" id="color-grid"></div><button class="mini-btn" style="margin-top:12px;width:100%" onclick="resetColors()">↺ Repor</button></div>
     </div>
-
-    <div class="cfg-section" id="cs-locs">
-      <div class="cfg-section-hdr" onclick="toggleCS('cs-locs')">
-        <div><div class="cfg-section-title">📍 Locais de Shooting</div></div>
-        <span class="cfg-chevron">▾</span>
-      </div>
+    <div class="cfg-section" id="cs-locs"><div class="cfg-section-hdr" onclick="toggleCS('cs-locs')"><div><div class="cfg-section-title">📍 Locais</div></div><span class="cfg-chevron">▾</span></div>
       <div class="cfg-section-body">
         <div class="cfg-grid-3">
           <div class="cfg-field"><label class="cfg-lbl">Estúdio</label><input class="cfg-inp num" type="number" min="0" id="loc-studio" value="30" oninput="updateLocHint()"></div>
@@ -388,60 +344,18 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
         <div class="cfg-hint" id="loc-hint">Total: <strong>100</strong> / 100</div>
       </div>
     </div>
-
-    <div class="cfg-section" id="cs-cats">
-      <div class="cfg-section-hdr" onclick="toggleCS('cs-cats')">
-        <div><div class="cfg-section-title">🏷 Categorias & Tutoriais</div></div>
-        <span class="cfg-chevron">▾</span>
-      </div>
-      <div class="cfg-section-body">
-        <div id="cat-inputs"></div>
-        <div class="cfg-hint" id="cat-hint">Total: <strong>0</strong> / 100</div>
-      </div>
+    <div class="cfg-section" id="cs-cats"><div class="cfg-section-hdr" onclick="toggleCS('cs-cats')"><div><div class="cfg-section-title">🏷 Categorias & Tutoriais</div></div><span class="cfg-chevron">▾</span></div>
+      <div class="cfg-section-body"><div id="cat-inputs"></div><div class="cfg-hint" id="cat-hint">Total: <strong>0</strong> / 100</div></div>
     </div>
-
-    <div class="cfg-section" id="cs-outfits">
-      <div class="cfg-section-hdr" onclick="toggleCS('cs-outfits')">
-        <div><div class="cfg-section-title">👗 Roupas & Peças</div><div class="cfg-section-sub">Fotos por peça + acessórios + sapatos</div></div>
-        <span class="cfg-chevron">▾</span>
-      </div>
-      <div class="cfg-section-body">
-        <div id="outfit-inputs"></div>
-        <div class="add-remove-row">
-          <button class="mini-btn" onclick="addOutfit()">+ Adicionar roupa</button>
-          <button class="mini-btn danger" onclick="removeOutfit()">− Remover última</button>
-        </div>
-      </div>
+    <div class="cfg-section" id="cs-outfits"><div class="cfg-section-hdr" onclick="toggleCS('cs-outfits')"><div><div class="cfg-section-title">👗 Roupas & Peças</div></div><span class="cfg-chevron">▾</span></div>
+      <div class="cfg-section-body"><div id="outfit-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addOutfit()">+ Roupa</button><button class="mini-btn danger" onclick="removeOutfit()">− Última</button></div></div>
     </div>
-
-    <div class="cfg-section" id="cs-scarves">
-      <div class="cfg-section-hdr" onclick="toggleCS('cs-scarves')">
-        <div><div class="cfg-section-title">🧣 Lenços</div></div>
-        <span class="cfg-chevron">▾</span>
-      </div>
-      <div class="cfg-section-body">
-        <div id="scarf-inputs"></div>
-        <div class="add-remove-row">
-          <button class="mini-btn" onclick="addItem('scarves')">+ Adicionar</button>
-          <button class="mini-btn danger" onclick="removeItem('scarves')">− Remover</button>
-        </div>
-      </div>
+    <div class="cfg-section" id="cs-scarves"><div class="cfg-section-hdr" onclick="toggleCS('cs-scarves')"><div><div class="cfg-section-title">🧣 Lenços</div></div><span class="cfg-chevron">▾</span></div>
+      <div class="cfg-section-body"><div id="scarf-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addItem('scarves')">+ Adicionar</button><button class="mini-btn danger" onclick="removeItem('scarves')">− Remover</button></div></div>
     </div>
-
-    <div class="cfg-section" id="cs-models">
-      <div class="cfg-section-hdr" onclick="toggleCS('cs-models')">
-        <div><div class="cfg-section-title">👤 Modelos</div></div>
-        <span class="cfg-chevron">▾</span>
-      </div>
-      <div class="cfg-section-body">
-        <div id="model-inputs"></div>
-        <div class="add-remove-row">
-          <button class="mini-btn" onclick="addItem('models')">+ Adicionar</button>
-          <button class="mini-btn danger" onclick="removeItem('models')">− Remover</button>
-        </div>
-      </div>
+    <div class="cfg-section" id="cs-models"><div class="cfg-section-hdr" onclick="toggleCS('cs-models')"><div><div class="cfg-section-title">👤 Modelos</div></div><span class="cfg-chevron">▾</span></div>
+      <div class="cfg-section-body"><div id="model-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addItem('models')">+ Adicionar</button><button class="mini-btn danger" onclick="removeItem('models')">− Remover</button></div></div>
     </div>
-
     <button class="apply-btn" onclick="applyConfig()">▶ Aplicar e Gerar Looks</button>
     <p style="text-align:center;font-size:.68rem;color:var(--c-text3);padding:0 16px 20px">Mantém fotos e nomes, regenera a sequência</p>
   </div>
@@ -449,11 +363,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 
 <!-- EQUIPA -->
 <div class="screen hidden" id="screen-equipa">
-  <div class="nav-bar">
-    <div style="width:60px"></div>
-    <div><div class="nav-title">Equipa & Custos</div></div>
-    <div style="width:60px"></div>
-  </div>
+  <div class="nav-bar"><div style="width:60px"></div><div><div class="nav-title">Equipa & Custos</div></div><div style="width:60px"></div></div>
   <div class="grand-total-strip">
     <div><div class="gt-label">Total Produção</div><div class="gt-amount" id="gt-amount">0,00 €</div></div>
     <div class="gt-breakdown" id="gt-breakdown"></div>
@@ -474,31 +384,32 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
   </div>
 </div>
 
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-  <span class="lb-close">✕</span>
-  <img id="lb-img" src="" alt="">
-</div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()"><span class="lb-close">✕</span><img id="lb-img" src="" alt=""></div>
 <div class="toast" id="toast"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig={apiKey:"AIzaSyAZZ-q7zM8gLZb8MMOL8Pj9zFeLLrtDAhk",authDomain:"book-claudya.firebaseapp.com",projectId:"book-claudya",storageBucket:"book-claudya.firebasestorage.app",messagingSenderId:"724090676677",appId:"1:724090676677:web:520ddb7efc45f839d917ac"};
-const fbApp=initializeApp(firebaseConfig);
-const db=getFirestore(fbApp);
+const fbApp = initializeApp({apiKey:"AIzaSyAZZ-q7zM8gLZb8MMOL8Pj9zFeLLrtDAhk",authDomain:"book-claudya.firebaseapp.com",projectId:"book-claudya",storageBucket:"book-claudya.firebasestorage.app",messagingSenderId:"724090676677",appId:"1:724090676677:web:520ddb7efc45f839d917ac"});
+const db = getFirestore(fbApp);
 
-// ── PASSWORD ───────────────────────────────────────────────────────────────
-const ACCESS_PASSWORD="bookcm2026";
-const SESSION_KEY="zafia_session";
-window.doLogin=function(){
-  const pwd=document.getElementById('login-pwd').value.trim();
-  if(pwd===ACCESS_PASSWORD){sessionStorage.setItem(SESSION_KEY,'1');document.getElementById('screen-login').classList.add('hidden');initApp();}
-  else{document.getElementById('login-err').textContent='⛔ Senha incorrecta.';document.getElementById('login-pwd').value='';}
+// ── PASSWORD ── use localStorage so refresh keeps session
+const ACCESS_PASSWORD = "bookcm2026";
+const SESSION_KEY = "zafia_auth";
+window.doLogin = function(){
+  const pwd = document.getElementById('login-pwd').value.trim();
+  if(pwd === ACCESS_PASSWORD){ localStorage.setItem(SESSION_KEY,'1'); document.getElementById('screen-login').classList.add('hidden'); initApp(); }
+  else{ document.getElementById('login-err').textContent='⛔ Senha incorrecta.'; document.getElementById('login-pwd').value=''; }
 };
-window.doLogout=function(){if(!confirm('Sair da sessão?'))return;sessionStorage.removeItem(SESSION_KEY);document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById('screen-login').classList.remove('hidden');};
+window.doLogout = function(){
+  if(!confirm('Sair da sessão?')) return;
+  localStorage.removeItem(SESSION_KEY);
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  document.getElementById('screen-login').classList.remove('hidden');
+};
 
-// ── CONSTANTS ──────────────────────────────────────────────────────────────
+// ── CONSTANTS ──
 const DEFAULT_CATS=[["Acessório",15,[]],["Cabelo",12,[]],["Pescoço",3,[]],["Saia",15,[]],["Vestido",4,[]],["Embrulho",9,[]],["Mala",15,[]],["Tops",5,[]],["Cover Up",17,[]],["Elevate Style",5,[]]];
 const DEFAULT_OUTFITS=["Vestido Branco Linho","Calças Pretas Clássicas","Conjunto Bege Alfaiataria","Vestido Azul Marinho","Saia Midi Floral","Conjunto Castanho Camel","Calças Brancas + Blusa Seda","Vestido Terracota","Conjunto Xadrez Neutro","Calças Creme + Top Malha","Vestido Verde Oliva","Conjunto Azul Ganga","Saia Lápis Preta + Blusa Branca","Vestido Coral","Conjunto Cinzento Mescla","Calças Mostarda + Camisola Branca","Vestido Estampado Geométrico","Conjunto Burgundy","Calças Azul Royal + Blusa Neutra","Vestido Off-White Fluido"];
 const DEFAULT_SCARVES=["Lenço Vermelho Geométrico","Lenço Azul Estampado Floral","Lenço Dourado Animal Print","Lenço Verde Esmeralda Liso","Lenço Rosa Pálido Bordado","Lenço Laranja Boho","Lenço Preto e Branco Gráfico","Lenço Castanho Paisley","Lenço Multicolor Tribal","Lenço Azul Céu Tie-Dye","Lenço Lilás Seda","Lenço Terracota Listrado","Lenço Prata Lurex","Lenço Mostarda Jacquard","Lenço Cinzento Degradé","Lenço Coral Floral","Lenço Turquesa Geométrico","Lenço Creme com Franja","Lenço Verde Água Liso","Lenço Bordeaux Estampado"];
@@ -509,51 +420,30 @@ const COST_FIELDS=["viagem","estadia","alimentacao","cachet","outros"];
 const COST_LABELS=["Viagem","Estadia","Alimentação","Cachet/Fee","Outros"];
 const DEFAULT_THEME={bg:'#12122A',surface:'#1E1E3A',card:'#252545',accent:'#C9A84C',accent2:'#E8D5A3',text:'#FFFFFF',done:'#4CAF7D'};
 const COLOR_LABELS={bg:'Fundo',surface:'Superfície',card:'Cards',accent:'Destaque (ouro)',accent2:'Destaque claro',text:'Texto',done:'Feito ✓'};
-// piece types for outfit
 const PIECE_TYPES=['Peça principal','Peça 2','Peça 3','Acessório','Acessório 2','Sapatos'];
 
-// ── STATE ──────────────────────────────────────────────────────────────────
-window.state={
-  config:{
-    locs:{studio:30,pt:30,cv:40},
-    cats:JSON.parse(JSON.stringify(DEFAULT_CATS)),
-    // outfit: {name, pieces:[{name,photo,type}]}
-    outfits:DEFAULT_OUTFITS.map(n=>({name:n,pieces:[{name:'',photo:'',type:'Peça principal'}]})),
-    scarves:DEFAULT_SCARVES.map(n=>({name:n,photo:''})),
-    models:DEFAULT_MODELS.map(n=>({name:n,photo:''})),
-    theme:{...DEFAULT_THEME}
-  },
-  looks:[],team:[],
-  ui:{currentIdx:0,filter:'',galleryView:'grid',gallerySort:'default'}
+// ── STATE ──
+window.state = {
+  config:{locs:{studio:30,pt:30,cv:40},cats:JSON.parse(JSON.stringify(DEFAULT_CATS)),outfits:DEFAULT_OUTFITS.map(n=>({name:n,pieces:[{name:'',photo:'',type:'Peça principal'}]})),scarves:DEFAULT_SCARVES.map(n=>({name:n,photo:''})),models:DEFAULT_MODELS.map(n=>({name:n,photo:''})),theme:{...DEFAULT_THEME}},
+  looks:[],team:[],ui:{currentIdx:0,filter:'',galleryView:'grid'}
 };
-window.currentScreen='screen-looks';
+window.currentScreen = 'screen-looks';
 
-// ── SYNC ───────────────────────────────────────────────────────────────────
+// ── SYNC ──
 function setSyncStatus(s){
   ['sync-dot','sync-dot2'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.className='sync-dot'+(s==='syncing'?' syncing':s==='offline'?' offline':'');});
   const txt=s==='syncing'?'a guardar…':s==='offline'?'offline':'guardado';
   ['sync-txt','sync-txt2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=txt;});
 }
 function catsToFS(cats){return cats.map(([name,n,tutorials])=>({name,n,tutorials:tutorials||[]}));}
-function catsFromFS(arr){
-  if(!arr||!arr.length)return[];
-  if(Array.isArray(arr[0]))return arr.map(c=>[c[0],c[1],c[2]||[]]);
-  return arr.map(c=>[c.name,c.n,c.tutorials||[]]);
-}
-// ensure outfits have pieces array
-function normaliseOutfits(outfits){
-  return outfits.map(o=>{
-    if(typeof o==='string') return {name:o,pieces:[{name:'',photo:'',type:'Peça principal'}]};
-    if(!o.pieces) return {...o,pieces:[{name:o.photo||'',photo:o.photo||'',type:'Peça principal'}]};
-    return o;
-  });
-}
+function catsFromFS(arr){if(!arr||!arr.length)return[];if(Array.isArray(arr[0]))return arr.map(c=>[c[0],c[1],c[2]||[]]);return arr.map(c=>[c.name,c.n,c.tutorials||[]]);}
+function normaliseOutfits(outfits){return(outfits||[]).map(o=>{if(typeof o==='string')return{name:o,pieces:[{name:'',photo:'',type:'Peça principal'}]};if(!o.pieces)return{...o,pieces:[{name:'',photo:o.photo||'',type:'Peça principal'}]};return o;});}
 
 let saveTimer=null;
 function scheduleSave(){clearTimeout(saveTimer);setSyncStatus('syncing');saveTimer=setTimeout(doSave,1200);}
 async function doSave(){
   try{
-    const base=(n)=>doc(db,'shared','data','docs',n);
+    const base=n=>doc(db,'shared','data','docs',n);
     await Promise.all([
       setDoc(base('config'),{locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme,ts:Date.now()}),
       setDoc(base('outfits'),{items:state.config.outfits}),
@@ -568,65 +458,49 @@ async function doSave(){
 }
 async function loadFromFirestore(){
   try{
-    const base=(n)=>doc(db,'shared','data','docs',n);
+    const base=n=>doc(db,'shared','data','docs',n);
     const [cfgSnap,outSnap,scaSnap,modSnap,looksSnap,teamSnap]=await Promise.all([getDoc(base('config')),getDoc(base('outfits')),getDoc(base('scarves')),getDoc(base('models')),getDoc(base('looks')),getDoc(base('team'))]);
     if(!cfgSnap.exists()&&!looksSnap.exists()){state.looks=genLooks();state.team=defaultTeam();doSave();}
     else{
       if(cfgSnap.exists()){const c=cfgSnap.data();state.config.locs=c.locs||state.config.locs;state.config.cats=catsFromFS(c.cats)||state.config.cats;state.config.theme=c.theme||state.config.theme;}
-      if(outSnap.exists()) state.config.outfits=normaliseOutfits(outSnap.data().items||state.config.outfits);
-      if(scaSnap.exists()) state.config.scarves=scaSnap.data().items||state.config.scarves;
-      if(modSnap.exists()) state.config.models =modSnap.data().items||state.config.models;
-      if(looksSnap.exists()) state.looks=looksSnap.data().items||[];
+      if(outSnap.exists())  state.config.outfits=normaliseOutfits(outSnap.data().items);
+      if(scaSnap.exists())  state.config.scarves=scaSnap.data().items||state.config.scarves;
+      if(modSnap.exists())  state.config.models =modSnap.data().items||state.config.models;
+      if(looksSnap.exists())state.looks=looksSnap.data().items||[];
       if(teamSnap.exists()){state.team=teamSnap.data().items||[];if(teamSnap.data().ui)state.ui={...state.ui,...teamSnap.data().ui};}
     }
     applyTheme();renderFilters();buildCarousel();updateCounter();setSyncStatus('ok');
-  }catch(e){
-    console.error(e);setSyncStatus('offline');
-    try{const c=localStorage.getItem('zafia_cache');if(c){const d=JSON.parse(c);if(d.config)state.config=d.config;if(d.looks)state.looks=d.looks;if(d.team)state.team=d.team;}}catch(e2){}
-    applyTheme();renderFilters();buildCarousel();updateCounter();
-  }
+  }catch(e){console.error(e);setSyncStatus('offline');applyTheme();renderFilters();buildCarousel();updateCounter();}
 }
 function initApp(){
-  try{const c=localStorage.getItem('zafia_cache');if(c){const d=JSON.parse(c);if(d.config)state.config=d.config;if(d.looks)state.looks=d.looks;if(d.team)state.team=d.team;if(d.config.outfits)state.config.outfits=normaliseOutfits(d.config.outfits);applyTheme();}}catch(e){}
+  try{const c=localStorage.getItem('zafia_cache');if(c){const d=JSON.parse(c);if(d.config){state.config=d.config;state.config.outfits=normaliseOutfits(state.config.outfits);}if(d.looks)state.looks=d.looks;if(d.team)state.team=d.team;applyTheme();}}catch(e){}
   renderFilters();buildCarousel();updateCounter();switchTab('looks');loadFromFirestore();
 }
 
 document.getElementById('loading').classList.add('hidden');
-if(sessionStorage.getItem(SESSION_KEY)==='1') initApp();
+if(localStorage.getItem(SESSION_KEY)==='1') initApp();
 else document.getElementById('screen-login').classList.remove('hidden');
 
-// ── EXPORT/IMPORT ──────────────────────────────────────────────────────────
-window.exportData=function(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');const d=new Date();a.href=url;a.download=`aos-backup-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;a.click();URL.revokeObjectURL(url);showToast('⬇ Exportado!');};
-window.importData=function(input){if(!input.files[0])return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(!d.config||!d.looks)throw new Error();window.state=d;if(d.config.outfits)state.config.outfits=normaliseOutfits(d.config.outfits);if(!state.ui)state.ui={currentIdx:0,filter:'',galleryView:'grid',gallerySort:'default'};applyTheme();renderFilters();buildCarousel();updateCounter();scheduleSave();showToast('⬆ Importado!');}catch(e){showToast('✗ Ficheiro inválido');}};r.readAsText(input.files[0]);input.value='';};
+// ── EXPORT/IMPORT ──
+window.exportData=function(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');const d=new Date();a.href=url;a.download=`aos-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;a.click();URL.revokeObjectURL(url);showToast('⬇ Exportado!');};
+window.importData=function(input){if(!input.files[0])return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(!d.config||!d.looks)throw new Error();window.state=d;state.config.outfits=normaliseOutfits(state.config.outfits);applyTheme();renderFilters();buildCarousel();updateCounter();scheduleSave();showToast('⬆ Importado!');}catch(e){showToast('✗ Ficheiro inválido');}};r.readAsText(input.files[0]);input.value='';};
 
-// ── HELPERS ────────────────────────────────────────────────────────────────
+// ── HELPERS ──
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function fmtEur(v){return(parseFloat(v)||0).toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
 function outfitColor(n){const i=state.config.outfits.findIndex(o=>o.name===n);return OUTFIT_PALETTE[(i<0?0:i)%OUTFIT_PALETTE.length];}
 function outfitObj(n){return state.config.outfits.find(o=>o.name===n)||null;}
 function photoOf(type,name){const item=state.config[type].find(x=>x.name===name);return item?.photo||'';}
 function catColorIdx(cat){return state.config.cats.findIndex(([c])=>c===cat);}
-function readFile(f){return new Promise(r=>{const fr=new FileReader();fr.onload=e=>r(e.target.result);fr.readAsDataURL(f);});}
-function compressImage(file,maxW,quality){
-  return new Promise(resolve=>{
-    const reader=new FileReader();
-    reader.onload=e=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxW/img.width);const w=Math.round(img.width*scale);const h=Math.round(img.height*scale);const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);resolve(canvas.toDataURL('image/jpeg',quality));};img.src=e.target.result;};
-    reader.readAsDataURL(file);
-  });
-}
-function tutorialOf(look){
-  const cat=state.config.cats.find(([c])=>c===look.category);
-  if(!cat||!cat[2]||!cat[2].length)return null;
-  const idx=look.tutorialIdx||0;
-  return cat[2][idx]||cat[2][0]||null;
-}
+function compressImage(file,maxW,quality){return new Promise(resolve=>{const reader=new FileReader();reader.onload=e=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxW/img.width);const w=Math.round(img.width*scale);const h=Math.round(img.height*scale);const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);resolve(canvas.toDataURL('image/jpeg',quality));};img.src=e.target.result;};reader.readAsDataURL(file);});}
+function tutorialOf(look){const cat=state.config.cats.find(([c])=>c===look.category);if(!cat||!cat[2]||!cat[2].length)return null;return cat[2][look.tutorialIdx||0]||cat[2][0]||null;}
 
-// ── THEME ──────────────────────────────────────────────────────────────────
+// ── THEME ──
 function applyTheme(){const th=state.config.theme,r=document.documentElement;r.style.setProperty('--c-bg',th.bg);r.style.setProperty('--c-surface',th.surface);r.style.setProperty('--c-card',th.card);r.style.setProperty('--c-accent',th.accent);r.style.setProperty('--c-accent2',th.accent2||'#E8D5A3');r.style.setProperty('--c-text',th.text);r.style.setProperty('--c-done',th.done);document.querySelector('meta[name=theme-color]').content=th.bg;}
 window.resetColors=function(){state.config.theme={...DEFAULT_THEME};applyTheme();renderColorGrid();scheduleSave();};
 function renderColorGrid(){const th=state.config.theme;document.getElementById('color-grid').innerHTML=Object.keys(DEFAULT_THEME).map(key=>`<div class="color-field"><div class="cfg-lbl">${COLOR_LABELS[key]}</div><div class="color-picker-wrap" onclick="document.getElementById('cp-${key}').click()"><div class="color-swatch" style="background:${th[key]}"></div><span class="color-hex">${th[key]}</span><input type="color" class="color-picker" id="cp-${key}" value="${th[key]}" oninput="state.config.theme['${key}']=this.value;applyTheme();this.previousElementSibling.previousElementSibling.style.background=this.value;this.previousElementSibling.textContent=this.value;scheduleSave()"></div></div>`).join('');}
 
-// ── RNG / GEN ──────────────────────────────────────────────────────────────
+// ── RNG/GEN ──
 function rng(seed){let s=seed;return()=>{s=(s*1664525+1013904223)&0xFFFFFFFF;return(s>>>0)/0xFFFFFFFF;};}
 function shuf(arr,r){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function genLooks(){
@@ -642,15 +516,15 @@ function genLooks(){
     const pairs=[];for(const o of oNames)for(const m of mNames)pairs.push([o,m]);
     const sel=shuf(pairs,r).slice(0,Math.min(count,pairs.length));
     while(sel.length<count){const ex=shuf(pairs,r);for(const p of ex){if(sel.length>=count)break;sel.push(p);}}
-    byCat.push(sel.slice(0,count).map(([outfit,model])=>({category:cat,outfit,scarf:sp[si++%sp.length],location:locPool[li++%locPool.length],model,done:false,notes:"",tutorialIdx:0})));
+    byCat.push(sel.slice(0,count).map(([outfit,model])=>({category:cat,outfit,scarf:sp[si++%sp.length],location:locPool[li++%locPool.length],model,done:false,status:'',shootingPhoto:'',notes:'',tutorialIdx:0})));
   }
   const flat=[];const ml=Math.max(...byCat.map(c=>c.length));
   for(let i=0;i<ml;i++)for(const cl of byCat)if(i<cl.length)flat.push(cl[i]);
   return flat.map((l,i)=>({...l,num:i+1}));
 }
-function defaultTeam(){return[{id:1,name:"",role:"Fotógrafo Principal",location:"PT Est+Ext+CV",phone:"",email:"",notes:"",photo:"",viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true}];}
+function defaultTeam(){return[{id:1,name:'',role:'Fotógrafo Principal',location:'PT Est+Ext+CV',phone:'',email:'',notes:'',photo:'',viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true}];}
 
-// ── SCREENS ────────────────────────────────────────────────────────────────
+// ── SCREENS ──
 window.switchTab=function(tab){
   const map={looks:'screen-looks',gallery:'screen-gallery',config:'screen-config',equipa:'screen-equipa'};
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
@@ -658,18 +532,18 @@ window.switchTab=function(tab){
   document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('on'));
   const el=document.getElementById('tab-'+tab);if(el)el.classList.add('on');
   window.currentScreen=map[tab];
-  if(tab==='gallery') renderGallery();
-  if(tab==='config')  renderConfig();
-  if(tab==='equipa')  renderTeam();
+  if(tab==='gallery')renderGallery();
+  if(tab==='config') renderConfig();
+  if(tab==='equipa') renderTeam();
 };
 window.toggleCS=function(id){document.getElementById(id).classList.toggle('open');};
 
-// ── FILTERS ────────────────────────────────────────────────────────────────
+// ── FILTERS ──
 function filteredLooks(){
   const f=state.ui.filter;
   if(!f)return state.looks;
-  if(f==='done')return state.looks.filter(l=>l.done);
-  if(f==='pending')return state.looks.filter(l=>!l.done);
+  if(f==='done')return state.looks.filter(l=>l.status==='done');
+  if(f==='pending')return state.looks.filter(l=>l.status!=='done');
   return state.looks.filter(l=>l.category===f||l.location===f||l.model===f);
 }
 function renderFilters(){
@@ -679,145 +553,109 @@ function renderFilters(){
   document.getElementById('filter-strip').innerHTML=chips.map(c=>`<span class="filter-chip ${state.ui.filter===c.v?'on':''}" onclick="setFilter('${c.v}')">${c.l}</span>`).join('');
   document.getElementById('gallery-filter-strip').innerHTML=chips.map(c=>`<span class="filter-chip ${state.ui.filter===c.v?'on':''}" onclick="setGalleryFilter('${c.v}')">${c.l}</span>`).join('');
 }
-window.setFilter=function(v){state.ui.filter=v;state.ui.currentIdx=0;renderFilters();buildCarousel();updateCounter();scheduleSave();};
+window.setFilter=function(v){state.ui.filter=v;state.ui.currentIdx=0;renderFilters();buildCarousel();updateCounter();};
 window.setGalleryFilter=function(v){state.ui.filter=v;state.ui.currentIdx=0;renderFilters();renderGallery();};
 
-// ── COUNTER ────────────────────────────────────────────────────────────────
+// ── COUNTER ──
 function updateCounter(){
   const fl=filteredLooks();
   const idx=Math.min(state.ui.currentIdx,Math.max(0,fl.length-1));
   const done=fl.filter(l=>l.status==='done').length;
-  const shooting=fl.filter(l=>l.status==='shooting').length;
   document.getElementById('looks-counter').textContent=fl.length?`${idx+1}/${fl.length}`:'0/0';
   document.getElementById('nav-pos').textContent=fl.length?`${idx+1} / ${fl.length}`:'– / –';
   document.getElementById('prog-fill').style.width=fl.length?(done/fl.length*100)+'%':'0%';
   document.getElementById('btn-prev').disabled=idx===0;
   document.getElementById('btn-next').disabled=idx>=fl.length-1;
-  // update header sub-counters
-  const looksCounter=document.getElementById('looks-counter');
-  if(looksCounter) looksCounter.title=`${done} feitos · ${shooting} em shooting`;
 }
 
-// ── CAROUSEL ───────────────────────────────────────────────────────────────
+// ── CARD BUILD ── key insight: never rebuild entire carousel on field change
+// instead, update individual card elements in-place
 function buildCard(look){
   const ci=catColorIdx(look.category);
   const catColor=CAT_COLORS[ci]||'#888';
   const oColor=outfitColor(look.outfit);
   const outfit=outfitObj(look.outfit);
   const pieces=outfit?.pieces||[];
+  const firstPiecePhoto=pieces.find(p=>p.photo)?.photo||'';
+  const firstPieceName=pieces.find(p=>p.photo)?.name||pieces.find(p=>p.photo)?.type||'Roupa';
   const sPhoto=photoOf('scarves',look.scarf);
+  const mPhoto=photoOf('models',look.model);
   const tut=tutorialOf(look);
   const tPhoto=tut?.photo||'';
   const tName=tut?.name||'Tutorial';
+  const sPhoto2=look.shootingPhoto||'';
+  const status=look.status||'';
 
-  // outfit options
   const outfitOpts=state.config.outfits.map(o=>`<option${o.name===look.outfit?' selected':''}>${esc(o.name)}</option>`).join('');
   const scarfOpts =state.config.scarves.map(s=>`<option${s.name===look.scarf?' selected':''}>${esc(s.name)}</option>`).join('');
   const modelOpts =state.config.models.map(m=>`<option${m.name===look.model?' selected':''}>${esc(m.name)}</option>`).join('');
   const locOpts   =["Portugal – Estúdio","Portugal – Exterior","Cabo Verde – Exterior"].map(l=>`<option${l===look.location?' selected':''}>${l}</option>`).join('');
   const cat=state.config.cats.find(([c])=>c===look.category);
   const tutorials=cat?.[2]||[];
-  const tutOpts=tutorials.length?tutorials.map((t,ti)=>`<option value="${ti}" ${(look.tutorialIdx||0)===ti?'selected':''}>${esc(t.name||`Tutorial ${ti+1}`)}</option>`).join(''):'<option value="">— sem tutoriais —</option>';
+  const tutOpts=tutorials.length?tutorials.map((t,ti)=>`<option value="${ti}"${(look.tutorialIdx||0)===ti?' selected':''}>${esc(t.name||`Tutorial ${ti+1}`)}</option>`).join(''):`<option value="">— sem tutoriais —</option>`;
 
-  // build outfit mini-carousel slides
-  const slides=pieces.filter(p=>p.photo).map((p,pi)=>`
-    <div class="outfit-slide">
-      <img src="${p.photo}" alt="${esc(p.name||p.type||'')}" onclick="openLb('${p.photo}')">
-      <div class="outfit-slide-label">${esc(p.name||p.type||'Peça '+(pi+1))}</div>
-    </div>`);
-  if(!slides.length) slides.push(`<div class="outfit-slide"><div class="outfit-slide-ph"><span class="icon">👗</span><span>Sem fotos de peças</span></div></div>`);
-  const dotsHtml=slides.length>1?`<div class="outfit-carousel-dots">${slides.map((_,i)=>`<div class="outfit-dot ${i===0?'on':''}" id="odot-${look.num}-${i}"></div>`).join('')}</div>`:'';
-  const arrowsHtml=slides.length>1?`<button class="outfit-carousel-btn prev" onclick="outfitSlide(${look.num},-1)">‹</button><button class="outfit-carousel-btn next" onclick="outfitSlide(${look.num},1)">›</button>`:'';
+  // status badge
+  const statusClass=status==='done'?'done':status==='shooting'?'shooting':'idle';
+  const statusLabel=status==='done'?'Feito':status==='shooting'?'Shooting':'Pronto';
+  const statusIcon=status==='done'?'✓':status==='shooting'?'●':'📷';
 
-  // pieces selector rows
-  const piecesRows=pieces.map((p,pi)=>`
-    <div class="outfit-piece-row">
-      ${p.photo?`<img class="outfit-piece-thumb" src="${p.photo}" onclick="openLb('${p.photo}')">`:`<div class="outfit-piece-thumb-ph">${pi===pieces.length-1&&p.type==='Sapatos'?'👟':pi===pieces.length-2&&p.type?.includes('Aces')?'💍':'👗'}</div>`}
-      <span class="outfit-piece-type">${esc(p.type||'Peça')}</span>
-      <select class="outfit-piece-sel" onchange="updLookPiece(${look.num},${pi},this.value)">
-        ${state.config.outfits.map(o=>`<option${o.name===look.outfit?' selected':''}>${esc(o.name)}</option>`).join('')}
-      </select>
-    </div>`).join('');
-
-  const shootingPhoto=look.shootingPhoto||'';
-  const isShooting=look.status==='shooting';
-  const isDone=look.status==='done';
-  const camBtnClass=isDone?'done':isShooting?'shooting':'';
-  const camBtnIcon=isDone?'✓':isShooting?'📸':'📷';
+  function photoCell(photo,label,contain,onclick){
+    return`<div class="photo-cell${contain?' contain':''}" ${photo&&onclick?`onclick="${onclick}"`:''}>
+      ${photo?`<img src="${photo}" alt="${esc(label)}"><div class="photo-cell-lbl">${esc(label)}</div>`:`<div class="photo-cell-ph"><span class="icon">${contain?'📋':label==='Lenço'?'🧣':label==='Modelo'?'👤':'📸'}</span><span>${esc(label)}</span></div>`}
+    </div>`;
+  }
 
   const card=document.createElement('div');
   card.className='look-card';
-  card.style.position='relative';
   card.dataset.lookNum=look.num;
-
-  // shooting overlay
-  const overlayHtml=(isShooting||isDone)?`
-    <div class="shooting-overlay" id="sov-${look.num}">
-      ${shootingPhoto?`<img src="${shootingPhoto}" alt="Shooting">`:''}
-      <div class="shooting-badge">
-        ${!isDone?`<div class="shooting-pill"><div class="shooting-dot"></div>SHOOTING</div>`:`<div class="shooting-pill" style="border-color:var(--c-done);color:var(--c-done);animation:none">✓ FOTOGRAFADO</div>`}
-        ${!isDone?`<button class="shooting-done-btn" onclick="markDone(${look.num})">✓ Fotografado — Concluir</button>`:''}
-        <button class="shooting-cancel-btn" onclick="cancelShooting(${look.num})">${isDone?'↩ Reabrir':'✕ Cancelar'}</button>
-      </div>
-    </div>`:'';
-
   card.innerHTML=`
-    ${overlayHtml}
     <div class="card-color-bar" style="background:#${oColor}"></div>
     <div class="card-header">
       <span class="card-num">Look #${look.num}</span>
       <span class="card-cat" style="background:${catColor}22;color:${catColor}">${look.category}</span>
-      <div class="card-camera-btn ${camBtnClass}" onclick="startShooting(${look.num})" title="Iniciar shooting">${camBtnIcon}</div>
+      <button class="card-status-btn ${statusClass}" onclick="cycleStatus(${look.num})">
+        <div class="status-dot"></div>${statusLabel}
+      </button>
     </div>
-
-    <div class="card-top-row">
-      <!-- outfit mini carousel -->
-      <div style="flex:1;min-width:0;">
-        <div class="outfit-carousel-wrap" id="oc-${look.num}">
-          <div class="outfit-carousel-track no-anim" id="oct-${look.num}">${slides.join('')}</div>
-          ${arrowsHtml}
-          ${dotsHtml}
-        </div>
-      </div>
-      <!-- lenço -->
-      <div class="tutorial-slot" style="height:clamp(130px,26vh,220px);width:clamp(70px,18%,100px)" ${sPhoto?`onclick="openLb('${sPhoto}')"`:''}">
-        ${sPhoto?`<img src="${sPhoto}" alt="Lenço" style="object-fit:cover;width:100%;height:100%"><div class="tutorial-label">Lenço</div>`:`<div class="tutorial-slot-ph"><span class="icon">🧣</span><span>Lenço</span></div>`}
-      </div>
-      <!-- tutorial -->
-      <div class="tutorial-slot" style="height:clamp(130px,26vh,220px)" ${tPhoto?`onclick="openLb('${tPhoto}')"`:''}">
-        ${tPhoto?`<img src="${tPhoto}" alt="${esc(tName)}"><div class="tutorial-label">${esc(tName)}</div>`:`<div class="tutorial-slot-ph"><span class="icon">📋</span><span>${esc(tName)||'Tutorial'}</span></div>`}
-      </div>
+    <div class="card-photo-grid">
+      ${photoCell(firstPiecePhoto, firstPieceName||'Roupa', false, `openLb('${firstPiecePhoto}')`)}
+      ${photoCell(sPhoto, 'Lenço', false, `openLb('${sPhoto}')`)}
+      ${photoCell(tPhoto, tName, true, `openLb('${tPhoto}')`)}
+      ${photoCell(sPhoto2, 'Look final', false, sPhoto2?`openLb('${sPhoto2}')`:'')}
     </div>
-
     <div class="card-fields">
-      <div class="field-row">
-        <div class="field-lbl">Roupa</div>
-        <select class="field-sel" onchange="updLook(${look.num},'outfit',this.value);buildCarousel()">${outfitOpts}</select>
-        ${pieces.length>1?`<div class="outfit-pieces">${piecesRows}</div>`:''}
+      <div class="field-row"><div class="field-lbl">Roupa</div>
+        <select class="field-sel" onchange="updLookField(${look.num},'outfit',this.value)">
+          ${outfitOpts}
+        </select>
       </div>
-      <div class="field-row"><div class="field-lbl">Lenço</div><select class="field-sel" onchange="updLook(${look.num},'scarf',this.value);scheduleSave()">${scarfOpts}</select></div>
-      <div class="field-row"><div class="field-lbl">Modelo</div><select class="field-sel" onchange="updLook(${look.num},'model',this.value);scheduleSave()">${modelOpts}</select></div>
-      <div class="field-row"><div class="field-lbl">Tutorial (${look.category})</div><select class="field-sel" onchange="updLook(${look.num},'tutorialIdx',parseInt(this.value));buildCarousel()">${tutOpts}</select></div>
-      <div class="field-row"><div class="field-lbl">Local</div><select class="field-sel" onchange="updLook(${look.num},'location',this.value);scheduleSave()">${locOpts}</select></div>
-      <div class="field-row"><div class="field-lbl">Notas</div><input class="field-inp" type="text" value="${esc(look.notes||'')}" placeholder="Adicionar nota…" onchange="updLook(${look.num},'notes',this.value)"></div>
+      <div class="field-row"><div class="field-lbl">Lenço</div>
+        <select class="field-sel" onchange="updLookField(${look.num},'scarf',this.value)">
+          ${scarfOpts}
+        </select>
+      </div>
+      <div class="field-row"><div class="field-lbl">Modelo</div>
+        <select class="field-sel" onchange="updLookField(${look.num},'model',this.value)">
+          ${modelOpts}
+        </select>
+      </div>
+      <div class="field-row"><div class="field-lbl">Tutorial (${look.category})</div>
+        <select class="field-sel" onchange="updLookField(${look.num},'tutorialIdx',parseInt(this.value))">
+          ${tutOpts}
+        </select>
+      </div>
+      <div class="field-row"><div class="field-lbl">Local</div>
+        <select class="field-sel" onchange="updLookField(${look.num},'location',this.value)">
+          ${locOpts}
+        </select>
+      </div>
+      <div class="field-row"><div class="field-lbl">Notas</div>
+        <input class="field-inp" type="text" value="${esc(look.notes||'')}" placeholder="Adicionar nota…"
+          onchange="updLookField(${look.num},'notes',this.value)">
+      </div>
     </div>`;
   return card;
 }
-
-// outfit mini-carousel navigation
-const outfitSlideIdx={};
-window.outfitSlide=function(lookNum,dir){
-  const track=document.getElementById('oct-'+lookNum);
-  if(!track)return;
-  const slides=track.children.length;
-  if(slides<=1)return;
-  outfitSlideIdx[lookNum]=(outfitSlideIdx[lookNum]||0);
-  outfitSlideIdx[lookNum]=Math.max(0,Math.min(slides-1,outfitSlideIdx[lookNum]+dir));
-  track.classList.remove('no-anim');
-  track.style.transform=`translateX(-${outfitSlideIdx[lookNum]*100}%)`;
-  // update dots
-  document.querySelectorAll(`[id^="odot-${lookNum}-"]`).forEach((d,i)=>d.classList.toggle('on',i===outfitSlideIdx[lookNum]));
-};
 
 window.buildCarousel=function(){
   const fl=filteredLooks();
@@ -831,6 +669,39 @@ window.buildCarousel=function(){
   requestAnimationFrame(()=>track.classList.remove('no-anim'));
   updateCounter();
 };
+
+// ── KEY FIX: update field in state only, no carousel rebuild ──
+window.updLookField=function(num,field,val){
+  const l=state.looks.find(x=>x.num===num);if(!l)return;
+  l[field]=val;
+  scheduleSave();
+  // only rebuild photos if outfit changed (affects photo display)
+  if(field==='outfit'||field==='tutorialIdx') rebuildCardPhotos(num);
+};
+
+// rebuild only the photo grid of one card without touching the selects
+function rebuildCardPhotos(num){
+  const fl=filteredLooks();
+  const idx=fl.findIndex(x=>x.num===num);
+  if(idx<0)return;
+  const cardEl=document.getElementById('carousel-track').children[idx];
+  if(!cardEl)return;
+  const look=fl[idx];
+  const outfit=outfitObj(look.outfit);
+  const pieces=outfit?.pieces||[];
+  const firstPiecePhoto=pieces.find(p=>p.photo)?.photo||'';
+  const firstPieceName=pieces.find(p=>p.photo)?.name||pieces.find(p=>p.photo)?.type||'Roupa';
+  const sPhoto=photoOf('scarves',look.scarf);
+  const tut=tutorialOf(look);
+  const tPhoto=tut?.photo||'';const tName=tut?.name||'Tutorial';
+  const sPhoto2=look.shootingPhoto||'';
+  function photoCell(photo,label,contain,onclick){return`<div class="photo-cell${contain?' contain':''}" ${photo&&onclick?`onclick="${onclick}"`:''}>
+    ${photo?`<img src="${photo}" alt="${esc(label)}"><div class="photo-cell-lbl">${esc(label)}</div>`:`<div class="photo-cell-ph"><span class="icon">${contain?'📋':label==='Lenço'?'🧣':label==='Modelo'?'👤':'📸'}</span><span>${esc(label)}</span></div>`}
+  </div>`;}
+  const grid=cardEl.querySelector('.card-photo-grid');
+  if(grid) grid.innerHTML=`${photoCell(firstPiecePhoto,firstPieceName||'Roupa',false,`openLb('${firstPiecePhoto}')`)}${photoCell(sPhoto,'Lenço',false,`openLb('${sPhoto}')`)}${photoCell(tPhoto,tName,true,`openLb('${tPhoto}')`)}${photoCell(sPhoto2,'Look final',false,sPhoto2?`openLb('${sPhoto2}')`:'')}`;
+}
+
 window.navTo=function(idx){
   const fl=filteredLooks();if(idx<0||idx>=fl.length)return;
   state.ui.currentIdx=idx;
@@ -838,10 +709,45 @@ window.navTo=function(idx){
   updateCounter();scheduleSave();
 };
 
+// ── STATUS CYCLE: idle → shooting(take photo) → done → idle ──
+window.cycleStatus=function(num){
+  const l=state.looks.find(x=>x.num===num);if(!l)return;
+  if(!l.status||l.status===''){
+    // open camera
+    const input=document.createElement('input');
+    input.type='file';input.accept='image/*';input.capture='environment';
+    input.onchange=async e=>{
+      if(!e.target.files[0])return;
+      const compressed=await compressImage(e.target.files[0],900,0.8);
+      l.shootingPhoto=compressed;l.status='shooting';
+      scheduleSave();rebuildCardPhotos(num);updateStatusBtn(num);updateCounter();
+    };
+    input.click();
+  } else if(l.status==='shooting'){
+    l.status='done';l.done=true;
+    scheduleSave();updateStatusBtn(num);updateCounter();
+    // update gallery dot
+  } else if(l.status==='done'){
+    if(confirm('Reabrir este look?')){l.status='';l.done=false;scheduleSave();updateStatusBtn(num);updateCounter();}
+  }
+};
+
+function updateStatusBtn(num){
+  const fl=filteredLooks();
+  const idx=fl.findIndex(x=>x.num===num);if(idx<0)return;
+  const cardEl=document.getElementById('carousel-track').children[idx];if(!cardEl)return;
+  const l=fl[idx];const status=l.status||'';
+  const btn=cardEl.querySelector('.card-status-btn');if(!btn)return;
+  const statusClass=status==='done'?'done':status==='shooting'?'shooting':'idle';
+  const statusLabel=status==='done'?'Feito':status==='shooting'?'Shooting':'Pronto';
+  btn.className=`card-status-btn ${statusClass}`;
+  btn.innerHTML=`<div class="status-dot"></div>${statusLabel}`;
+}
+
 // drag/swipe
 (function(){
   let sx=0,sy=0,drag=false,moved=false,vpW=0;
-  const INTERACTIVE='select,input,textarea,button,label,.outfit-carousel-btn';
+  const INTERACTIVE='select,input,textarea,button,label';
   function isUI(el){return!!el.closest(INTERACTIVE);}
   function onStart(x,y,target){if(isUI(target))return;sx=x;sy=y;drag=true;moved=false;vpW=document.getElementById('carousel-vp').offsetWidth;document.getElementById('carousel-track').classList.add('no-anim');}
   function onMove(x,y){if(!drag)return;const dx=x-sx,dy=y-sy;if(!moved&&Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){drag=false;return;}if(Math.abs(dx)>4)moved=true;document.getElementById('carousel-track').style.transform=`translateX(${-(state.ui.currentIdx*vpW-dx)}px)`;}
@@ -856,55 +762,7 @@ window.navTo=function(idx){
   window.addEventListener('keydown',e=>{if(window.currentScreen!=='screen-looks')return;if(e.key==='ArrowRight'||e.key==='ArrowDown')window.navTo(state.ui.currentIdx+1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')window.navTo(state.ui.currentIdx-1);});
 })();
 
-// ── LOOK UPDATES ───────────────────────────────────────────────────────────
-window.startShooting=function(num){
-  const l=state.looks.find(x=>x.num===num);if(!l)return;
-  if(l.status==='done'){
-    // already done — show overlay again
-    l.status='done';scheduleSave();buildCarousel();return;
-  }
-  // open camera / file picker
-  const input=document.createElement('input');
-  input.type='file';input.accept='image/*';input.capture='environment';
-  input.onchange=async e=>{
-    if(!e.target.files[0])return;
-    const compressed=await compressImage(e.target.files[0],800,0.75);
-    l.shootingPhoto=compressed;
-    l.status='shooting';
-    l.done=false;
-    scheduleSave();buildCarousel();
-  };
-  input.click();
-};
-
-window.markDone=function(num){
-  const l=state.looks.find(x=>x.num===num);if(!l)return;
-  l.status='done';l.done=true;
-  scheduleSave();buildCarousel();updateCounter();
-};
-
-window.cancelShooting=function(num){
-  const l=state.looks.find(x=>x.num===num);if(!l)return;
-  if(confirm(l.status==='done'?'Reabrir este look?':'Cancelar shooting e apagar foto?')){
-    l.status='';l.done=false;
-    if(l.status!=='done') l.shootingPhoto='';
-    l.shootingPhoto='';
-    scheduleSave();buildCarousel();updateCounter();
-  }
-};
-window.updLookPiece=function(num,pieceIdx,val){
-  // piece selector changes the outfit name on that piece — for now just update outfit
-  const l=state.looks.find(x=>x.num===num);if(!l)return;
-  l.outfit=val;scheduleSave();buildCarousel();
-};
-window.toggleDone=function(num){
-  const l=state.looks.find(x=>x.num===num);if(!l)return;l.done=!l.done;scheduleSave();
-  const fl=filteredLooks();const idx=fl.findIndex(x=>x.num===num);
-  if(idx>=0){const cards=document.getElementById('carousel-track').children;if(cards[idx]){const b=cards[idx].querySelector('.card-done-badge');if(b){b.classList.toggle('done',l.done);b.textContent=l.done?'✓':'○';}}}
-  updateCounter();
-};
-
-// ── GALLERY ────────────────────────────────────────────────────────────────
+// ── GALLERY ──
 function getSortedLooks(){
   const fl=[...filteredLooks()];
   const sort=document.getElementById('gallery-sort')?.value||'default';
@@ -912,19 +770,13 @@ function getSortedLooks(){
   if(sort==='model-outfit')return fl.sort((a,b)=>a.model.localeCompare(b.model)||a.outfit.localeCompare(b.outfit));
   if(sort==='category')return fl.sort((a,b)=>a.category.localeCompare(b.category));
   if(sort==='location')return fl.sort((a,b)=>a.location.localeCompare(b.location));
-  if(sort==='done')return fl.sort((a,b)=>Number(a.done)-Number(b.done));
+  if(sort==='done')return fl.sort((a,b)=>Number(a.status==='done')-Number(b.status==='done'));
   return fl;
 }
-function getGroupKey(look,sort){
-  if(sort==='outfit-model')return`${look.outfit}  ·  ${look.model}`;
-  if(sort==='model-outfit')return`${look.model}  ·  ${look.outfit}`;
-  if(sort==='category')return look.category;
-  if(sort==='location')return look.location;
-  return null;
-}
+function getGroupKey(look,sort){if(sort==='outfit-model')return`${look.outfit} · ${look.model}`;if(sort==='model-outfit')return`${look.model} · ${look.outfit}`;if(sort==='category')return look.category;if(sort==='location')return look.location;return null;}
 window.renderGallery=function(){
   const fl=getSortedLooks();
-  const done=fl.filter(l=>l.done).length;
+  const done=fl.filter(l=>l.status==='done').length;
   document.getElementById('gallery-sub').textContent=`${done} / ${fl.length} feitos`;
   renderFilters();
   const v=state.ui.galleryView||'grid';
@@ -932,81 +784,67 @@ window.renderGallery=function(){
   const useGroups=sort!=='default'&&sort!=='done';
   const scroll=document.getElementById('gallery-scroll');
   if(v==='grid'){
-    if(useGroups){
-      const groups=[];let lastKey=null,curGroup=null;
-      fl.forEach(look=>{const key=getGroupKey(look,sort);if(key!==lastKey){lastKey=key;curGroup={key,looks:[]};groups.push(curGroup);}curGroup.looks.push({look,i:filteredLooks().indexOf(look)});});
-      scroll.innerHTML=groups.map(g=>`<div class="group-header">${esc(g.key)}<span class="group-count">${g.looks.length} look${g.looks.length!==1?'s':''}</span></div><div class="gallery-grid">${g.looks.map(({look,i})=>galleryCell(look,i)).join('')}</div>`).join('')+'<div style="height:20px"></div>';
-    }else{scroll.innerHTML=`<div class="gallery-grid">${fl.map(look=>galleryCell(look,filteredLooks().indexOf(look))).join('')}</div><div style="height:20px"></div>`;}
-  }else{
-    if(useGroups){
-      const groups=[];let lastKey=null,curGroup=null;
-      fl.forEach(look=>{const key=getGroupKey(look,sort);if(key!==lastKey){lastKey=key;curGroup={key,looks:[]};groups.push(curGroup);}curGroup.looks.push(look);});
-      scroll.innerHTML=groups.map(g=>`<div class="group-header">${esc(g.key)}<span class="group-count">${g.looks.length} look${g.looks.length!==1?'s':''}</span></div>${g.looks.map(look=>listRow(look,filteredLooks().indexOf(look))).join('')}`).join('')+'<div style="height:20px"></div>';
-    }else{scroll.innerHTML=fl.map(look=>listRow(look,filteredLooks().indexOf(look))).join('')+'<div style="height:20px"></div>';}
+    if(useGroups){const groups=[];let lastKey=null,cg=null;fl.forEach(look=>{const key=getGroupKey(look,sort);if(key!==lastKey){lastKey=key;cg={key,looks:[]};groups.push(cg);}cg.looks.push({look,i:filteredLooks().indexOf(look)});});scroll.innerHTML=groups.map(g=>`<div class="group-header">${esc(g.key)}<span class="group-count">${g.looks.length} look${g.looks.length!==1?'s':''}</span></div><div class="gallery-grid">${g.looks.map(({look,i})=>galleryCell(look,i)).join('')}</div>`).join('')+'<div style="height:20px"></div>';}
+    else scroll.innerHTML=`<div class="gallery-grid">${fl.map(look=>galleryCell(look,filteredLooks().indexOf(look))).join('')}</div><div style="height:20px"></div>`;
+  } else {
+    if(useGroups){const groups=[];let lastKey=null,cg=null;fl.forEach(look=>{const key=getGroupKey(look,sort);if(key!==lastKey){lastKey=key;cg={key,looks:[]};groups.push(cg);}cg.looks.push(look);});scroll.innerHTML=groups.map(g=>`<div class="group-header">${esc(g.key)}<span class="group-count">${g.looks.length} look${g.looks.length!==1?'s':''}</span></div>${g.looks.map(look=>listRow(look,filteredLooks().indexOf(look))).join('')}`).join('')+'<div style="height:20px"></div>';}
+    else scroll.innerHTML=fl.map(look=>listRow(look,filteredLooks().indexOf(look))).join('')+'<div style="height:20px"></div>';
   }
 };
 function galleryCell(look,i){
   const outfit=outfitObj(look.outfit);
-  const firstPiecePhoto=outfit?.pieces?.find(p=>p.photo)?.photo||'';
+  const fp=outfit?.pieces?.find(p=>p.photo)?.photo||'';
   const sPhoto=photoOf('scarves',look.scarf);
   const tut=tutorialOf(look);const tPhoto=tut?.photo||'';
   const catColor=CAT_COLORS[catColorIdx(look.category)]||'#888';
-  function sq(photo,icon,contain){return photo?`<img class="gallery-cell-img" src="${photo}" alt="" style="object-fit:${contain?'contain':'cover'};${contain?'background:#111':''}">`:`<div class="gallery-cell-img-ph">${icon}</div>`;}
-  return`<div class="gallery-cell ${look.done?'done-cell':''}" onclick="goToLookFromGallery(${i})">
-    <div class="gallery-cell-imgs">${sq(firstPiecePhoto,'👗',false)}${sq(sPhoto,'🧣',false)}${sq(tPhoto,'📋',true)}</div>
+  const status=look.status||'';
+  function sq(photo,icon,contain){return photo?`<img class="gallery-cell-img" src="${photo}" alt="" style="object-fit:${contain?'contain':'cover'};${contain?'background:#0a0a1a':''}">`:`<div class="gallery-cell-img-ph">${icon}</div>`;}
+  return`<div class="gallery-cell ${status==='done'?'done-cell':''}" onclick="goToLookFromGallery(${i})">
+    <div class="gallery-cell-imgs">${sq(fp,'👗',false)}${sq(sPhoto,'🧣',false)}${sq(tPhoto,'📋',true)}</div>
     <div class="gallery-cell-body">
       <div class="gallery-cell-num">#${look.num}</div>
       <div class="gallery-cell-outfit">${esc(look.outfit)}</div>
       <div class="gallery-cell-meta">${esc(look.model)} · ${look.location.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div>
       <span class="gallery-cell-cat" style="background:${catColor}22;color:${catColor}">${look.category}${tut?.name?' · '+tut.name:''}</span>
     </div>
-    <div class="gallery-done-badge ${look.done?'done':''}">${look.done?'✓':''}</div>
+    ${status?`<div class="gallery-status-dot ${status}"></div>`:''}
   </div>`;
 }
 function listRow(look,i){
   const outfit=outfitObj(look.outfit);
-  const firstPiecePhoto=outfit?.pieces?.find(p=>p.photo)?.photo||'';
-  return`<div class="list-item ${look.done?'done-item':''}" onclick="goToLookFromGallery(${i})">
+  const fp=outfit?.pieces?.find(p=>p.photo)?.photo||'';
+  const status=look.status||'';
+  return`<div class="list-item ${status==='done'?'done-item':''}" onclick="goToLookFromGallery(${i})">
     <div class="list-color-bar" style="background:#${outfitColor(look.outfit)}"></div>
     <span class="list-num">${look.num}</span>
     <div class="list-content"><div class="list-outfit">${esc(look.outfit)}</div><div class="list-meta">${look.category} · ${esc(look.model)} · ${look.location.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div></div>
-    ${firstPiecePhoto?`<img class="list-thumb" src="${firstPiecePhoto}" alt="">`:`<div class="list-thumb-ph">👗</div>`}
-    <div class="list-done-dot ${look.done?'done':''}"></div>
+    ${fp?`<img class="list-thumb" src="${fp}" alt="">`:`<div class="list-thumb-ph">👗</div>`}
+    <div class="list-status-dot ${status}"></div>
   </div>`;
 }
 window.setGalleryView=function(v){state.ui.galleryView=v;document.getElementById('gv-grid').className='mini-btn'+(v==='grid'?' accent':'');document.getElementById('gv-list').className='mini-btn'+(v==='list'?' accent':'');renderGallery();};
 window.goToLookFromGallery=function(idx){state.ui.currentIdx=idx;switchTab('looks');buildCarousel();};
 
-// ── CONFIG ─────────────────────────────────────────────────────────────────
+// ── CONFIG ──
 function renderConfig(){
   document.getElementById('loc-studio').value=state.config.locs.studio;
   document.getElementById('loc-pt').value=state.config.locs.pt;
   document.getElementById('loc-cv').value=state.config.locs.cv;
   updateLocHint();
-  // categories with tutorials
   document.getElementById('cat-inputs').innerHTML=state.config.cats.map(([cat,n,tutorials],i)=>{
     const tuts=tutorials||[];
     return`<div style="border-bottom:1px solid var(--c-border);padding-bottom:14px;margin-bottom:14px;">
-      <div style="display:flex;align-items:center;gap:10px;padding:4px 0 10px;border-bottom:1px solid var(--c-border);margin-bottom:10px;">
-        <div style="flex:1;display:flex;align-items:center;gap:8px;background:var(--c-surface);border-radius:var(--radius-sm);padding:10px 12px;border:1.5px solid var(--c-border);">
-          <input class="cat-name-inp" type="text" value="${esc(cat)}" placeholder="Nome da categoria…"
-            onchange="state.config.cats[${i}][0]=this.value;scheduleSave()">
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;background:var(--c-surface);border-radius:var(--radius-sm);padding:6px 12px;min-width:64px;border:1.5px solid var(--c-border);">
-          <input class="cfg-inp num" type="number" min="0" value="${n}" style="width:100%;padding:0;background:transparent;border:none;font-size:.92rem;text-align:center;" onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint()">
-          <span style="font-size:.56rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.06em">looks</span>
-        </div>
+      <div class="cat-row">
+        <input class="cat-name-inp" type="text" value="${esc(cat)}" placeholder="Nome da categoria…" onchange="state.config.cats[${i}][0]=this.value;scheduleSave()">
+        <div class="cat-count-wrap"><input class="cat-count-inp" type="number" min="0" value="${n}" onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint()"><span class="cat-count-lbl">looks</span></div>
       </div>
-      <div style="font-size:.62rem;color:var(--c-text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Tutoriais</div>
+      <div style="font-size:.62rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Tutoriais</div>
       <div class="pieces-grid">${tuts.map((t,ti)=>`
         <div class="piece-cell">
-          ${t.photo?`<img class="piece-img" src="${t.photo}" onclick="openLb('${t.photo}')" style="object-fit:contain;background:#111">`:`<div class="piece-img-ph" onclick="document.getElementById('ft-${i}-${ti}').click()"><span>📋</span><span>Adicionar</span></div>`}
+          ${t.photo?`<img class="piece-img contain" src="${t.photo}" onclick="openLb('${t.photo}')">`:`<div class="piece-img-ph" onclick="document.getElementById('ft-${i}-${ti}').click()"><span>📋</span><span>Adicionar</span></div>`}
           <input type="file" accept="image/*" id="ft-${i}-${ti}" style="display:none" onchange="handleTutorialPhoto(${i},${ti},this)">
-          <input class="piece-name-inp" type="text" value="${esc(t.name||'')}" placeholder="Nome do tutorial…" onchange="state.config.cats[${i}][2][${ti}].name=this.value;scheduleSave()">
-          <div class="piece-actions">
-            <span class="piece-act-btn" onclick="document.getElementById('ft-${i}-${ti}').click()">${t.photo?'🔄':'📋'}</span>
-            <span class="piece-act-btn del" onclick="removeTutorial(${i},${ti})">✕</span>
-          </div>
+          <input class="piece-name-inp" type="text" value="${esc(t.name||'')}" placeholder="Nome…" onchange="state.config.cats[${i}][2][${ti}].name=this.value;scheduleSave()">
+          <div class="piece-actions"><span class="piece-act-btn" onclick="document.getElementById('ft-${i}-${ti}').click()">${t.photo?'🔄':'📋'}</span><span class="piece-act-btn del" onclick="removeTutorial(${i},${ti})">✕</span></div>
         </div>`).join('')}</div>
       <button class="mini-btn" style="width:100%;margin-top:8px;font-size:.75rem" onclick="addTutorial(${i})">+ Adicionar tutorial</button>
     </div>`;
@@ -1018,71 +856,43 @@ function renderConfig(){
   renderColorGrid();
 }
 
-// ── OUTFIT CONFIG (with pieces) ────────────────────────────────────────────
 function renderOutfitInputs(){
   document.getElementById('outfit-inputs').innerHTML=state.config.outfits.map((outfit,oi)=>{
     const pieces=outfit.pieces||[];
-    const firstPhoto=pieces.find(p=>p.photo)?.photo||'';
+    const fp=pieces.find(p=>p.photo)?.photo||'';
     return`<div class="outfit-config-card" id="ocard-${oi}">
       <div class="outfit-config-hdr" onclick="toggleOutfitCard(${oi})">
-        ${firstPhoto?`<img src="${firstPhoto}" alt="">`:`<div class="outfit-config-hdr-ph">👗</div>`}
-        <div style="flex:1;min-width:0;">
-          <div class="outfit-config-name">${esc(outfit.name||'Roupa '+(oi+1))}</div>
-          <div style="font-size:.65rem;color:var(--c-text3)">${pieces.length} peça${pieces.length!==1?'s':''}</div>
-        </div>
+        ${fp?`<img src="${fp}" alt="">`:`<div class="outfit-config-hdr-ph">👗</div>`}
+        <div style="flex:1;min-width:0;"><div class="outfit-config-name">${esc(outfit.name||'Roupa '+(oi+1))}</div><div style="font-size:.65rem;color:var(--c-text3)">${pieces.length} peça${pieces.length!==1?'s':''}</div></div>
         <span class="outfit-config-chevron">▾</span>
       </div>
       <div class="outfit-config-body">
-        <div class="cfg-field">
-          <label class="cfg-lbl">Nome da roupa / combinação</label>
-          <input class="cfg-inp" type="text" value="${esc(outfit.name)}" placeholder="Ex: Vestido Branco + Calças…" onchange="state.config.outfits[${oi}].name=this.value;scheduleSave();renderOutfitInputs()">
-        </div>
-        <div style="font-size:.65rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Peças do look</div>
-        <div class="pieces-grid" id="pieces-${oi}">${pieces.map((p,pi)=>pieceCell(oi,pi,p)).join('')}</div>
-        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-          ${PIECE_TYPES.map(t=>`<button class="mini-btn" style="flex:0 0 auto;font-size:.72rem;padding:6px 10px" onclick="addPiece(${oi},'${t}')">+ ${t}</button>`).join('')}
-        </div>
+        <div class="cfg-field"><label class="cfg-lbl">Nome</label><input class="cfg-inp" type="text" value="${esc(outfit.name)}" placeholder="Ex: Vestido Branco…" onchange="state.config.outfits[${oi}].name=this.value;scheduleSave();renderOutfitInputs()"></div>
+        <div style="font-size:.65rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Peças</div>
+        <div class="pieces-grid">${pieces.map((p,pi)=>pieceCell(oi,pi,p)).join('')}</div>
+        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">${PIECE_TYPES.map(t=>`<button class="mini-btn" style="flex:0 0 auto;font-size:.7rem;padding:5px 8px" onclick="addPiece(${oi},'${t}')">+ ${t}</button>`).join('')}</div>
       </div>
     </div>`;
   }).join('');
 }
 function pieceCell(oi,pi,p){
-  return`<div class="piece-cell" id="pc-${oi}-${pi}">
-    ${p.photo
-      ?`<img class="piece-img" src="${p.photo}" onclick="openLb('${p.photo}')">`
-      :`<div class="piece-img-ph" onclick="document.getElementById('fp-${oi}-${pi}').click()"><span>${pi===0?'👗':p.type?.includes('Sapato')?'👟':p.type?.includes('Aces')?'💍':'👗'}</span><span>${esc(p.type||'Peça')}</span></div>`}
+  return`<div class="piece-cell">
+    ${p.photo?`<img class="piece-img" src="${p.photo}" onclick="openLb('${p.photo}')">`:`<div class="piece-img-ph" onclick="document.getElementById('fp-${oi}-${pi}').click()"><span>${p.type?.includes('Sapato')?'👟':p.type?.includes('Aces')?'💍':'👗'}</span><span>${esc(p.type||'Peça')}</span></div>`}
     <input type="file" accept="image/*" id="fp-${oi}-${pi}" style="display:none" onchange="handlePiecePhoto(${oi},${pi},this)">
     <input class="piece-name-inp" type="text" value="${esc(p.name||p.type||'')}" placeholder="${esc(p.type||'Nome…')}" onchange="state.config.outfits[${oi}].pieces[${pi}].name=this.value;scheduleSave()">
-    <div class="piece-actions">
-      <span class="piece-act-btn" onclick="document.getElementById('fp-${oi}-${pi}').click()">${p.photo?'🔄':'📷'}</span>
-      <span class="piece-act-btn del" onclick="removePiece(${oi},${pi})">✕</span>
-    </div>
+    <div class="piece-actions"><span class="piece-act-btn" onclick="document.getElementById('fp-${oi}-${pi}').click()">${p.photo?'🔄':'📷'}</span><span class="piece-act-btn del" onclick="removePiece(${oi},${pi})">✕</span></div>
   </div>`;
 }
 window.toggleOutfitCard=function(oi){document.getElementById('ocard-'+oi).classList.toggle('open');};
 window.addPiece=function(oi,type){state.config.outfits[oi].pieces.push({name:'',photo:'',type});renderOutfitInputs();document.getElementById('ocard-'+oi).classList.add('open');};
 window.removePiece=function(oi,pi){state.config.outfits[oi].pieces.splice(pi,1);scheduleSave();renderOutfitInputs();buildCarousel();};
-window.handlePiecePhoto=async function(oi,pi,input){
-  if(!input.files[0])return;
-  const compressed=await compressImage(input.files[0],500,0.65);
-  state.config.outfits[oi].pieces[pi].photo=compressed;
-  scheduleSave();renderOutfitInputs();buildCarousel();
-};
+window.handlePiecePhoto=async function(oi,pi,input){if(!input.files[0])return;const c=await compressImage(input.files[0],500,0.65);state.config.outfits[oi].pieces[pi].photo=c;scheduleSave();renderOutfitInputs();buildCarousel();};
 window.addOutfit=function(){state.config.outfits.push({name:'Nova Roupa',pieces:[{name:'',photo:'',type:'Peça principal'}]});renderConfig();};
 window.removeOutfit=function(){if(state.config.outfits.length>1){state.config.outfits.pop();renderConfig();}};
+window.addTutorial=function(ci){if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2].push({name:'',photo:''});renderConfig();};
+window.removeTutorial=function(ci,ti){state.config.cats[ci][2].splice(ti,1);scheduleSave();renderConfig();};
+window.handleTutorialPhoto=async function(ci,ti,input){if(!input.files[0])return;const c=await compressImage(input.files[0],600,0.7);if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2][ti].photo=c;scheduleSave();renderConfig();buildCarousel();};
 
-// ── TUTORIAL HELPERS ───────────────────────────────────────────────────────
-window.addTutorial=function(catIdx){if(!state.config.cats[catIdx][2])state.config.cats[catIdx][2]=[];state.config.cats[catIdx][2].push({name:'',photo:''});renderConfig();};
-window.removeTutorial=function(catIdx,tutIdx){state.config.cats[catIdx][2].splice(tutIdx,1);scheduleSave();renderConfig();};
-window.handleTutorialPhoto=async function(catIdx,tutIdx,input){
-  if(!input.files[0])return;
-  const compressed=await compressImage(input.files[0],600,0.7);
-  if(!state.config.cats[catIdx][2])state.config.cats[catIdx][2]=[];
-  state.config.cats[catIdx][2][tutIdx].photo=compressed;
-  scheduleSave();renderConfig();buildCarousel();
-};
-
-// ── SCARVES / MODELS ───────────────────────────────────────────────────────
 function renderItemFields(type,cid){
   document.getElementById(cid).innerHTML=`<div class="photo-grid">${state.config[type].map((item,i)=>`
     <div class="photo-row">
@@ -1095,16 +905,9 @@ function renderItemFields(type,cid){
       </div>
     </div>`).join('')}</div>`;
 }
-window.handleSimplePhoto=async function(type,i,input){
-  if(!input.files[0])return;
-  const map={scarves:'scarf-inputs',models:'model-inputs'};
-  const compressed=await compressImage(input.files[0],400,0.55);
-  state.config[type][i].photo=compressed;scheduleSave();
-  renderItemFields(type,map[type]);buildCarousel();
-};
+window.handleSimplePhoto=async function(type,i,input){if(!input.files[0])return;const map={scarves:'scarf-inputs',models:'model-inputs'};const c=await compressImage(input.files[0],400,0.55);state.config[type][i].photo=c;scheduleSave();renderItemFields(type,map[type]);buildCarousel();};
 window.addItem=function(type){state.config[type].push({name:'',photo:''});renderConfig();};
 window.removeItem=function(type){if(state.config[type].length>1){state.config[type].pop();renderConfig();}};
-
 window.updateLocHint=function(){const s=parseInt(document.getElementById('loc-studio').value)||0;const p=parseInt(document.getElementById('loc-pt').value)||0;const c=parseInt(document.getElementById('loc-cv').value)||0;const h=document.getElementById('loc-hint');h.innerHTML=`Total: <strong>${s+p+c}</strong> / 100`;h.className='cfg-hint'+((s+p+c)!==100?' err':'');};
 window.updateCatHint=function(){const t=state.config.cats.reduce((s,[,n])=>s+n,0);const h=document.getElementById('cat-hint');h.innerHTML=`Total: <strong>${t}</strong> / 100`;h.className='cfg-hint'+(t!==100?' err':'');};
 window.applyConfig=function(){
@@ -1118,7 +921,7 @@ window.applyConfig=function(){
   scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');
 };
 
-// ── EQUIPA ─────────────────────────────────────────────────────────────────
+// ── EQUIPA ──
 function renderTeam(){renderGrandTotal();document.getElementById('team-cards').innerHTML=state.team.map(m=>renderMemberCard(m)).join('');}
 function renderMemberCard(m){
   const total=COST_FIELDS.reduce((s,f)=>s+(parseFloat(m[f])||0),0);
@@ -1149,13 +952,12 @@ function renderMemberCard(m){
 function renderGrandTotal(){const totals={};COST_FIELDS.forEach(f=>{totals[f]=state.team.reduce((s,m)=>s+(parseFloat(m[f])||0),0);});const grand=Object.values(totals).reduce((s,v)=>s+v,0);document.getElementById('gt-amount').textContent=fmtEur(grand);document.getElementById('gt-breakdown').innerHTML=COST_FIELDS.map((f,i)=>`<div class="gt-bk"><span class="gt-bk-val">${fmtEur(totals[f])}</span><span class="gt-bk-lbl">${COST_LABELS[i]}</span></div>`).join('');}
 window.toggleMember=function(id){const m=state.team.find(t=>t.id===id);if(!m)return;m.open=!m.open;scheduleSave();renderTeam();};
 window.updMember=function(id,field,val){const m=state.team.find(t=>t.id===id);if(!m)return;m[field]=val;const total=COST_FIELDS.reduce((s,f)=>s+(parseFloat(m[f])||0),0);const el=document.getElementById('mt-'+id);if(el)el.textContent=fmtEur(total);renderGrandTotal();scheduleSave();};
-window.handleMemberPhoto=async function(id,input){if(!input.files[0])return;const m=state.team.find(t=>t.id===id);if(!m)return;const compressed=await compressImage(input.files[0],300,0.6);m.photo=compressed;scheduleSave();renderTeam();};
+window.handleMemberPhoto=async function(id,input){if(!input.files[0])return;const m=state.team.find(t=>t.id===id);if(!m)return;const c=await compressImage(input.files[0],300,0.6);m.photo=c;scheduleSave();renderTeam();};
 window.remMemberPhoto=function(id){const m=state.team.find(t=>t.id===id);if(!m)return;m.photo='';scheduleSave();renderTeam();};
-window.addMember=function(){state.team.push({id:Date.now(),name:"",role:"",location:"",phone:"",email:"",notes:"",photo:"",viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true});scheduleSave();renderTeam();};
-window.removeMember=function(id){if(!confirm('Remover este membro?'))return;state.team=state.team.filter(m=>m.id!==id);scheduleSave();renderTeam();};
+window.addMember=function(){state.team.push({id:Date.now(),name:'',role:'',location:'',phone:'',email:'',notes:'',photo:'',viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true});scheduleSave();renderTeam();};
+window.removeMember=function(id){if(!confirm('Remover?'))return;state.team=state.team.filter(m=>m.id!==id);scheduleSave();renderTeam();};
 
-// ── LIGHTBOX / TOAST ───────────────────────────────────────────────────────
-window.openLb=function(src){document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('show');};
+window.openLb=function(src){if(!src)return;document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('show');};
 window.closeLightbox=function(){document.getElementById('lightbox').classList.remove('show');};
 window.showToast=function(msg='✓ Guardado'){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);};
 window.scheduleSave=scheduleSave;
