@@ -14,29 +14,36 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text);font-family:'Jost',sans-serif;}
 
-#screen-login{position:fixed;inset:0;background:var(--c-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;z-index:200;padding:40px;}
+/* LOGIN */
+#screen-login{position:fixed;inset:0;background:var(--c-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:200;padding:40px;}
 #screen-login.hidden{display:none;}
-.login-logo{font-family:'Cormorant Garamond',serif;font-size:2.4rem;color:var(--c-accent);font-weight:700;letter-spacing:.08em;text-align:center;}
+.login-logo{font-family:'Cormorant Garamond',serif;font-size:2.6rem;color:var(--c-accent);font-weight:700;letter-spacing:.08em;text-align:center;line-height:1.1;}
 .login-sub{font-size:.82rem;color:var(--c-text3);text-align:center;line-height:1.6;max-width:280px;}
-.login-btn{display:flex;align-items:center;gap:10px;background:white;color:#333;border:none;border-radius:50px;padding:13px 28px;font-family:'Jost',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.3);}
+.login-input-wrap{display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px;}
+.login-inp{width:100%;padding:14px 16px;border:1.5px solid var(--c-border);border-radius:var(--radius-sm);background:var(--c-surface);color:var(--c-text);font-family:'Jost',sans-serif;font-size:1rem;outline:none;text-align:center;letter-spacing:.15em;}
+.login-inp:focus{border-color:var(--c-accent);}
+.login-inp::placeholder{letter-spacing:0;color:var(--c-text3);}
+.login-btn{width:100%;max-width:280px;padding:14px;background:var(--c-accent);color:var(--c-bg);border:none;border-radius:var(--radius-sm);font-family:'Jost',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.04em;}
 .login-btn:active{opacity:.85;}
-.login-status{font-size:.75rem;color:var(--c-text3);text-align:center;}
+.login-err{font-size:.78rem;color:#ff6b6b;text-align:center;min-height:20px;}
 
+/* SYNC */
 .sync-badge{display:flex;align-items:center;gap:5px;font-size:.65rem;color:var(--c-text3);padding:3px 8px;border-radius:50px;border:1px solid var(--c-border);}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--c-done);}
 .sync-dot.syncing{background:var(--c-accent);animation:pulse 1s infinite;}
 .sync-dot.offline{background:#ff6b6b;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
 
+/* SCREENS */
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;}
 .screen.hidden{display:none;}
-
 .nav-bar{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--safe-top) + 12px) 16px 12px;background:var(--c-bg);border-bottom:1px solid var(--c-border);flex-shrink:0;z-index:10;}
 .nav-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;color:var(--c-accent);}
 .nav-sub{font-size:.62rem;color:var(--c-text3);letter-spacing:.1em;text-transform:uppercase;}
 .nav-btn{height:36px;padding:0 12px;border-radius:18px;border:none;background:var(--c-surface);color:var(--c-text);font-size:.78rem;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;}
 .nav-btn:active{opacity:.7;}
 
+/* TABS */
 .tab-bar{display:flex;background:var(--c-surface);border-top:1px solid var(--c-border);padding-bottom:var(--safe-bottom);flex-shrink:0;}
 .tab-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px;cursor:pointer;gap:3px;border:none;background:none;}
 .tab-icon{font-size:1.3rem;}
@@ -55,12 +62,13 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .prog-bar{height:3px;background:var(--c-border);flex-shrink:0;}
 .prog-bar-fill{height:100%;background:var(--c-accent);transition:width .4s ease;}
 
+/* LOOKS / CAROUSEL */
 #screen-looks{background:var(--c-bg);}
 .looks-header{padding:calc(var(--safe-top) + 10px) 16px 10px;background:var(--c-bg);border-bottom:1px solid var(--c-border);flex-shrink:0;display:flex;align-items:center;gap:10px;}
 .looks-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--c-accent);font-weight:600;flex:1;}
 .looks-counter{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--c-text3);}
-.carousel-viewport{flex:1;overflow:hidden;position:relative;cursor:grab;user-select:none;}
-.carousel-viewport.dragging{cursor:grabbing;}
+
+.carousel-viewport{flex:1;overflow:hidden;position:relative;}
 .carousel-track{display:flex;height:100%;transition:transform .35s cubic-bezier(.4,0,.2,1);will-change:transform;}
 .carousel-track.no-anim{transition:none;}
 .look-card{min-width:100%;width:100%;height:100%;background:var(--c-card);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
@@ -71,9 +79,9 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .card-done-badge{width:26px;height:26px;border-radius:50%;border:2px solid var(--c-border);display:flex;align-items:center;justify-content:center;font-size:.75rem;cursor:pointer;transition:all .15s;background:transparent;color:var(--c-text3);}
 .card-done-badge.done{background:var(--c-done);border-color:var(--c-done);color:white;}
 .card-photos{display:flex;gap:8px;padding:0 16px 10px;flex-shrink:0;}
-.card-photo-slot{flex:1;aspect-ratio:3/4;border-radius:10px;overflow:hidden;background:var(--c-surface);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;}
-.card-photo-slot img{width:100%;height:100%;object-fit:cover;}
-.card-photo-label{position:absolute;bottom:0;left:0;right:0;padding:6px 6px 5px;background:linear-gradient(transparent,rgba(0,0,0,.6));font-size:.6rem;color:rgba(255,255,255,.8);text-align:center;}
+.card-photo-slot{flex:1;aspect-ratio:3/4;border-radius:10px;overflow:hidden;background:var(--c-surface);display:flex;align-items:center;justify-content:center;position:relative;}
+.card-photo-slot img{width:100%;height:100%;object-fit:cover;cursor:pointer;}
+.card-photo-label{position:absolute;bottom:0;left:0;right:0;padding:6px 6px 5px;background:linear-gradient(transparent,rgba(0,0,0,.6));font-size:.6rem;color:rgba(255,255,255,.8);text-align:center;pointer-events:none;}
 .card-photo-placeholder{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--c-text3);font-size:.65rem;}
 .card-photo-placeholder .icon{font-size:1.6rem;}
 .card-fields{flex:1;overflow-y:auto;padding:0 16px 12px;display:flex;flex-direction:column;gap:8px;}
@@ -92,9 +100,36 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .card-nav-pos{font-family:'DM Mono',monospace;font-size:.82rem;color:var(--c-text2);}
 .card-nav-hint{font-size:.6rem;color:var(--c-text3);margin-top:2px;}
 
+/* GALLERY */
 #screen-gallery{background:var(--c-bg);}
+.gallery-toolbar{display:flex;gap:8px;padding:8px 16px;flex-shrink:0;border-bottom:1px solid var(--c-border);align-items:center;flex-wrap:wrap;}
+.gallery-toolbar select{background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:var(--radius-sm);color:var(--c-text);font-family:'Jost',sans-serif;font-size:.78rem;padding:6px 10px;outline:none;cursor:pointer;flex:1;min-width:120px;}
+
+/* Grid com 3 fotos quadradas */
+.gallery-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px;}
+@media(min-width:600px){.gallery-grid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:900px){.gallery-grid{grid-template-columns:repeat(4,1fr);}}
+.gallery-cell{background:var(--c-card);border-radius:var(--radius-sm);overflow:hidden;cursor:pointer;position:relative;border:1px solid var(--c-border);transition:transform .12s;}
+.gallery-cell:hover{transform:scale(.97);}
+.gallery-cell.done-cell{opacity:.5;}
+.gallery-cell-imgs{display:flex;height:80px;}
+.gallery-cell-img{flex:1;object-fit:cover;}
+.gallery-cell-img-ph{flex:1;display:flex;align-items:center;justify-content:center;font-size:1.2rem;background:var(--c-surface);}
+.gallery-cell-body{padding:7px 9px 6px;}
+.gallery-cell-num{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--c-text3);}
+.gallery-cell-outfit{font-size:.76rem;font-weight:600;line-height:1.2;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gallery-cell-meta{font-size:.63rem;color:var(--c-text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gallery-cell-cat{display:inline-block;padding:2px 7px;border-radius:50px;font-size:.56rem;font-weight:700;margin-top:3px;}
+.gallery-done-badge{position:absolute;top:5px;right:5px;width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:.55rem;color:white;}
+.gallery-done-badge.done{background:var(--c-done);border-color:var(--c-done);}
+
+/* Group mode */
+.group-header{padding:10px 16px 6px;font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--c-accent);border-bottom:1px solid var(--c-border);background:var(--c-surface);display:flex;align-items:center;justify-content:space-between;}
+.group-count{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--c-text3);font-weight:400;}
+
+/* List mode */
 .list-item{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--c-border);cursor:pointer;transition:background .12s;}
-.list-item:active{background:rgba(255,255,255,.04);}
+.list-item:active,.list-item:hover{background:rgba(255,255,255,.04);}
 .list-item.done-item{opacity:.45;}
 .list-color-bar{width:4px;height:36px;border-radius:2px;flex-shrink:0;}
 .list-num{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--c-text3);min-width:24px;}
@@ -105,23 +140,8 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .list-thumb-ph{width:44px;height:44px;border-radius:8px;background:var(--c-surface);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
 .list-done-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--c-border);flex-shrink:0;}
 .list-done-dot.done{background:var(--c-done);border-color:var(--c-done);}
-.gallery-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px;}
-@media(min-width:600px){.gallery-grid{grid-template-columns:repeat(3,1fr);}}
-@media(min-width:900px){.gallery-grid{grid-template-columns:repeat(4,1fr);}}
-.gallery-cell{background:var(--c-card);border-radius:var(--radius-sm);overflow:hidden;cursor:pointer;position:relative;border:1px solid var(--c-border);transition:transform .12s;}
-.gallery-cell:hover{transform:scale(.97);}
-.gallery-cell.done-cell{opacity:.5;}
-.gallery-cell-imgs{display:flex;height:90px;}
-.gallery-cell-img{flex:1;object-fit:cover;}
-.gallery-cell-img-ph{flex:1;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:var(--c-surface);}
-.gallery-cell-body{padding:8px 9px 7px;}
-.gallery-cell-num{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--c-text3);}
-.gallery-cell-outfit{font-size:.78rem;font-weight:600;line-height:1.2;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.gallery-cell-meta{font-size:.65rem;color:var(--c-text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.gallery-cell-cat{display:inline-block;padding:2px 7px;border-radius:50px;font-size:.58rem;font-weight:700;margin-top:4px;}
-.gallery-done-badge{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:white;}
-.gallery-done-badge.done{background:var(--c-done);border-color:var(--c-done);}
 
+/* CONFIG */
 #screen-config{background:var(--c-bg);}
 .cfg-section{margin-bottom:6px;}
 .cfg-section-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;background:var(--c-surface);border-bottom:1px solid var(--c-border);}
@@ -161,6 +181,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .mini-btn.danger{color:#ff6b6b;border-color:rgba(255,107,107,.3);}
 .mini-btn.accent{background:var(--c-accent);color:var(--c-bg);border-color:var(--c-accent);}
 
+/* EQUIPA */
 #screen-equipa{background:var(--c-bg);}
 .grand-total-strip{background:var(--c-accent);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
 .gt-label{font-size:.7rem;color:rgba(18,18,42,.6);font-weight:600;letter-spacing:.08em;text-transform:uppercase;}
@@ -197,7 +218,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .lb-close{position:absolute;top:calc(var(--safe-top) + 14px);right:16px;color:white;font-size:1.6rem;cursor:pointer;padding:6px;}
 .toast{position:fixed;bottom:calc(var(--safe-bottom) + 70px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--c-surface);color:var(--c-accent);padding:9px 20px;border-radius:50px;font-size:.78rem;font-weight:500;border:1px solid var(--c-border);opacity:0;transition:all .3s;pointer-events:none;z-index:100;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-
 #loading{position:fixed;inset:0;background:var(--c-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:150;}
 #loading.hidden{display:none;}
 .loading-logo{font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--c-accent);}
@@ -211,17 +231,18 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 <div id="loading">
   <div class="loading-logo">ZAFIA</div>
   <div class="loading-spinner"></div>
-  <div class="loading-txt">A ligar ao Firebase…</div>
+  <div class="loading-txt" id="loading-txt">A carregar…</div>
 </div>
 
+<!-- LOGIN POR SENHA -->
 <div id="screen-login" class="hidden">
-  <div class="login-logo">ZAFIA<br><span style="font-size:1rem;color:var(--c-text2);font-weight:400">Book da Claudya</span></div>
-  <div class="login-sub">Inicia sessão com a tua conta Google para sincronizar os dados entre todos os dispositivos.</div>
-  <button class="login-btn" onclick="signIn()">
-    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-    Entrar com Google
-  </button>
-  <div class="login-status" id="login-status"></div>
+  <div class="login-logo">ZAFIA<br><span style="font-size:1rem;color:var(--c-text2);font-weight:400;letter-spacing:.02em">Book da Claudya</span></div>
+  <div class="login-sub">Introduz a senha de acesso para entrar na plataforma.</div>
+  <div class="login-input-wrap">
+    <input class="login-inp" type="password" id="login-pwd" placeholder="Senha de acesso" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Entrar →</button>
+  </div>
+  <div class="login-err" id="login-err"></div>
 </div>
 
 <!-- LOOKS -->
@@ -257,9 +278,17 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
     <div style="width:60px"></div>
   </div>
   <div class="filter-strip" id="gallery-filter-strip"></div>
-  <div style="display:flex;gap:8px;padding:6px 16px;flex-shrink:0;border-bottom:1px solid var(--c-border)">
-    <button id="gv-grid" class="mini-btn accent" onclick="setGalleryView('grid')">⊞ Grelha</button>
-    <button id="gv-list" class="mini-btn" onclick="setGalleryView('list')">☰ Lista</button>
+  <div class="gallery-toolbar">
+    <button id="gv-grid" class="mini-btn accent" style="flex:0 0 auto" onclick="setGalleryView('grid')">⊞ Grelha</button>
+    <button id="gv-list" class="mini-btn" style="flex:0 0 auto" onclick="setGalleryView('list')">☰ Lista</button>
+    <select id="gallery-sort" onchange="renderGallery()" style="background:var(--c-surface);border:1.5px solid var(--c-border);border-radius:var(--radius-sm);color:var(--c-text);font-family:'Jost',sans-serif;font-size:.78rem;padding:6px 10px;outline:none;cursor:pointer;flex:1;">
+      <option value="default">Ordenar: Sequência original</option>
+      <option value="outfit-model">Agrupar: Roupa + Modelo</option>
+      <option value="model-outfit">Agrupar: Modelo + Roupa</option>
+      <option value="category">Agrupar: Categoria</option>
+      <option value="location">Agrupar: Local</option>
+      <option value="done">Ordenar: Por fazer primeiro</option>
+    </select>
   </div>
   <div class="scroll-area" id="gallery-scroll"></div>
 </div>
@@ -269,12 +298,11 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
   <div class="nav-bar">
     <div style="width:60px"></div>
     <div><div class="nav-title">Configuração</div></div>
-    <button class="nav-btn" onclick="doSignOut()" style="color:#ff6b6b;">Sair</button>
+    <button class="nav-btn" onclick="doLogout()" style="color:#ff6b6b;">Sair</button>
   </div>
   <div class="scroll-area" id="config-scroll">
-    <div id="user-info-bar" style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--c-surface);border-bottom:1px solid var(--c-border);">
-      <img id="user-photo" src="" alt="" style="width:32px;height:32px;border-radius:50%;display:none">
-      <div><div id="user-name" style="font-size:.85rem;font-weight:600;"></div><div id="user-email" style="font-size:.68rem;color:var(--c-text3);"></div></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--c-surface);border-bottom:1px solid var(--c-border);">
+      <div style="font-size:.85rem;font-weight:600;">Sessão activa</div>
       <div class="sync-badge" style="margin-left:auto"><div class="sync-dot" id="sync-dot2"></div><span id="sync-txt2">sync</span></div>
     </div>
 
@@ -284,7 +312,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
         <span class="cfg-chevron">▾</span>
       </div>
       <div class="cfg-section-body">
-        <p style="font-size:.8rem;color:var(--c-text2);line-height:1.5;margin-bottom:12px">Os dados sincronizam automaticamente via Firebase. Podes fazer backup local como segurança extra.</p>
         <div style="display:flex;gap:8px;">
           <button class="mini-btn accent" style="flex:1" onclick="exportData()">⬇ Exportar JSON</button>
           <label class="mini-btn" style="flex:1;text-align:center;cursor:pointer">⬆ Importar JSON<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
@@ -411,8 +438,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut as fbSignOut }
-  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -424,23 +449,44 @@ const firebaseConfig = {
   messagingSenderId: "724090676677",
   appId: "1:724090676677:web:520ddb7efc45f839d917ac"
 };
+const fbApp = initializeApp(firebaseConfig);
+const db    = getFirestore(fbApp);
 
-const fbApp  = initializeApp(firebaseConfig);
-const auth   = getAuth(fbApp);
-const db     = getFirestore(fbApp);
-const gProvider = new GoogleAuthProvider();
+// ── SENHA DE ACESSO ────────────────────────────────────────────────────────
+// Muda esta senha para o que quiseres — partilha com a equipa
+const ACCESS_PASSWORD = "bookcm2026";
+const SESSION_KEY = "zafia_session";
+
+window.doLogin = function(){
+  const pwd = document.getElementById('login-pwd').value.trim();
+  if(pwd === ACCESS_PASSWORD){
+    sessionStorage.setItem(SESSION_KEY,'1');
+    document.getElementById('screen-login').classList.add('hidden');
+    initApp();
+  } else {
+    document.getElementById('login-err').textContent = '⛔ Senha incorrecta. Tenta novamente.';
+    document.getElementById('login-pwd').value = '';
+  }
+};
+window.doLogout = function(){
+  if(!confirm('Sair da sessão?')) return;
+  sessionStorage.removeItem(SESSION_KEY);
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  document.getElementById('screen-login').classList.remove('hidden');
+};
 
 // ── CONSTANTS ──────────────────────────────────────────────────────────────
 const DEFAULT_CATS=[["Acessório",15],["Cabelo",12],["Pescoço",3],["Saia",15],["Vestido",4],["Embrulho",9],["Mala",15],["Tops",5],["Cover Up",17],["Elevate Style",5]];
 const DEFAULT_OUTFITS=["Vestido Branco Linho","Calças Pretas Clássicas","Conjunto Bege Alfaiataria","Vestido Azul Marinho","Saia Midi Floral","Conjunto Castanho Camel","Calças Brancas + Blusa Seda","Vestido Terracota","Conjunto Xadrez Neutro","Calças Creme + Top Malha","Vestido Verde Oliva","Conjunto Azul Ganga","Saia Lápis Preta + Blusa Branca","Vestido Coral","Conjunto Cinzento Mescla","Calças Mostarda + Camisola Branca","Vestido Estampado Geométrico","Conjunto Burgundy","Calças Azul Royal + Blusa Neutra","Vestido Off-White Fluido"];
 const DEFAULT_SCARVES=["Lenço Vermelho Geométrico","Lenço Azul Estampado Floral","Lenço Dourado Animal Print","Lenço Verde Esmeralda Liso","Lenço Rosa Pálido Bordado","Lenço Laranja Boho","Lenço Preto e Branco Gráfico","Lenço Castanho Paisley","Lenço Multicolor Tribal","Lenço Azul Céu Tie-Dye","Lenço Lilás Seda","Lenço Terracota Listrado","Lenço Prata Lurex","Lenço Mostarda Jacquard","Lenço Cinzento Degradé","Lenço Coral Floral","Lenço Turquesa Geométrico","Lenço Creme com Franja","Lenço Verde Água Liso","Lenço Bordeaux Estampado"];
 const DEFAULT_MODELS=["Claudya Moreira","Modelo B","Modelo C"];
-const OUTFIT_PALETTE=["F7E8E8","D6E4F0","F5ECD7","C8D8E8","E8F5E9","F0E0C8","EDE8F5","F5DDD0","E8E8E8","FDF6E3","DDE8D8","D0E8F5","F0D8E8","FFE5D5","DCDCDC","F5F0C0","D8EEF5","EDD5D8","D5DCF0","F8F8F0","E8F0E8","F0E8F0","E0F0F0","F0F0E0"];
+const OUTFIT_PALETTE=["F7E8E8","D6E4F0","F5ECD7","C8D8E8","E8F5E9","F0E0C8","EDE8F5","F5DDD0","E8E8E8","FDF6E3","DDE8D8","D0E8F5","F0D8E8","FFE5D5","DCDCDC","F5F0C0","D8EEF5","EDD5D8","D5DCF0","F8F8F0"];
 const CAT_COLORS=["#c2185b","#f57f17","#2e7d32","#1565c0","#6a1b9a","#bf360c","#00695c","#4527a0","#283593","#558b2f"];
 const COST_FIELDS=["viagem","estadia","alimentacao","cachet","outros"];
 const COST_LABELS=["Viagem","Estadia","Alimentação","Cachet/Fee","Outros"];
 const DEFAULT_THEME={bg:'#12122A',surface:'#1E1E3A',card:'#252545',accent:'#C9A84C',accent2:'#E8D5A3',text:'#FFFFFF',done:'#4CAF7D'};
 const COLOR_LABELS={bg:'Fundo',surface:'Superfície',card:'Cards',accent:'Destaque (ouro)',accent2:'Destaque claro',text:'Texto',done:'Feito ✓'};
+const SHARED_UID = 'shared'; // todos partilham os mesmos dados
 
 // ── STATE ──────────────────────────────────────────────────────────────────
 window.state = {
@@ -453,233 +499,120 @@ window.state = {
     theme:{...DEFAULT_THEME}
   },
   looks:[], team:[],
-  ui:{currentIdx:0,filter:'',galleryView:'grid'}
+  ui:{currentIdx:0,filter:'',galleryView:'grid',gallerySort:'default'}
 };
-let currentUser = null;
 window.currentScreen = 'screen-looks';
 
-// ── SYNC STATUS ────────────────────────────────────────────────────────────
-function setSyncStatus(s) {
+// ── SYNC ───────────────────────────────────────────────────────────────────
+function setSyncStatus(s){
   ['sync-dot','sync-dot2'].forEach(id=>{
-    const el=document.getElementById(id); if(!el) return;
+    const el=document.getElementById(id);if(!el)return;
     el.className='sync-dot'+(s==='syncing'?' syncing':s==='offline'?' offline':'');
   });
   const txt=s==='syncing'?'a guardar…':s==='offline'?'offline':'guardado';
   ['sync-txt','sync-txt2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=txt;});
 }
 
-// ── FIRESTORE HELPERS ──────────────────────────────────────────────────────
 function catsToFS(cats){ return cats.map(([name,n])=>({name,n})); }
 function catsFromFS(arr){
   if(!arr||!arr.length) return [];
   if(Array.isArray(arr[0])) return arr;
-  return arr.map(c=>[c.name, c.n]);
+  return arr.map(c=>[c.name,c.n]);
 }
 
-// ── SAVE ───────────────────────────────────────────────────────────────────
-let saveTimer = null;
-function scheduleSave(){
-  clearTimeout(saveTimer);
-  setSyncStatus('syncing');
-  saveTimer = setTimeout(doSave, 1200);
-}
+let saveTimer=null;
+function scheduleSave(){ clearTimeout(saveTimer); setSyncStatus('syncing'); saveTimer=setTimeout(doSave,1200); }
 
 async function doSave(){
-  if(!currentUser) return;
   try{
-    const uid = currentUser.uid;
-    const base = (name) => doc(db,'users',uid,'data',name);
-    // Split into 6 separate docs — avoids Firestore 1MB limit
+    const base=(name)=>doc(db,'shared','data','docs',name);
     await Promise.all([
-      setDoc(base('config'), {
-        locs: state.config.locs,
-        cats: catsToFS(state.config.cats),
-        theme: state.config.theme,
-        ts: Date.now()
-      }),
-      setDoc(base('outfits'), { items: state.config.outfits }),
-      setDoc(base('scarves'), { items: state.config.scarves }),
-      setDoc(base('models'),  { items: state.config.models  }),
-      setDoc(base('looks'),   { items: state.looks           }),
-      setDoc(base('team'),    { items: state.team, ui: state.ui })
+      setDoc(base('config'),{locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme,ts:Date.now()}),
+      setDoc(base('outfits'),{items:state.config.outfits}),
+      setDoc(base('scarves'),{items:state.config.scarves}),
+      setDoc(base('models'), {items:state.config.models}),
+      setDoc(base('looks'),  {items:state.looks}),
+      setDoc(base('team'),   {items:state.team,ui:state.ui})
     ]);
-    try{ localStorage.setItem('zafia_cache', JSON.stringify(state)); }catch(e){}
+    try{localStorage.setItem('zafia_cache',JSON.stringify(state));}catch(e){}
     setSyncStatus('ok');
-  } catch(e){
-    console.error('Save error:', e);
+  }catch(e){
+    console.error('Save error:',e);
     setSyncStatus('offline');
     showToast('⚠️ Erro ao guardar');
   }
 }
 
-// ── LOAD ───────────────────────────────────────────────────────────────────
-async function loadFromFirestore(uid){
+async function loadFromFirestore(){
   try{
-    const base = (name) => doc(db,'users',uid,'data',name);
-    const [cfgSnap,outSnap,scaSnap,modSnap,looksSnap,teamSnap] = await Promise.all([
-      getDoc(base('config')),
-      getDoc(base('outfits')),
-      getDoc(base('scarves')),
-      getDoc(base('models')),
-      getDoc(base('looks')),
-      getDoc(base('team'))
+    const base=(name)=>doc(db,'shared','data','docs',name);
+    const [cfgSnap,outSnap,scaSnap,modSnap,looksSnap,teamSnap]=await Promise.all([
+      getDoc(base('config')),getDoc(base('outfits')),getDoc(base('scarves')),
+      getDoc(base('models')),getDoc(base('looks')),getDoc(base('team'))
     ]);
-    const isNew = !cfgSnap.exists() && !looksSnap.exists();
+    const isNew=!cfgSnap.exists()&&!looksSnap.exists();
     if(isNew){
-      state.looks = genLooks();
-      state.team  = defaultTeam();
-      doSave();
+      state.looks=genLooks(); state.team=defaultTeam(); doSave();
     } else {
-      if(cfgSnap.exists()){
-        const c = cfgSnap.data();
-        state.config.locs  = c.locs  || state.config.locs;
-        state.config.cats  = catsFromFS(c.cats) || state.config.cats;
-        state.config.theme = c.theme || state.config.theme;
-      }
-      if(outSnap.exists())   state.config.outfits = outSnap.data().items  || state.config.outfits;
-      if(scaSnap.exists())   state.config.scarves = scaSnap.data().items  || state.config.scarves;
-      if(modSnap.exists())   state.config.models  = modSnap.data().items  || state.config.models;
-      if(looksSnap.exists()) state.looks          = looksSnap.data().items || [];
-      if(teamSnap.exists()){
-        state.team = teamSnap.data().items || [];
-        if(teamSnap.data().ui) state.ui = {...state.ui, ...teamSnap.data().ui};
-      }
+      if(cfgSnap.exists()){const c=cfgSnap.data();state.config.locs=c.locs||state.config.locs;state.config.cats=catsFromFS(c.cats)||state.config.cats;state.config.theme=c.theme||state.config.theme;}
+      if(outSnap.exists())   state.config.outfits=outSnap.data().items||state.config.outfits;
+      if(scaSnap.exists())   state.config.scarves=scaSnap.data().items||state.config.scarves;
+      if(modSnap.exists())   state.config.models =modSnap.data().items||state.config.models;
+      if(looksSnap.exists()) state.looks=looksSnap.data().items||[];
+      if(teamSnap.exists()){state.team=teamSnap.data().items||[];if(teamSnap.data().ui)state.ui={...state.ui,...teamSnap.data().ui};}
     }
-    applyTheme();
-    renderFilters();
-    buildCarousel();
-    updateCounter();
-    setSyncStatus('ok');
-  } catch(e){
-    console.error('Load error:', e);
-    setSyncStatus('offline');
-    // fallback to local cache
-    try{
-      const c = localStorage.getItem('zafia_cache');
-      if(c){
-        const d = JSON.parse(c);
-        if(d.config) state.config = d.config;
-        if(d.looks)  state.looks  = d.looks;
-        if(d.team)   state.team   = d.team;
-        if(d.ui)     state.ui     = {...state.ui,...d.ui};
-      }
-    }catch(e2){}
+    applyTheme(); renderFilters(); buildCarousel(); updateCounter(); setSyncStatus('ok');
+  }catch(e){
+    console.error('Load error:',e); setSyncStatus('offline');
+    try{const c=localStorage.getItem('zafia_cache');if(c){const d=JSON.parse(c);if(d.config)state.config=d.config;if(d.looks)state.looks=d.looks;if(d.team)state.team=d.team;}}catch(e2){}
     applyTheme(); renderFilters(); buildCarousel(); updateCounter();
   }
 }
 
-// ── AUTH ───────────────────────────────────────────────────────────────────
-window.signIn = async function(){
-  document.getElementById('login-status').textContent = 'A entrar…';
-  try{ await signInWithPopup(auth, gProvider); }
-  catch(e){ document.getElementById('login-status').textContent = 'Erro: ' + e.message; }
-};
-window.doSignOut = async function(){
-  if(!confirm('Sair da conta?')) return;
-  await fbSignOut(auth);
-  document.getElementById('screen-login').classList.remove('hidden');
-  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
-};
-
-async function checkAuthorized(email){
-  try{
-    const snap = await getDoc(doc(db,'access','allowed'));
-    if(!snap.exists()) return false;
-    const emails = snap.data().emails || [];
-    return emails.map(e=>e.toLowerCase()).includes(email.toLowerCase());
-  } catch(e){ console.error('Access check error:',e); return false; }
+function initApp(){
+  // try local cache first for instant render
+  try{const c=localStorage.getItem('zafia_cache');if(c){const d=JSON.parse(c);if(d.config)state.config=d.config;if(d.looks)state.looks=d.looks;if(d.team)state.team=d.team;applyTheme();}}catch(e){}
+  renderFilters(); buildCarousel(); updateCounter();
+  switchTab('looks');
+  loadFromFirestore();
 }
 
-onAuthStateChanged(auth, async user=>{
-  document.getElementById('loading').classList.add('hidden');
-  if(user){
-    document.getElementById('loading').classList.remove('hidden');
-    document.getElementById('loading').querySelector('.loading-txt').textContent = 'A verificar acesso…';
-    const allowed = await checkAuthorized(user.email);
-    document.getElementById('loading').classList.add('hidden');
-    if(!allowed){
-      await fbSignOut(auth);
-      document.getElementById('screen-login').classList.remove('hidden');
-      document.getElementById('login-status').textContent = '⛔ Acesso não autorizado: ' + user.email;
-      return;
-    }
-    currentUser = user;
-    document.getElementById('screen-login').classList.add('hidden');
-    const ph = document.getElementById('user-photo');
-    if(user.photoURL){ ph.src=user.photoURL; ph.style.display='block'; }
-    document.getElementById('user-name').textContent  = user.displayName || '';
-    document.getElementById('user-email').textContent = user.email || '';
-    try{
-      const c = localStorage.getItem('zafia_cache');
-      if(c){
-        const d = JSON.parse(c);
-        if(d.config) state.config = d.config;
-        if(d.looks)  state.looks  = d.looks;
-        if(d.team)   state.team   = d.team;
-        applyTheme();
-      }
-    }catch(e){}
-    renderFilters(); buildCarousel(); updateCounter();
-    switchTab('looks');
-    loadFromFirestore(user.uid);
-  } else {
-    currentUser = null;
-    document.getElementById('screen-login').classList.remove('hidden');
-  }
-});
+// ── BOOT ───────────────────────────────────────────────────────────────────
+document.getElementById('loading').classList.add('hidden');
+if(sessionStorage.getItem(SESSION_KEY)==='1'){
+  initApp();
+} else {
+  document.getElementById('screen-login').classList.remove('hidden');
+}
 
 // ── EXPORT / IMPORT ────────────────────────────────────────────────────────
-window.exportData = function(){
-  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  const d    = new Date();
-  a.href     = url;
-  a.download = `zafia-backup-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
-  a.click(); URL.revokeObjectURL(url);
-  showToast('⬇ Exportado!');
+window.exportData=function(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  const d=new Date();a.href=url;a.download=`zafia-backup-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+  a.click();URL.revokeObjectURL(url);showToast('⬇ Exportado!');
 };
-window.importData = function(input){
-  if(!input.files[0]) return;
-  const r = new FileReader();
-  r.onload = e=>{
-    try{
-      const d = JSON.parse(e.target.result);
-      if(!d.config || !d.looks) throw new Error();
-      window.state = d;
-      if(!state.ui) state.ui = {currentIdx:0,filter:'',galleryView:'grid'};
-      applyTheme(); renderFilters(); buildCarousel(); updateCounter();
-      scheduleSave(); showToast('⬆ Importado!');
-    }catch(e){ showToast('✗ Ficheiro inválido'); }
-  };
-  r.readAsText(input.files[0]); input.value='';
+window.importData=function(input){
+  if(!input.files[0])return;
+  const r=new FileReader();
+  r.onload=e=>{try{const d=JSON.parse(e.target.result);if(!d.config||!d.looks)throw new Error();window.state=d;if(!state.ui)state.ui={currentIdx:0,filter:'',galleryView:'grid',gallerySort:'default'};applyTheme();renderFilters();buildCarousel();updateCounter();scheduleSave();showToast('⬆ Importado!');}catch(e){showToast('✗ Ficheiro inválido');}};
+  r.readAsText(input.files[0]);input.value='';
 };
 
 // ── HELPERS ────────────────────────────────────────────────────────────────
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function fmtEur(v){ return (parseFloat(v)||0).toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'; }
-function outfitColor(n){ const i=state.config.outfits.findIndex(o=>o.name===n); return OUTFIT_PALETTE[(i<0?0:i)%OUTFIT_PALETTE.length]; }
-function photoOf(type,name){ const item=state.config[type].find(x=>x.name===name); return item?.photo||''; }
-function catColorIdx(cat){ return state.config.cats.findIndex(([c])=>c===cat); }
-
-function readFile(f){
-  return new Promise(r=>{const fr=new FileReader(); fr.onload=e=>r(e.target.result); fr.readAsDataURL(f);});
-}
-function compressImage(file, maxW, quality){
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtEur(v){return(parseFloat(v)||0).toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
+function outfitColor(n){const i=state.config.outfits.findIndex(o=>o.name===n);return OUTFIT_PALETTE[(i<0?0:i)%OUTFIT_PALETTE.length];}
+function photoOf(type,name){const item=state.config[type].find(x=>x.name===name);return item?.photo||'';}
+function catColorIdx(cat){return state.config.cats.findIndex(([c])=>c===cat);}
+function readFile(f){return new Promise(r=>{const fr=new FileReader();fr.onload=e=>r(e.target.result);fr.readAsDataURL(f);});}
+function compressImage(file,maxW,quality){
   return new Promise(resolve=>{
-    const reader = new FileReader();
-    reader.onload = e=>{
-      const img = new Image();
-      img.onload = ()=>{
-        const scale = Math.min(1, maxW/img.width);
-        const w = Math.round(img.width*scale);
-        const h = Math.round(img.height*scale);
-        const canvas = document.createElement('canvas');
-        canvas.width=w; canvas.height=h;
-        canvas.getContext('2d').drawImage(img,0,0,w,h);
-        resolve(canvas.toDataURL('image/jpeg', quality));
-      };
-      img.src = e.target.result;
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{const scale=Math.min(1,maxW/img.width);const w=Math.round(img.width*scale);const h=Math.round(img.height*scale);const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);resolve(canvas.toDataURL('image/jpeg',quality));};
+      img.src=e.target.result;
     };
     reader.readAsDataURL(file);
   });
@@ -687,20 +620,14 @@ function compressImage(file, maxW, quality){
 
 // ── THEME ──────────────────────────────────────────────────────────────────
 function applyTheme(){
-  const th=state.config.theme, r=document.documentElement;
-  r.style.setProperty('--c-bg',th.bg);
-  r.style.setProperty('--c-surface',th.surface);
-  r.style.setProperty('--c-card',th.card);
-  r.style.setProperty('--c-accent',th.accent);
-  r.style.setProperty('--c-accent2',th.accent2||'#E8D5A3');
-  r.style.setProperty('--c-text',th.text);
-  r.style.setProperty('--c-done',th.done);
-  document.querySelector('meta[name=theme-color]').content = th.bg;
+  const th=state.config.theme,r=document.documentElement;
+  r.style.setProperty('--c-bg',th.bg);r.style.setProperty('--c-surface',th.surface);r.style.setProperty('--c-card',th.card);r.style.setProperty('--c-accent',th.accent);r.style.setProperty('--c-accent2',th.accent2||'#E8D5A3');r.style.setProperty('--c-text',th.text);r.style.setProperty('--c-done',th.done);
+  document.querySelector('meta[name=theme-color]').content=th.bg;
 }
-window.resetColors = function(){ state.config.theme={...DEFAULT_THEME}; applyTheme(); renderColorGrid(); scheduleSave(); };
+window.resetColors=function(){state.config.theme={...DEFAULT_THEME};applyTheme();renderColorGrid();scheduleSave();};
 function renderColorGrid(){
-  const th = state.config.theme;
-  document.getElementById('color-grid').innerHTML = Object.keys(DEFAULT_THEME).map(key=>`
+  const th=state.config.theme;
+  document.getElementById('color-grid').innerHTML=Object.keys(DEFAULT_THEME).map(key=>`
     <div class="color-field"><div class="cfg-lbl">${COLOR_LABELS[key]}</div>
       <div class="color-picker-wrap" onclick="document.getElementById('cp-${key}').click()">
         <div class="color-swatch" style="background:${th[key]}"></div>
@@ -711,43 +638,43 @@ function renderColorGrid(){
 }
 
 // ── RNG / GEN ──────────────────────────────────────────────────────────────
-function rng(seed){ let s=seed; return ()=>{ s=(s*1664525+1013904223)&0xFFFFFFFF; return(s>>>0)/0xFFFFFFFF; }; }
-function shuf(arr,r){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } return a; }
+function rng(seed){let s=seed;return()=>{s=(s*1664525+1013904223)&0xFFFFFFFF;return(s>>>0)/0xFFFFFFFF;};}
+function shuf(arr,r){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function genLooks(){
   const{locs,cats,outfits,scarves,models}=state.config;
-  const total=cats.reduce((s,[,n])=>s+n,0); if(!total) return [];
+  const total=cats.reduce((s,[,n])=>s+n,0);if(!total)return[];
   const r=rng(99);
   const locPool=shuf([...Array(locs.studio).fill("Portugal – Estúdio"),...Array(locs.pt).fill("Portugal – Exterior"),...Array(locs.cv).fill("Cabo Verde – Exterior")],r);
   const sp=shuf([...scarves,...scarves,...scarves,...scarves,...scarves,...scarves].map(s=>s.name),r);
-  const oNames=outfits.map(o=>o.name), mNames=models.map(m=>m.name);
-  let li=0,si=0; const byCat=[];
+  const oNames=outfits.map(o=>o.name),mNames=models.map(m=>m.name);
+  let li=0,si=0;const byCat=[];
   for(const[cat,count]of cats){
-    if(!count){ byCat.push([]); continue; }
-    const pairs=[]; for(const o of oNames) for(const m of mNames) pairs.push([o,m]);
+    if(!count){byCat.push([]);continue;}
+    const pairs=[];for(const o of oNames)for(const m of mNames)pairs.push([o,m]);
     const sel=shuf(pairs,r).slice(0,Math.min(count,pairs.length));
-    while(sel.length<count){ const ex=shuf(pairs,r); for(const p of ex){ if(sel.length>=count) break; sel.push(p); } }
+    while(sel.length<count){const ex=shuf(pairs,r);for(const p of ex){if(sel.length>=count)break;sel.push(p);}}
     byCat.push(sel.slice(0,count).map(([outfit,model])=>({category:cat,outfit,scarf:sp[si++%sp.length],location:locPool[li++%locPool.length],model,done:false,notes:""})));
   }
-  const flat=[]; const ml=Math.max(...byCat.map(c=>c.length));
-  for(let i=0;i<ml;i++) for(const cl of byCat) if(i<cl.length) flat.push(cl[i]);
-  for(let i=1;i<flat.length;i++){ if(flat[i].outfit===flat[i-1].outfit){ for(let j=i+1;j<flat.length;j++){ if(flat[j].outfit!==flat[i-1].outfit){[flat[i],flat[j]]=[flat[j],flat[i]];break;} } } }
+  const flat=[];const ml=Math.max(...byCat.map(c=>c.length));
+  for(let i=0;i<ml;i++)for(const cl of byCat)if(i<cl.length)flat.push(cl[i]);
+  for(let i=1;i<flat.length;i++){if(flat[i].outfit===flat[i-1].outfit){for(let j=i+1;j<flat.length;j++){if(flat[j].outfit!==flat[i-1].outfit){[flat[i],flat[j]]=[flat[j],flat[i]];break;}}}}
   return flat.map((l,i)=>({...l,num:i+1}));
 }
-function defaultTeam(){ return [{id:1,name:"",role:"Fotógrafo Principal",location:"PT Est+Ext+CV",phone:"",email:"",notes:"",photo:"",viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true}]; }
+function defaultTeam(){return[{id:1,name:"",role:"Fotógrafo Principal",location:"PT Est+Ext+CV",phone:"",email:"",notes:"",photo:"",viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true}];}
 
 // ── SCREENS ────────────────────────────────────────────────────────────────
-window.switchTab = function(tab){
+window.switchTab=function(tab){
   const map={looks:'screen-looks',gallery:'screen-gallery',config:'screen-config',equipa:'screen-equipa'};
   document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
   document.getElementById(map[tab]).classList.remove('hidden');
   document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('on'));
-  const el=document.getElementById('tab-'+tab); if(el) el.classList.add('on');
-  window.currentScreen = map[tab];
-  if(tab==='gallery'){ renderGallery(); setGalleryView(state.ui.galleryView||'grid'); }
-  if(tab==='config')  renderConfig();
-  if(tab==='equipa')  renderTeam();
+  const el=document.getElementById('tab-'+tab);if(el)el.classList.add('on');
+  window.currentScreen=map[tab];
+  if(tab==='gallery'){renderGallery();}
+  if(tab==='config') renderConfig();
+  if(tab==='equipa') renderTeam();
 };
-window.toggleCS = function(id){ document.getElementById(id).classList.toggle('open'); };
+window.toggleCS=function(id){document.getElementById(id).classList.toggle('open');};
 
 // ── FILTERS ────────────────────────────────────────────────────────────────
 function filteredLooks(){
@@ -761,22 +688,22 @@ function renderFilters(){
   const cats=[...new Set(state.looks.map(l=>l.category))];
   const locs=[...new Set(state.looks.map(l=>l.location))];
   const chips=[{v:'',l:'Todos'},{v:'done',l:'✓ Feitos'},{v:'pending',l:'⏳ Por fazer'},...cats.map(c=>({v:c,l:c})),...locs.map(l=>({v:l,l:l.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}))];
-  document.getElementById('filter-strip').innerHTML         = chips.map(c=>`<span class="filter-chip ${state.ui.filter===c.v?'on':''}" onclick="setFilter('${c.v}')">${c.l}</span>`).join('');
-  document.getElementById('gallery-filter-strip').innerHTML = chips.map(c=>`<span class="filter-chip ${state.ui.filter===c.v?'on':''}" onclick="setGalleryFilter('${c.v}')">${c.l}</span>`).join('');
+  document.getElementById('filter-strip').innerHTML=chips.map(c=>`<span class="filter-chip ${state.ui.filter===c.v?'on':''}" onclick="setFilter('${c.v}')">${c.l}</span>`).join('');
+  document.getElementById('gallery-filter-strip').innerHTML=chips.map(c=>`<span class="filter-chip ${state.ui.filter===c.v?'on':''}" onclick="setGalleryFilter('${c.v}')">${c.l}</span>`).join('');
 }
-window.setFilter = function(v){ state.ui.filter=v; state.ui.currentIdx=0; renderFilters(); buildCarousel(); updateCounter(); scheduleSave(); };
-window.setGalleryFilter = function(v){ state.ui.filter=v; state.ui.currentIdx=0; renderFilters(); renderGallery(); };
+window.setFilter=function(v){state.ui.filter=v;state.ui.currentIdx=0;renderFilters();buildCarousel();updateCounter();scheduleSave();};
+window.setGalleryFilter=function(v){state.ui.filter=v;state.ui.currentIdx=0;renderFilters();renderGallery();};
 
 // ── COUNTER ────────────────────────────────────────────────────────────────
 function updateCounter(){
   const fl=filteredLooks();
-  const idx=Math.min(state.ui.currentIdx, Math.max(0,fl.length-1));
-  document.getElementById('looks-counter').textContent = fl.length ? `${idx+1}/${fl.length}` : '0/0';
-  document.getElementById('nav-pos').textContent       = fl.length ? `${idx+1} / ${fl.length}` : '– / –';
+  const idx=Math.min(state.ui.currentIdx,Math.max(0,fl.length-1));
+  document.getElementById('looks-counter').textContent=fl.length?`${idx+1}/${fl.length}`:'0/0';
+  document.getElementById('nav-pos').textContent=fl.length?`${idx+1} / ${fl.length}`:'– / –';
   const done=fl.filter(l=>l.done).length;
-  document.getElementById('prog-fill').style.width = fl.length ? (done/fl.length*100)+'%' : '0%';
-  document.getElementById('btn-prev').disabled = idx===0;
-  document.getElementById('btn-next').disabled = idx>=fl.length-1;
+  document.getElementById('prog-fill').style.width=fl.length?(done/fl.length*100)+'%':'0%';
+  document.getElementById('btn-prev').disabled=idx===0;
+  document.getElementById('btn-next').disabled=idx>=fl.length-1;
 }
 
 // ── CAROUSEL ───────────────────────────────────────────────────────────────
@@ -788,8 +715,8 @@ function buildCard(look){
   const sPhoto=photoOf('scarves',look.scarf);
   const mPhoto=photoOf('models',look.model);
   const outfitOpts=state.config.outfits.map(o=>`<option${o.name===look.outfit?' selected':''}>${esc(o.name)}</option>`).join('');
-  const scarfOpts =state.config.scarves.map(s=>`<option${s.name===look.scarf ?' selected':''}>${esc(s.name)}</option>`).join('');
-  const modelOpts =state.config.models.map(m=>`<option${m.name===look.model ?' selected':''}>${esc(m.name)}</option>`).join('');
+  const scarfOpts =state.config.scarves.map(s=>`<option${s.name===look.scarf?' selected':''}>${esc(s.name)}</option>`).join('');
+  const modelOpts =state.config.models.map(m=>`<option${m.name===look.model?' selected':''}>${esc(m.name)}</option>`).join('');
   const locOpts   =["Portugal – Estúdio","Portugal – Exterior","Cabo Verde – Exterior"].map(l=>`<option${l===look.location?' selected':''}>${l}</option>`).join('');
   const card=document.createElement('div');
   card.className='look-card';
@@ -801,15 +728,9 @@ function buildCard(look){
       <div class="card-done-badge ${look.done?'done':''}" onclick="toggleDone(${look.num})">${look.done?'✓':'○'}</div>
     </div>
     <div class="card-photos">
-      <div class="card-photo-slot" ${oPhoto?`onclick="openLb('${oPhoto}')"`:''}>
-        ${oPhoto?`<img src="${oPhoto}" alt="Roupa"><div class="card-photo-label">Roupa</div>`:`<div class="card-photo-placeholder"><span class="icon">👗</span><span>Sem foto</span></div>`}
-      </div>
-      <div class="card-photo-slot" ${sPhoto?`onclick="openLb('${sPhoto}')"`:''}>
-        ${sPhoto?`<img src="${sPhoto}" alt="Lenço"><div class="card-photo-label">Lenço</div>`:`<div class="card-photo-placeholder"><span class="icon">🧣</span><span>Sem foto</span></div>`}
-      </div>
-      <div class="card-photo-slot" ${mPhoto?`onclick="openLb('${mPhoto}')"`:''}>
-        ${mPhoto?`<img src="${mPhoto}" alt="Modelo"><div class="card-photo-label">Modelo</div>`:`<div class="card-photo-placeholder"><span class="icon">👤</span><span>Sem foto</span></div>`}
-      </div>
+      <div class="card-photo-slot">${oPhoto?`<img src="${oPhoto}" alt="Roupa" onclick="openLb('${oPhoto}')"><div class="card-photo-label">Roupa</div>`:`<div class="card-photo-placeholder"><span class="icon">👗</span><span>Sem foto</span></div>`}</div>
+      <div class="card-photo-slot">${sPhoto?`<img src="${sPhoto}" alt="Lenço" onclick="openLb('${sPhoto}')"><div class="card-photo-label">Lenço</div>`:`<div class="card-photo-placeholder"><span class="icon">🧣</span><span>Sem foto</span></div>`}</div>
+      <div class="card-photo-slot">${mPhoto?`<img src="${mPhoto}" alt="Modelo" onclick="openLb('${mPhoto}')"><div class="card-photo-label">Modelo</div>`:`<div class="card-photo-placeholder"><span class="icon">👤</span><span>Sem foto</span></div>`}</div>
     </div>
     <div class="card-fields">
       <div class="field-row"><div class="field-lbl">Roupa</div><select class="field-sel" onchange="updLook(${look.num},'outfit',this.value)">${outfitOpts}</select></div>
@@ -821,12 +742,12 @@ function buildCard(look){
   return card;
 }
 
-window.buildCarousel = function(){
+window.buildCarousel=function(){
   const fl=filteredLooks();
   const track=document.getElementById('carousel-track');
   track.innerHTML='';
   fl.forEach(look=>track.appendChild(buildCard(look)));
-  const idx=Math.min(state.ui.currentIdx, Math.max(0,fl.length-1));
+  const idx=Math.min(state.ui.currentIdx,Math.max(0,fl.length-1));
   state.ui.currentIdx=idx;
   track.classList.add('no-anim');
   track.style.transform=`translateX(-${idx*100}%)`;
@@ -834,133 +755,174 @@ window.buildCarousel = function(){
   updateCounter();
 };
 
-window.navTo = function(idx){
+window.navTo=function(idx){
   const fl=filteredLooks();
-  if(idx<0||idx>=fl.length) return;
+  if(idx<0||idx>=fl.length)return;
   state.ui.currentIdx=idx;
   document.getElementById('carousel-track').style.transform=`translateX(-${idx*100}%)`;
-  updateCounter();
-  scheduleSave();
+  updateCounter();scheduleSave();
 };
 
-// drag / swipe
+// drag/swipe — não interfere com selects e inputs
 (function(){
   let sx=0,sy=0,drag=false,moved=false,vpW=0;
-  const INTERACTIVE = 'select,input,textarea,button,label,option';
-  function isInteractive(el){ return !!el.closest(INTERACTIVE); }
-
+  const INTERACTIVE='select,input,textarea,button,label';
+  function isUI(el){return!!el.closest(INTERACTIVE);}
   function onStart(x,y,target){
-    if(isInteractive(target)) return;
+    if(isUI(target))return;
     sx=x;sy=y;drag=true;moved=false;
     vpW=document.getElementById('carousel-vp').offsetWidth;
     document.getElementById('carousel-track').classList.add('no-anim');
-    document.getElementById('carousel-vp').classList.add('dragging');
   }
   function onMove(x,y){
-    if(!drag) return;
+    if(!drag)return;
     const dx=x-sx,dy=y-sy;
     if(!moved&&Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){drag=false;return;}
-    if(Math.abs(dx)>4) moved=true;
+    if(Math.abs(dx)>4)moved=true;
     document.getElementById('carousel-track').style.transform=`translateX(${-(state.ui.currentIdx*vpW-dx)}px)`;
   }
   function onEnd(x){
-    if(!drag) return; drag=false;
-    document.getElementById('carousel-vp').classList.remove('dragging');
-    const track=document.getElementById('carousel-track'); track.classList.remove('no-anim');
-    const dx=x-sx, fl=filteredLooks(), thr=vpW*0.2;
-    if(moved&&dx<-thr&&state.ui.currentIdx<fl.length-1) window.navTo(state.ui.currentIdx+1);
-    else if(moved&&dx>thr&&state.ui.currentIdx>0) window.navTo(state.ui.currentIdx-1);
+    if(!drag)return;drag=false;
+    const track=document.getElementById('carousel-track');track.classList.remove('no-anim');
+    const dx=x-sx,fl=filteredLooks(),thr=vpW*0.2;
+    if(moved&&dx<-thr&&state.ui.currentIdx<fl.length-1)window.navTo(state.ui.currentIdx+1);
+    else if(moved&&dx>thr&&state.ui.currentIdx>0)window.navTo(state.ui.currentIdx-1);
     else window.navTo(state.ui.currentIdx);
   }
   const vp=document.getElementById('carousel-vp');
-  vp.addEventListener('mousedown',e=>{if(e.button!==0)return;onStart(e.clientX,e.clientY,e.target);e.target.closest(INTERACTIVE)||e.preventDefault();});
-  window.addEventListener('mousemove',e=>onMove(e.clientX,e.clientY));
+  vp.addEventListener('mousedown',e=>{if(e.button!==0)return;if(!isUI(e.target)){e.preventDefault();}onStart(e.clientX,e.clientY,e.target);});
+  window.addEventListener('mousemove',e=>{if(drag)onMove(e.clientX,e.clientY);});
   window.addEventListener('mouseup',e=>onEnd(e.clientX));
-  vp.addEventListener('touchstart',e=>{onStart(e.touches[0].clientX,e.touches[0].clientY,e.target);},{passive:true});
-  vp.addEventListener('touchmove',e=>{if(!drag)return;onMove(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
+  vp.addEventListener('touchstart',e=>onStart(e.touches[0].clientX,e.touches[0].clientY,e.target),{passive:true});
+  vp.addEventListener('touchmove',e=>{if(drag)onMove(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
   vp.addEventListener('touchend',e=>onEnd(e.changedTouches[0].clientX));
   window.addEventListener('keydown',e=>{
-    if(window.currentScreen!=='screen-looks') return;
-    if(e.key==='ArrowRight'||e.key==='ArrowDown') window.navTo(state.ui.currentIdx+1);
-    if(e.key==='ArrowLeft'||e.key==='ArrowUp')   window.navTo(state.ui.currentIdx-1);
+    if(window.currentScreen!=='screen-looks')return;
+    if(e.key==='ArrowRight'||e.key==='ArrowDown')window.navTo(state.ui.currentIdx+1);
+    if(e.key==='ArrowLeft'||e.key==='ArrowUp')window.navTo(state.ui.currentIdx-1);
   });
 })();
 
 // ── LOOK UPDATES ───────────────────────────────────────────────────────────
-window.updLook = function(num,field,val){
-  const l=state.looks.find(x=>x.num===num); if(!l) return;
-  l[field]=val; scheduleSave();
-};
-window.toggleDone = function(num){
-  const l=state.looks.find(x=>x.num===num); if(!l) return;
-  l.done=!l.done; scheduleSave();
-  const fl=filteredLooks();
-  const idx=fl.findIndex(x=>x.num===num);
-  if(idx>=0){
-    const cards=document.getElementById('carousel-track').children;
-    if(cards[idx]){ const b=cards[idx].querySelector('.card-done-badge'); if(b){b.classList.toggle('done',l.done);b.textContent=l.done?'✓':'○';} }
-  }
+window.updLook=function(num,field,val){const l=state.looks.find(x=>x.num===num);if(!l)return;l[field]=val;scheduleSave();};
+window.toggleDone=function(num){
+  const l=state.looks.find(x=>x.num===num);if(!l)return;l.done=!l.done;scheduleSave();
+  const fl=filteredLooks();const idx=fl.findIndex(x=>x.num===num);
+  if(idx>=0){const cards=document.getElementById('carousel-track').children;if(cards[idx]){const b=cards[idx].querySelector('.card-done-badge');if(b){b.classList.toggle('done',l.done);b.textContent=l.done?'✓':'○';}}}
   updateCounter();
 };
 
 // ── GALLERY ────────────────────────────────────────────────────────────────
-function renderGallery(){
-  const fl=filteredLooks();
-  document.getElementById('gallery-sub').textContent=`${fl.filter(l=>l.done).length} / ${fl.length} feitos`;
+function getSortedLooks(){
+  const fl=[...filteredLooks()];
+  const sort=document.getElementById('gallery-sort')?.value||'default';
+  if(sort==='outfit-model') return fl.sort((a,b)=>a.outfit.localeCompare(b.outfit)||a.model.localeCompare(b.model));
+  if(sort==='model-outfit') return fl.sort((a,b)=>a.model.localeCompare(b.model)||a.outfit.localeCompare(b.outfit));
+  if(sort==='category')     return fl.sort((a,b)=>a.category.localeCompare(b.category));
+  if(sort==='location')     return fl.sort((a,b)=>a.location.localeCompare(b.location));
+  if(sort==='done')         return fl.sort((a,b)=>Number(a.done)-Number(b.done));
+  return fl;
+}
+function getGroupKey(look, sort){
+  if(sort==='outfit-model') return `${look.outfit}  ·  ${look.model}`;
+  if(sort==='model-outfit') return `${look.model}  ·  ${look.outfit}`;
+  if(sort==='category')     return look.category;
+  if(sort==='location')     return look.location;
+  return null;
+}
+
+window.renderGallery=function(){
+  const fl=getSortedLooks();
+  const done=fl.filter(l=>l.done).length;
+  document.getElementById('gallery-sub').textContent=`${done} / ${fl.length} feitos`;
   renderFilters();
   const v=state.ui.galleryView||'grid';
+  const sort=document.getElementById('gallery-sort')?.value||'default';
+  const useGroups=sort!=='default'&&sort!=='done';
   const scroll=document.getElementById('gallery-scroll');
+
   if(v==='grid'){
-    scroll.innerHTML=`<div class="gallery-grid">${fl.map((look,i)=>{
-      const oPhoto=photoOf('outfits',look.outfit), sPhoto=photoOf('scarves',look.scarf);
-      const catColor=CAT_COLORS[catColorIdx(look.category)]||'#888';
-      return`<div class="gallery-cell ${look.done?'done-cell':''}" onclick="goToLookFromGallery(${i})">
-        <div class="gallery-cell-imgs">
-          ${oPhoto?`<img class="gallery-cell-img" src="${oPhoto}" alt="">`:`<div class="gallery-cell-img-ph">👗</div>`}
-          ${sPhoto?`<img class="gallery-cell-img" src="${sPhoto}" alt="">`:`<div class="gallery-cell-img-ph">🧣</div>`}
-        </div>
-        <div class="gallery-cell-body">
-          <div class="gallery-cell-num">#${look.num}</div>
-          <div class="gallery-cell-outfit">${esc(look.outfit)}</div>
-          <div class="gallery-cell-meta">${look.model} · ${look.location.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div>
-          <span class="gallery-cell-cat" style="background:${catColor}22;color:${catColor}">${look.category}</span>
-        </div>
-        <div class="gallery-done-badge ${look.done?'done':''}">${look.done?'✓':''}</div>
-      </div>`;
-    }).join('')}</div><div style="height:20px"></div>`;
+    if(useGroups){
+      // group into sections
+      const groups=[];
+      let lastKey=null,curGroup=null;
+      fl.forEach((look,i)=>{
+        const key=getGroupKey(look,sort);
+        if(key!==lastKey){lastKey=key;curGroup={key,looks:[]};groups.push(curGroup);}
+        curGroup.looks.push({look,i:filteredLooks().indexOf(look)});
+      });
+      scroll.innerHTML=groups.map(g=>`
+        <div class="group-header">${esc(g.key)}<span class="group-count">${g.looks.length} look${g.looks.length!==1?'s':''}</span></div>
+        <div class="gallery-grid">${g.looks.map(({look,i})=>galleryCell(look,i)).join('')}</div>
+      `).join('')+'<div style="height:20px"></div>';
+    } else {
+      scroll.innerHTML=`<div class="gallery-grid">${fl.map((look,i)=>galleryCell(look,filteredLooks().indexOf(look))).join('')}</div><div style="height:20px"></div>`;
+    }
   } else {
-    scroll.innerHTML=fl.map((look,i)=>`
-      <div class="list-item ${look.done?'done-item':''}" onclick="goToLookFromGallery(${i})">
-        <div class="list-color-bar" style="background:#${outfitColor(look.outfit)}"></div>
-        <span class="list-num">${look.num}</span>
-        <div class="list-content">
-          <div class="list-outfit">${esc(look.outfit)}</div>
-          <div class="list-meta">${look.category} · ${look.model} · ${look.location.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div>
-        </div>
-        ${photoOf('outfits',look.outfit)?`<img class="list-thumb" src="${photoOf('outfits',look.outfit)}" alt="">`:`<div class="list-thumb-ph">👗</div>`}
-        <div class="list-done-dot ${look.done?'done':''}"></div>
-      </div>`).join('');
+    // list mode
+    if(useGroups){
+      const groups=[];let lastKey=null,curGroup=null;
+      fl.forEach(look=>{const key=getGroupKey(look,sort);if(key!==lastKey){lastKey=key;curGroup={key,looks:[]};groups.push(curGroup);}curGroup.looks.push(look);});
+      scroll.innerHTML=groups.map(g=>`
+        <div class="group-header">${esc(g.key)}<span class="group-count">${g.looks.length} look${g.looks.length!==1?'s':''}</span></div>
+        ${g.looks.map(look=>listRow(look,filteredLooks().indexOf(look))).join('')}
+      `).join('')+'<div style="height:20px"></div>';
+    } else {
+      scroll.innerHTML=fl.map(look=>listRow(look,filteredLooks().indexOf(look))).join('')+'<div style="height:20px"></div>';
+    }
   }
+};
+
+function galleryCell(look,i){
+  const oPhoto=photoOf('outfits',look.outfit);
+  const sPhoto=photoOf('scarves',look.scarf);
+  const mPhoto=photoOf('models',look.model);
+  const catColor=CAT_COLORS[catColorIdx(look.category)]||'#888';
+  // 3 square photos: outfit, scarf, model
+  function sq(photo,icon){return photo?`<img class="gallery-cell-img" src="${photo}" alt="" style="object-fit:cover">`:`<div class="gallery-cell-img-ph">${icon}</div>`;}
+  return`<div class="gallery-cell ${look.done?'done-cell':''}" onclick="goToLookFromGallery(${i})">
+    <div class="gallery-cell-imgs">${sq(oPhoto,'👗')}${sq(sPhoto,'🧣')}${sq(mPhoto,'👤')}</div>
+    <div class="gallery-cell-body">
+      <div class="gallery-cell-num">#${look.num}</div>
+      <div class="gallery-cell-outfit">${esc(look.outfit)}</div>
+      <div class="gallery-cell-meta">${esc(look.model)} · ${look.location.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div>
+      <span class="gallery-cell-cat" style="background:${catColor}22;color:${catColor}">${look.category}</span>
+    </div>
+    <div class="gallery-done-badge ${look.done?'done':''}">${look.done?'✓':''}</div>
+  </div>`;
 }
-window.setGalleryView = function(v){
+function listRow(look,i){
+  const oPhoto=photoOf('outfits',look.outfit);
+  return`<div class="list-item ${look.done?'done-item':''}" onclick="goToLookFromGallery(${i})">
+    <div class="list-color-bar" style="background:#${outfitColor(look.outfit)}"></div>
+    <span class="list-num">${look.num}</span>
+    <div class="list-content">
+      <div class="list-outfit">${esc(look.outfit)}</div>
+      <div class="list-meta">${look.category} · ${esc(look.model)} · ${look.location.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div>
+    </div>
+    ${oPhoto?`<img class="list-thumb" src="${oPhoto}" alt="">`:`<div class="list-thumb-ph">👗</div>`}
+    <div class="list-done-dot ${look.done?'done':''}"></div>
+  </div>`;
+}
+
+window.setGalleryView=function(v){
   state.ui.galleryView=v;
   document.getElementById('gv-grid').className='mini-btn'+(v==='grid'?' accent':'');
   document.getElementById('gv-list').className='mini-btn'+(v==='list'?' accent':'');
   renderGallery();
 };
-window.goToLookFromGallery = function(idx){ state.ui.currentIdx=idx; switchTab('looks'); buildCarousel(); };
+window.goToLookFromGallery=function(idx){state.ui.currentIdx=idx;switchTab('looks');buildCarousel();};
 
 // ── CONFIG ─────────────────────────────────────────────────────────────────
 function renderConfig(){
-  document.getElementById('loc-studio').value = state.config.locs.studio;
-  document.getElementById('loc-pt').value     = state.config.locs.pt;
-  document.getElementById('loc-cv').value     = state.config.locs.cv;
+  document.getElementById('loc-studio').value=state.config.locs.studio;
+  document.getElementById('loc-pt').value=state.config.locs.pt;
+  document.getElementById('loc-cv').value=state.config.locs.cv;
   updateLocHint();
-  document.getElementById('cat-inputs').innerHTML = state.config.cats.map(([cat,n],i)=>`
+  document.getElementById('cat-inputs').innerHTML=state.config.cats.map(([cat,n],i)=>`
     <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--c-border)">
       <span style="font-size:.88rem">${cat}</span>
-      <input class="cfg-inp num" type="number" min="0" value="${n}" style="width:70px"
-        onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint()">
+      <input class="cfg-inp num" type="number" min="0" value="${n}" style="width:70px" onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint()">
     </div>`).join('');
   updateCatHint();
   renderItemFields('outfits','outfit-inputs');
@@ -968,58 +930,45 @@ function renderConfig(){
   renderItemFields('models','model-inputs');
   renderColorGrid();
 }
-
-function renderItemFields(type, cid){
-  document.getElementById(cid).innerHTML = state.config[type].map((item,i)=>`
+function renderItemFields(type,cid){
+  document.getElementById(cid).innerHTML=state.config[type].map((item,i)=>`
     <div class="photo-row">
-      ${item.photo&&item.photo!=='loading'
-        ? `<img class="photo-mini" src="${item.photo}" onclick="openLb('${item.photo}')">`
-        : `<div class="photo-mini-ph" onclick="document.getElementById('f-${type}-${i}').click()">${item.photo==='loading'?'⏳':'📷'}</div>`}
+      ${item.photo?`<img class="photo-mini" src="${item.photo}" onclick="openLb('${item.photo}')">`:`<div class="photo-mini-ph" onclick="document.getElementById('f-${type}-${i}').click()">📷</div>`}
       <input type="file" accept="image/*" id="f-${type}-${i}" style="display:none" onchange="handlePhoto('${type}',${i},this)">
-      <input class="photo-name-inp" type="text" value="${esc(item.name)}" placeholder="Nome…"
-        onchange="state.config['${type}'][${i}].name=this.value;scheduleSave()">
-      ${item.photo&&item.photo!=='loading'
-        ? `<span style="color:var(--c-text3);cursor:pointer;font-size:.8rem;padding:4px" onclick="state.config['${type}'][${i}].photo='';scheduleSave();renderItemFields('${type}','${cid}')">✕</span>`
-        : ''}
+      <input class="photo-name-inp" type="text" value="${esc(item.name)}" placeholder="Nome…" onchange="state.config['${type}'][${i}].name=this.value;scheduleSave()">
+      ${item.photo?`<span style="color:var(--c-text3);cursor:pointer;font-size:.8rem;padding:4px" onclick="state.config['${type}'][${i}].photo='';scheduleSave();renderItemFields('${type}','${cid}')">✕</span>`:''}
     </div>`).join('');
 }
-
-window.handlePhoto = async function(type, i, input){
-  if(!input.files[0]) return;
+window.handlePhoto=async function(type,i,input){
+  if(!input.files[0])return;
   const map={outfits:'outfit-inputs',scarves:'scarf-inputs',models:'model-inputs'};
-  const compressed = await compressImage(input.files[0], 400, 0.55);
-  state.config[type][i].photo = compressed;
-  scheduleSave();
-  renderItemFields(type, map[type]);
+  const compressed=await compressImage(input.files[0],400,0.55);
+  state.config[type][i].photo=compressed;scheduleSave();renderItemFields(type,map[type]);
 };
-
-window.addItem    = function(type){ state.config[type].push({name:'',photo:''}); renderConfig(); };
-window.removeItem = function(type){ if(state.config[type].length>1){ state.config[type].pop(); renderConfig(); } };
-
-window.updateLocHint = function(){
+window.addItem=function(type){state.config[type].push({name:'',photo:''});renderConfig();};
+window.removeItem=function(type){if(state.config[type].length>1){state.config[type].pop();renderConfig();}};
+window.updateLocHint=function(){
   const s=parseInt(document.getElementById('loc-studio').value)||0;
   const p=parseInt(document.getElementById('loc-pt').value)||0;
   const c=parseInt(document.getElementById('loc-cv').value)||0;
   const h=document.getElementById('loc-hint');
-  h.innerHTML=`Total: <strong>${s+p+c}</strong> / 100`;
-  h.className='cfg-hint'+((s+p+c)!==100?' err':'');
+  h.innerHTML=`Total: <strong>${s+p+c}</strong> / 100`;h.className='cfg-hint'+((s+p+c)!==100?' err':'');
 };
-window.updateCatHint = function(){
+window.updateCatHint=function(){
   const t=state.config.cats.reduce((s,[,n])=>s+n,0);
   const h=document.getElementById('cat-hint');
-  h.innerHTML=`Total: <strong>${t}</strong> / 100`;
-  h.className='cfg-hint'+(t!==100?' err':'');
+  h.innerHTML=`Total: <strong>${t}</strong> / 100`;h.className='cfg-hint'+(t!==100?' err':'');
 };
-window.applyConfig = function(){
+window.applyConfig=function(){
   state.config.locs.studio=parseInt(document.getElementById('loc-studio').value)||0;
-  state.config.locs.pt    =parseInt(document.getElementById('loc-pt').value)||0;
-  state.config.locs.cv    =parseInt(document.getElementById('loc-cv').value)||0;
+  state.config.locs.pt=parseInt(document.getElementById('loc-pt').value)||0;
+  state.config.locs.cv=parseInt(document.getElementById('loc-cv').value)||0;
   const ct=state.config.cats.reduce((s,[,n])=>s+n,0);
   const lt=state.config.locs.studio+state.config.locs.pt+state.config.locs.cv;
-  if(ct!==100){ alert(`Total categorias: ${ct}. Deve ser 100.`); return; }
-  if(lt!==100){ alert(`Total locais: ${lt}. Deve ser 100.`); return; }
-  state.looks=genLooks(); state.ui.currentIdx=0; state.ui.filter='';
-  scheduleSave(); renderFilters(); buildCarousel(); updateCounter(); switchTab('looks');
+  if(ct!==100){alert(`Total categorias: ${ct}. Deve ser 100.`);return;}
+  if(lt!==100){alert(`Total locais: ${lt}. Deve ser 100.`);return;}
+  state.looks=genLooks();state.ui.currentIdx=0;state.ui.filter='';
+  scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');
 };
 
 // ── EQUIPA ─────────────────────────────────────────────────────────────────
@@ -1048,9 +997,7 @@ function renderMemberCard(m){
       <div class="member-field"><div class="member-lbl">${l}</div>
         <input class="member-inp" type="${t}" value="${esc(m[f]||'')}" placeholder="${p}" oninput="updMember(${m.id},'${f}',this.value)"></div>`).join('')}
       <div class="member-field"><div class="member-lbl">Despesas</div>
-        <div class="cost-grid-2">${COST_FIELDS.map((f,i)=>`<div>
-          <div style="font-size:.6rem;color:var(--c-text3);text-transform:uppercase;margin-bottom:3px">${COST_LABELS[i]}</div>
-          <input class="member-inp mono" type="number" min="0" step="0.01" value="${m[f]||''}" placeholder="0,00" oninput="updMember(${m.id},'${f}',parseFloat(this.value)||0)"></div>`).join('')}</div>
+        <div class="cost-grid-2">${COST_FIELDS.map((f,i)=>`<div><div style="font-size:.6rem;color:var(--c-text3);text-transform:uppercase;margin-bottom:3px">${COST_LABELS[i]}</div><input class="member-inp mono" type="number" min="0" step="0.01" value="${m[f]||''}" placeholder="0,00" oninput="updMember(${m.id},'${f}',parseFloat(this.value)||0)"></div>`).join('')}</div>
         <div class="member-total-row"><span class="mtl">Total</span><span class="mtv" id="mt-${m.id}">${fmtEur(total)}</span></div>
       </div>
       <button class="mini-btn danger" style="width:100%;margin-top:8px" onclick="removeMember(${m.id})">✕ Remover membro</button>
@@ -1058,41 +1005,36 @@ function renderMemberCard(m){
   </div>`;
 }
 function renderGrandTotal(){
-  const totals={}; COST_FIELDS.forEach(f=>{totals[f]=state.team.reduce((s,m)=>s+(parseFloat(m[f])||0),0);});
+  const totals={};COST_FIELDS.forEach(f=>{totals[f]=state.team.reduce((s,m)=>s+(parseFloat(m[f])||0),0);});
   const grand=Object.values(totals).reduce((s,v)=>s+v,0);
   document.getElementById('gt-amount').textContent=fmtEur(grand);
   document.getElementById('gt-breakdown').innerHTML=COST_FIELDS.map((f,i)=>`<div class="gt-bk"><span class="gt-bk-val">${fmtEur(totals[f])}</span><span class="gt-bk-lbl">${COST_LABELS[i]}</span></div>`).join('');
 }
-window.toggleMember   = function(id){ const m=state.team.find(t=>t.id===id); if(!m)return; m.open=!m.open; scheduleSave(); renderTeam(); };
-window.updMember      = function(id,field,val){
-  const m=state.team.find(t=>t.id===id); if(!m)return; m[field]=val;
+window.toggleMember=function(id){const m=state.team.find(t=>t.id===id);if(!m)return;m.open=!m.open;scheduleSave();renderTeam();};
+window.updMember=function(id,field,val){
+  const m=state.team.find(t=>t.id===id);if(!m)return;m[field]=val;
   const total=COST_FIELDS.reduce((s,f)=>s+(parseFloat(m[f])||0),0);
-  const el=document.getElementById('mt-'+id); if(el) el.textContent=fmtEur(total);
-  renderGrandTotal(); scheduleSave();
+  const el=document.getElementById('mt-'+id);if(el)el.textContent=fmtEur(total);
+  renderGrandTotal();scheduleSave();
 };
-window.handleMemberPhoto = async function(id,input){
-  if(!input.files[0]) return;
-  const m=state.team.find(t=>t.id===id); if(!m)return;
-  const compressed=await compressImage(input.files[0],300,0.6);
-  m.photo=compressed; scheduleSave(); renderTeam();
+window.handleMemberPhoto=async function(id,input){
+  if(!input.files[0])return;const m=state.team.find(t=>t.id===id);if(!m)return;
+  const compressed=await compressImage(input.files[0],300,0.6);m.photo=compressed;scheduleSave();renderTeam();
 };
-window.remMemberPhoto = function(id){ const m=state.team.find(t=>t.id===id); if(!m)return; m.photo=''; scheduleSave(); renderTeam(); };
-window.addMember      = function(){ state.team.push({id:Date.now(),name:"",role:"",location:"",phone:"",email:"",notes:"",photo:"",viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true}); scheduleSave(); renderTeam(); };
-window.removeMember   = function(id){ if(!confirm('Remover este membro?'))return; state.team=state.team.filter(m=>m.id!==id); scheduleSave(); renderTeam(); };
+window.remMemberPhoto=function(id){const m=state.team.find(t=>t.id===id);if(!m)return;m.photo='';scheduleSave();renderTeam();};
+window.addMember=function(){state.team.push({id:Date.now(),name:"",role:"",location:"",phone:"",email:"",notes:"",photo:"",viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true});scheduleSave();renderTeam();};
+window.removeMember=function(id){if(!confirm('Remover este membro?'))return;state.team=state.team.filter(m=>m.id!==id);scheduleSave();renderTeam();};
 
 // ── LIGHTBOX / TOAST ───────────────────────────────────────────────────────
-window.openLb       = function(src){ document.getElementById('lb-img').src=src; document.getElementById('lightbox').classList.add('show'); };
-window.closeLightbox= function(){ document.getElementById('lightbox').classList.remove('show'); };
-window.showToast    = function(msg='✓ Guardado'){
-  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2000);
-};
+window.openLb=function(src){document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('show');};
+window.closeLightbox=function(){document.getElementById('lightbox').classList.remove('show');};
+window.showToast=function(msg='✓ Guardado'){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);};
 
-// expose for inline oninput handlers
-window.scheduleSave    = scheduleSave;
-window.renderItemFields= renderItemFields;
-window.applyTheme      = applyTheme;
-window.renderColorGrid = renderColorGrid;
+// expose
+window.scheduleSave=scheduleSave;
+window.renderItemFields=renderItemFields;
+window.applyTheme=applyTheme;
+window.renderColorGrid=renderColorGrid;
 </script>
 </body>
 </html>
