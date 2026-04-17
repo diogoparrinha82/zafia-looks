@@ -703,10 +703,17 @@ window.buildCarousel=function(){
   updateCounter();
 };
 
+function getCardWidth(){
+  // On desktop the card has a max-width, so use the card's actual width not the viewport
+  const fc=document.getElementById('carousel-track').firstElementChild;
+  if(fc&&fc.offsetWidth>0) return fc.offsetWidth;
+  // fallback: check if desktop max-width applies
+  const vp=document.getElementById('carousel-vp');
+  return Math.min(vp.offsetWidth, 540);
+}
+
 // keep track of which indices are rendered
 let renderedIndices=new Set();
-
-function renderVirtualCards(fl,idx){
   const track=document.getElementById('carousel-track');
   const toRender=new Set([idx-1,idx,idx+1].filter(i=>i>=0&&i<fl.length));
 
@@ -766,13 +773,16 @@ function initCarousel(){
   renderVirtualCards(fl,idx);
   track.classList.add('no-anim');
   requestAnimationFrame(()=>{
-    const fc=track.firstElementChild;
-    const w=fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;
-    track.style.transform=`translateX(-${idx*w}px)`;
-    requestAnimationFrame(()=>track.classList.remove('no-anim'));
+    // wait for layout then measure real card width
+    requestAnimationFrame(()=>{
+      const w=getCardWidth();
+      track.style.transform=`translateX(-${idx*w}px)`;
+      requestAnimationFrame(()=>track.classList.remove('no-anim'));
+    });
   });
   updateCounter();
 }
+
 window.buildCarousel=initCarousel;
 
 window.navTo=function(idx){
@@ -851,23 +861,39 @@ function renderConfig(){
 function renderOutfitInputs(){
   document.getElementById('outfit-inputs').innerHTML=(state.config.outfits||[]).map((outfit,oi)=>{
     const pieces=outfit.pieces||[];
+    const allPhotos=[
+      {photo:outfit.photo,name:outfit.name,isMain:true,idx:-1},
+      ...pieces.map((p,pi)=>({photo:p.photo,name:p.name,isMain:false,idx:pi}))
+    ];
+    const photoGridHtml=`<div class="pieces-grid">${allPhotos.map((item)=>{
+      const inputId=item.isMain?`om-${oi}`:`op-${oi}-${item.idx}`;
+      const onchange=item.isMain?`handleOutfitMainPhoto(${oi},this)`:`handleOutfitPiecePhoto(${oi},${item.idx},this)`;
+      const onRemove=item.isMain?`state.config.outfits[${oi}].photo='';scheduleSave();renderOutfitInputs()`:`removeOutfitPiece(${oi},${item.idx})`;
+      return`<div class="piece-cell">
+        ${item.photo
+          ?`<img class="piece-img" src="${item.photo}" onclick="openLb('${item.photo}')">`
+          :`<div class="piece-img-ph" onclick="document.getElementById('${inputId}').click()"><span>👗</span><span>${item.isMain?'Principal':'Peça'}</span></div>`}
+        <input type="file" accept="image/*" id="${inputId}" style="display:none" onchange="${onchange}">
+        <input class="piece-name-inp" type="text" value="${esc(item.isMain?outfit.name:item.name||'')}" placeholder="${item.isMain?'Nome da roupa…':'Nome da peça…'}"
+          onchange="${item.isMain?`state.config.outfits[${oi}].name=this.value;scheduleSave();renderOutfitInputs()`:`state.config.outfits[${oi}].pieces[${item.idx}].name=this.value;scheduleSave()`}">
+        <div class="piece-actions">
+          <span class="piece-act-btn" onclick="document.getElementById('${inputId}').click()">${item.photo?'🔄':'📷'}</span>
+          ${item.photo||!item.isMain?`<span class="piece-act-btn del" onclick="${onRemove}">✕</span>`:''}
+        </div>
+      </div>`;
+    }).join('')}</div>`;
     return`<div class="outfit-card" id="ocard-${oi}">
       <div class="outfit-card-hdr" onclick="toggleOutfitCard(${oi})">
         ${outfit.photo?`<img src="${outfit.photo}" alt="">`:`<div class="outfit-card-hdr-ph">👗</div>`}
-        <div style="flex:1;min-width:0;"><div class="outfit-card-name">${esc(outfit.name||'Roupa '+(oi+1))}</div><div style="font-size:.65rem;color:var(--c-text3)">${pieces.length} peça${pieces.length!==1?'s':''} extra</div></div>
+        <div style="flex:1;min-width:0;">
+          <div class="outfit-card-name">${esc(outfit.name||'Roupa '+(oi+1))}</div>
+          <div style="font-size:.65rem;color:var(--c-text3)">${pieces.length} peça${pieces.length!==1?'s':''} extra</div>
+        </div>
         <span class="outfit-card-chevron">▾</span>
       </div>
       <div class="outfit-card-body">
-        <div class="cfg-field" style="margin-bottom:10px"><label class="cfg-lbl">Nome</label><input class="cfg-inp" type="text" value="${esc(outfit.name)}" placeholder="Ex: Vestido Branco…" onchange="state.config.outfits[${oi}].name=this.value;scheduleSave();renderOutfitInputs()"></div>
-        <div class="cfg-lbl" style="margin-bottom:8px">Foto principal</div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-          ${outfit.photo?`<img src="${outfit.photo}" style="width:60px;height:60px;border-radius:8px;object-fit:cover;cursor:pointer" onclick="openLb('${outfit.photo}')">`:`<div style="width:60px;height:60px;border-radius:8px;border:2px dashed var(--c-border);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--c-text3);cursor:pointer" onclick="document.getElementById('om-${oi}').click()">👗</div>`}
-          <label class="mini-btn" style="flex:0 0 auto;cursor:pointer">${outfit.photo?'🔄 Trocar':'📷 Foto'}<input type="file" accept="image/*" id="om-${oi}" style="display:none" onchange="handleOutfitMainPhoto(${oi},this)"></label>
-          ${outfit.photo?`<button class="mini-btn danger" style="flex:0 0 auto" onclick="state.config.outfits[${oi}].photo='';scheduleSave();renderOutfitInputs()">✕</button>`:''}
-        </div>
-        <div class="cfg-lbl" style="margin-bottom:8px">Peças extra (máx. 3)</div>
-        <div class="pieces-grid">${pieces.map((p,pi)=>`<div class="piece-cell">${p.photo?`<img class="piece-img" src="${p.photo}" onclick="openLb('${p.photo}')">`:`<div class="piece-img-ph" onclick="document.getElementById('op-${oi}-${pi}').click()"><span>👗</span><span>Foto</span></div>`}<input type="file" accept="image/*" id="op-${oi}-${pi}" style="display:none" onchange="handleOutfitPiecePhoto(${oi},${pi},this)"><input class="piece-name-inp" type="text" value="${esc(p.name||'')}" placeholder="Nome da peça…" onchange="state.config.outfits[${oi}].pieces[${pi}].name=this.value;scheduleSave()"><div class="piece-actions"><span class="piece-act-btn" onclick="document.getElementById('op-${oi}-${pi}').click()">${p.photo?'🔄':'📷'}</span><span class="piece-act-btn del" onclick="removeOutfitPiece(${oi},${pi})">✕</span></div></div>`).join('')}</div>
-        ${pieces.length<3?`<button class="mini-btn" style="width:100%;margin-top:6px" onclick="addOutfitPiece(${oi})">+ Adicionar peça extra</button>`:''}
+        ${photoGridHtml}
+        ${allPhotos.length<4?`<button class="mini-btn" style="width:100%;margin-top:6px" onclick="addOutfitPiece(${oi})">+ Adicionar peça extra</button>`:''}
       </div>
     </div>`;
   }).join('');
