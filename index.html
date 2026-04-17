@@ -685,9 +685,107 @@ function buildCard(look){
 
 window.slideOutfit=function(num,dir,total){const cur=outfitSlideIdx[num]||0;const next=Math.max(0,Math.min(total-1,cur+dir));outfitSlideIdx[num]=next;const track=document.getElementById('omt-'+num);if(track){track.classList.remove('no-anim');track.style.transform=`translateX(-${next*100}%)`;}const dotsEl=document.getElementById('omDots-'+num);if(dotsEl)[...dotsEl.children].forEach((d,i)=>d.classList.toggle('on',i===next));};
 
-window.buildCarousel=function(){const fl=filteredLooks();const track=document.getElementById('carousel-track');track.innerHTML='';fl.forEach(look=>track.appendChild(buildCard(look)));const idx=Math.min(state.ui.currentIdx,Math.max(0,fl.length-1));state.ui.currentIdx=idx;track.classList.add('no-anim');requestAnimationFrame(()=>{const fc=track.firstElementChild;const w=fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;track.style.transform=`translateX(-${idx*w}px)`;requestAnimationFrame(()=>track.classList.remove('no-anim'));});updateCounter();};
+window.buildCarousel=function(){
+  const fl=filteredLooks();
+  const track=document.getElementById('carousel-track');
+  // virtual rendering — only build 3 cards at a time (prev, current, next)
+  // use a fixed-width container sized to total
+  const idx=Math.min(state.ui.currentIdx,Math.max(0,fl.length-1));
+  state.ui.currentIdx=idx;
+  renderVirtualCards(fl,idx);
+  track.classList.add('no-anim');
+  requestAnimationFrame(()=>{
+    const fc=track.firstElementChild;
+    const w=fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;
+    track.style.transform=`translateX(-${idx*w}px)`;
+    requestAnimationFrame(()=>track.classList.remove('no-anim'));
+  });
+  updateCounter();
+};
 
-window.navTo=function(idx){const fl=filteredLooks();if(idx<0||idx>=fl.length)return;state.ui.currentIdx=idx;const track=document.getElementById('carousel-track');const fc=track.firstElementChild;const w=fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;track.style.transform=`translateX(-${idx*w}px)`;updateCounter();scheduleSave();};
+// keep track of which indices are rendered
+let renderedIndices=new Set();
+
+function renderVirtualCards(fl,idx){
+  const track=document.getElementById('carousel-track');
+  const toRender=new Set([idx-1,idx,idx+1].filter(i=>i>=0&&i<fl.length));
+
+  // remove cards that are far away
+  for(const ri of renderedIndices){
+    if(!toRender.has(ri)){
+      const el=track.querySelector(`[data-look-num="${fl[ri]?.num}"]`);
+      if(el){
+        // replace with lightweight placeholder to keep positions
+        const ph=document.createElement('div');
+        ph.className='look-card';
+        ph.dataset.lookNum=fl[ri].num;
+        ph.dataset.placeholder='1';
+        track.replaceChild(ph,el);
+      }
+    }
+  }
+  renderedIndices=toRender;
+
+  // build/fill cards for the 3 visible indices
+  for(const ri of toRender){
+    const look=fl[ri];
+    const existing=track.querySelector(`[data-look-num="${look.num}"]`);
+    if(existing&&existing.dataset.placeholder==='1'){
+      // replace placeholder with real card
+      const realCard=buildCard(look);
+      track.replaceChild(realCard,existing);
+    } else if(!existing){
+      // shouldn't happen but safety net
+      const realCard=buildCard(look);
+      // insert at correct position
+      const allCards=[...track.children];
+      const insertBefore=allCards.find(c=>parseInt(c.dataset.lookNum||'0')>look.num);
+      if(insertBefore)track.insertBefore(realCard,insertBefore);
+      else track.appendChild(realCard);
+    }
+  }
+}
+
+// initial full setup — create placeholders for all, real cards for first 3
+function initCarousel(){
+  const fl=filteredLooks();
+  const track=document.getElementById('carousel-track');
+  track.innerHTML='';
+  renderedIndices=new Set();
+  const idx=Math.min(state.ui.currentIdx,Math.max(0,fl.length-1));
+  state.ui.currentIdx=idx;
+  // create all placeholders first (lightweight)
+  fl.forEach(look=>{
+    const ph=document.createElement('div');
+    ph.className='look-card';
+    ph.dataset.lookNum=look.num;
+    ph.dataset.placeholder='1';
+    track.appendChild(ph);
+  });
+  // replace first 3 with real cards
+  renderVirtualCards(fl,idx);
+  track.classList.add('no-anim');
+  requestAnimationFrame(()=>{
+    const fc=track.firstElementChild;
+    const w=fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;
+    track.style.transform=`translateX(-${idx*w}px)`;
+    requestAnimationFrame(()=>track.classList.remove('no-anim'));
+  });
+  updateCounter();
+}
+window.buildCarousel=initCarousel;
+
+window.navTo=function(idx){
+  const fl=filteredLooks();if(idx<0||idx>=fl.length)return;
+  state.ui.currentIdx=idx;
+  const track=document.getElementById('carousel-track');
+  const fc=track.firstElementChild;
+  const w=fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;
+  track.style.transform=`translateX(-${idx*w}px)`;
+  updateCounter();scheduleSave();
+  // render adjacent cards after navigation
+  renderVirtualCards(fl,idx);
+};
 
 // drag/swipe
 (function(){let sx=0,sy=0,drag=false,moved=false,vpW=0;const UI='select,input,textarea,button,label,.outfit-mini-btn';function isUI(el){return!!el.closest(UI);}function getW(){const fc=document.getElementById('carousel-track').firstElementChild;return fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;}function onStart(x,y,target){if(isUI(target))return;sx=x;sy=y;drag=true;moved=false;vpW=getW();document.getElementById('carousel-track').classList.add('no-anim');}function onMove(x,y){if(!drag)return;const dx=x-sx,dy=y-sy;if(!moved&&Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){drag=false;return;}if(Math.abs(dx)>4)moved=true;document.getElementById('carousel-track').style.transform=`translateX(${-(state.ui.currentIdx*vpW-dx)}px)`;}function onEnd(x){if(!drag)return;drag=false;const track=document.getElementById('carousel-track');track.classList.remove('no-anim');const dx=x-sx,fl=filteredLooks(),thr=vpW*0.2;if(moved&&dx<-thr&&state.ui.currentIdx<fl.length-1)window.navTo(state.ui.currentIdx+1);else if(moved&&dx>thr&&state.ui.currentIdx>0)window.navTo(state.ui.currentIdx-1);else window.navTo(state.ui.currentIdx);}const vp=document.getElementById('carousel-vp');vp.addEventListener('mousedown',e=>{if(e.button!==0)return;if(!isUI(e.target))e.preventDefault();onStart(e.clientX,e.clientY,e.target);});window.addEventListener('mousemove',e=>{if(drag)onMove(e.clientX,e.clientY);});window.addEventListener('mouseup',e=>onEnd(e.clientX));vp.addEventListener('touchstart',e=>onStart(e.touches[0].clientX,e.touches[0].clientY,e.target),{passive:true});vp.addEventListener('touchmove',e=>{if(drag)onMove(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});vp.addEventListener('touchend',e=>onEnd(e.changedTouches[0].clientX));window.addEventListener('keydown',e=>{if(window.currentScreen!=='screen-looks')return;if(e.key==='ArrowRight'||e.key==='ArrowDown')window.navTo(state.ui.currentIdx+1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')window.navTo(state.ui.currentIdx-1);});})();
