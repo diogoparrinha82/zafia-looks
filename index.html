@@ -53,7 +53,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .prog-bar{height:3px;background:var(--c-border);flex-shrink:0;}
 .prog-bar-fill{height:100%;background:var(--c-accent);transition:width .4s ease;}
 
-/* ── LOOKS ── */
+/* LOOKS */
 #screen-looks{background:var(--c-bg);}
 .looks-header{padding:calc(var(--safe-top)+10px) 16px 10px;background:var(--c-bg);border-bottom:1px solid var(--c-border);flex-shrink:0;display:flex;align-items:center;gap:10px;}
 .looks-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--c-accent);font-weight:600;flex:1;}
@@ -61,8 +61,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .carousel-viewport{flex:1;overflow:hidden;position:relative;}
 .carousel-track{display:flex;height:100%;transition:transform .35s cubic-bezier(.4,0,.2,1);will-change:transform;}
 .carousel-track.no-anim{transition:none;}
-
-/* Card — max-width centred on desktop */
 .look-card{min-width:100%;width:100%;height:100%;background:var(--c-card);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;position:relative;}
 @media(min-width:700px){
   .carousel-track{justify-content:center;}
@@ -81,36 +79,22 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .card-status-btn.shooting .status-dot{background:#ff4444;animation:blink 1s infinite;}
 .card-status-btn.done .status-dot{background:var(--c-done);}
 
-/* ── 2×2 PHOTO GRID — fixed square cells ── */
-.card-photo-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  grid-template-rows:1fr 1fr;
-  gap:6px;
-  padding:0 12px 8px;
-  flex-shrink:0;
-  /* height is controlled by the cells' aspect-ratio */
-}
-.photo-cell{
-  position:relative;
-  border-radius:9px;
-  overflow:hidden;
-  background:var(--c-surface);
-  /* force square */
-  aspect-ratio:1/1;
-}
+/* 2x2 photo grid */
+.card-photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 12px 8px;flex-shrink:0;}
+.photo-cell{position:relative;border-radius:9px;overflow:hidden;background:var(--c-surface);aspect-ratio:1/1;}
 .photo-cell img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;cursor:pointer;}
 .photo-cell.contain img{object-fit:contain;background:#0a0a1a;}
 .photo-cell-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--c-text3);font-size:.6rem;}
 .photo-cell-ph .icon{font-size:1.6rem;}
 .photo-cell-lbl{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:linear-gradient(transparent,rgba(0,0,0,.7));font-size:.58rem;color:rgba(255,255,255,.85);pointer-events:none;z-index:1;}
 
-/* outfit mini-carousel inside top-left cell */
-.outfit-mini{position:absolute;inset:0;}
+/* outfit mini carousel inside cell */
+.outfit-mini{position:absolute;inset:0;overflow:hidden;border-radius:9px;}
 .outfit-mini-track{display:flex;height:100%;transition:transform .3s cubic-bezier(.4,0,.2,1);}
 .outfit-mini-track.no-anim{transition:none;}
 .outfit-mini-slide{min-width:100%;width:100%;height:100%;position:relative;flex-shrink:0;}
 .outfit-mini-slide img{width:100%;height:100%;object-fit:cover;cursor:pointer;}
+.outfit-mini-slide.contain img{object-fit:contain;background:#0a0a1a;}
 .outfit-mini-btn{position:absolute;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:white;font-size:.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;}
 .outfit-mini-btn.prev{left:4px;}
 .outfit-mini-btn.next{right:4px;}
@@ -118,23 +102,14 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .outfit-mini-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.4);}
 .outfit-mini-dot.on{background:white;}
 
-/* card fields */
 .card-fields{flex:1;overflow-y:auto;padding:0 12px 10px;display:flex;flex-direction:column;gap:5px;}
 .card-fields::-webkit-scrollbar{display:none;}
-.field-row{background:var(--c-surface);border-radius:var(--radius-sm);padding:8px 11px;display:flex;flex-direction:column;gap:3px;}
+.field-row{background:var(--c-surface);border-radius:var(--radius-sm);padding:8px 11px;display:flex;flex-direction:column;gap:2px;}
 .field-lbl{font-size:.6rem;color:var(--c-text3);font-weight:500;letter-spacing:.08em;text-transform:uppercase;}
 .field-sel{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'Jost',sans-serif;font-size:.88rem;outline:none;cursor:pointer;-webkit-appearance:none;}
 .field-sel option{background:#1E1E3A;color:white;}
 .field-inp{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'Jost',sans-serif;font-size:.88rem;outline:none;}
 .field-inp::placeholder{color:var(--c-text3);}
-/* pieces sub-rows inside roupa field */
-.pieces-sub{display:flex;flex-direction:column;gap:4px;margin-top:5px;padding-top:5px;border-top:1px solid var(--c-border);}
-.piece-sub-row{display:flex;align-items:center;gap:8px;}
-.piece-sub-thumb{width:28px;height:28px;border-radius:5px;object-fit:cover;flex-shrink:0;cursor:pointer;}
-.piece-sub-thumb-ph{width:28px;height:28px;border-radius:5px;background:var(--c-card);display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;}
-.piece-sub-type{font-size:.6rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.05em;min-width:38px;flex-shrink:0;}
-.piece-sub-name{font-size:.82rem;color:var(--c-text2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-
 .card-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;padding-bottom:calc(8px + var(--safe-bottom));border-top:1px solid var(--c-border);flex-shrink:0;}
 .card-nav-btn{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--c-border);background:var(--c-surface);color:var(--c-text);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .card-nav-btn:hover,.card-nav-btn:active{background:var(--c-accent);border-color:var(--c-accent);color:var(--c-bg);}
@@ -142,7 +117,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .card-nav-pos{font-family:'DM Mono',monospace;font-size:.82rem;color:var(--c-text2);text-align:center;}
 .card-nav-hint{font-size:.6rem;color:var(--c-text3);margin-top:2px;text-align:center;}
 
-/* ── GALLERY ── */
+/* GALLERY */
 #screen-gallery{background:var(--c-bg);}
 .gallery-toolbar{display:flex;gap:8px;padding:8px 16px;flex-shrink:0;border-bottom:1px solid var(--c-border);align-items:center;flex-wrap:wrap;}
 .gallery-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px;}
@@ -178,7 +153,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .list-status-dot.shooting{background:#ff4444;border-color:#ff4444;}
 .list-status-dot.done{background:var(--c-done);border-color:var(--c-done);}
 
-/* ── CONFIG ── */
+/* CONFIG */
 #screen-config{background:var(--c-bg);}
 .cfg-section{margin-bottom:6px;}
 .cfg-section-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;background:var(--c-surface);border-bottom:1px solid var(--c-border);}
@@ -186,8 +161,16 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .cfg-section-sub{font-size:.68rem;color:var(--c-text3);margin-top:1px;}
 .cfg-chevron{color:var(--c-text3);transition:transform .2s;}
 .cfg-section.open .cfg-chevron{transform:rotate(180deg);}
-.cfg-section-body{display:none;background:var(--c-card);padding:14px 16px;}
+.cfg-section-body{display:none;background:var(--c-card);padding:0;}
 .cfg-section.open .cfg-section-body{display:block;}
+
+/* sub-tabs inside outfit section */
+.sub-tabs{display:flex;border-bottom:1px solid var(--c-border);background:var(--c-surface);}
+.sub-tab{flex:1;padding:10px 4px;text-align:center;font-size:.75rem;font-weight:600;color:var(--c-text3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .15s;}
+.sub-tab.on{color:var(--c-accent);border-bottom-color:var(--c-accent);}
+.sub-panel{display:none;padding:14px 16px;}
+.sub-panel.on{display:block;}
+
 .cfg-field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
 .cfg-field:last-child{margin-bottom:0;}
 .cfg-lbl{font-size:.65rem;color:var(--c-text3);font-weight:500;letter-spacing:.08em;text-transform:uppercase;}
@@ -198,12 +181,16 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .cfg-hint{font-size:.72rem;color:var(--c-text3);margin-top:6px;}
 .cfg-hint.err{color:#ff6b6b;}
 .cfg-hint strong{color:var(--c-text);}
+
+/* category rows */
 .cat-row{display:flex;align-items:center;gap:10px;padding:4px 0 10px;border-bottom:1px solid var(--c-border);margin-bottom:10px;}
 .cat-name-inp{flex:1;padding:10px 12px;border:1.5px solid var(--c-border);border-radius:var(--radius-sm);background:var(--c-surface);color:var(--c-text);font-family:'Jost',sans-serif;font-size:.9rem;outline:none;}
 .cat-name-inp:focus{border-color:var(--c-accent);}
 .cat-count-wrap{display:flex;flex-direction:column;align-items:center;background:var(--c-surface);border-radius:var(--radius-sm);padding:6px 12px;min-width:64px;border:1.5px solid var(--c-border);}
 .cat-count-inp{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'DM Mono',monospace;font-size:.92rem;outline:none;text-align:center;}
 .cat-count-lbl{font-size:.56rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.06em;}
+
+/* pieces grid */
 .pieces-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
 .piece-cell{display:flex;flex-direction:column;gap:5px;}
 .piece-img{width:100%;aspect-ratio:1;border-radius:8px;object-fit:cover;cursor:pointer;display:block;}
@@ -215,15 +202,19 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .piece-actions{display:flex;justify-content:center;gap:5px;}
 .piece-act-btn{font-size:.65rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px;background:transparent;}
 .piece-act-btn.del{color:#ff6b6b;border-color:rgba(255,107,107,.3);}
-.outfit-config-card{border:1px solid var(--c-border);border-radius:var(--radius-sm);margin-bottom:12px;overflow:hidden;}
-.outfit-config-hdr{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--c-surface);cursor:pointer;}
-.outfit-config-hdr img{width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;}
-.outfit-config-hdr-ph{width:40px;height:40px;border-radius:6px;border:2px dashed var(--c-border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;color:var(--c-text3);}
-.outfit-config-name{flex:1;font-size:.88rem;font-weight:500;}
-.outfit-config-chevron{color:var(--c-text3);font-size:.75rem;transition:transform .2s;}
-.outfit-config-card.open .outfit-config-chevron{transform:rotate(180deg);}
-.outfit-config-body{display:none;padding:10px 12px;background:var(--c-card);}
-.outfit-config-card.open .outfit-config-body{display:block;}
+
+/* outfit card (expandable) */
+.outfit-card{border:1px solid var(--c-border);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden;}
+.outfit-card-hdr{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--c-surface);cursor:pointer;}
+.outfit-card-hdr img{width:38px;height:38px;border-radius:6px;object-fit:cover;flex-shrink:0;}
+.outfit-card-hdr-ph{width:38px;height:38px;border-radius:6px;border:2px dashed var(--c-border);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;color:var(--c-text3);}
+.outfit-card-name{flex:1;font-size:.88rem;font-weight:500;}
+.outfit-card-chevron{color:var(--c-text3);font-size:.75rem;transition:transform .2s;}
+.outfit-card.open .outfit-card-chevron{transform:rotate(180deg);}
+.outfit-card-body{display:none;padding:12px;background:var(--c-card);}
+.outfit-card.open .outfit-card-body{display:block;}
+
+/* simple item grid (jóias / sapatos / lenços / modelos) */
 .photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .photo-row{display:flex;flex-direction:column;gap:6px;padding:8px 0;}
 .photo-mini{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;cursor:pointer;display:block;}
@@ -231,6 +222,8 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .photo-name-inp{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'Jost',sans-serif;font-size:.82rem;outline:none;padding:4px 0;border-bottom:1px solid transparent;text-align:center;transition:border-color .2s;}
 .photo-name-inp:focus{border-bottom-color:var(--c-accent);}
 .photo-row-actions{display:flex;justify-content:center;gap:6px;}
+
+/* tutorial grid */
 .color-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .color-field{display:flex;flex-direction:column;gap:5px;}
 .color-picker-wrap{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px solid var(--c-border);border-radius:var(--radius-sm);background:var(--c-surface);cursor:pointer;}
@@ -244,7 +237,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .mini-btn.danger{color:#ff6b6b;border-color:rgba(255,107,107,.3);}
 .mini-btn.accent{background:var(--c-accent);color:var(--c-bg);border-color:var(--c-accent);}
 
-/* ── EQUIPA ── */
+/* EQUIPA */
 #screen-equipa{background:var(--c-bg);}
 .grand-total-strip{background:var(--c-accent);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
 .gt-label{font-size:.7rem;color:rgba(18,18,42,.6);font-weight:600;letter-spacing:.08em;text-transform:uppercase;}
@@ -358,15 +351,15 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
     </div>
     <div class="cfg-section" id="cs-io">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-io')"><div><div class="cfg-section-title">📦 Backup</div></div><span class="cfg-chevron">▾</span></div>
-      <div class="cfg-section-body"><div style="display:flex;gap:8px;"><button class="mini-btn accent" style="flex:1" onclick="exportData()">⬇ Exportar</button><label class="mini-btn" style="flex:1;text-align:center;cursor:pointer">⬆ Importar<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label></div></div>
+      <div class="cfg-section-body" style="padding:14px 16px;"><div style="display:flex;gap:8px;"><button class="mini-btn accent" style="flex:1" onclick="exportData()">⬇ Exportar</button><label class="mini-btn" style="flex:1;text-align:center;cursor:pointer">⬆ Importar<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label></div></div>
     </div>
     <div class="cfg-section" id="cs-colors">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-colors')"><div><div class="cfg-section-title">🎨 Cores</div></div><span class="cfg-chevron">▾</span></div>
-      <div class="cfg-section-body"><div class="color-grid" id="color-grid"></div><button class="mini-btn" style="margin-top:12px;width:100%" onclick="resetColors()">↺ Repor</button></div>
+      <div class="cfg-section-body" style="padding:14px 16px;"><div class="color-grid" id="color-grid"></div><button class="mini-btn" style="margin-top:12px;width:100%" onclick="resetColors()">↺ Repor</button></div>
     </div>
     <div class="cfg-section" id="cs-locs">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-locs')"><div><div class="cfg-section-title">📍 Locais</div></div><span class="cfg-chevron">▾</span></div>
-      <div class="cfg-section-body">
+      <div class="cfg-section-body" style="padding:14px 16px;">
         <div class="cfg-grid-3">
           <div class="cfg-field"><label class="cfg-lbl">Estúdio</label><input class="cfg-inp num" type="number" min="0" id="loc-studio" value="30" oninput="updateLocHint()"></div>
           <div class="cfg-field"><label class="cfg-lbl">PT Ext.</label><input class="cfg-inp num" type="number" min="0" id="loc-pt" value="30" oninput="updateLocHint()"></div>
@@ -377,27 +370,52 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
     </div>
     <div class="cfg-section" id="cs-cats">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-cats')"><div><div class="cfg-section-title">🏷 Categorias & Tutoriais</div></div><span class="cfg-chevron">▾</span></div>
-      <div class="cfg-section-body"><div id="cat-inputs"></div><div class="cfg-hint" id="cat-hint">Total: <strong>0</strong> / 100</div></div>
+      <div class="cfg-section-body" style="padding:14px 16px;"><div id="cat-inputs"></div><div class="cfg-hint" id="cat-hint">Total: <strong>0</strong> / 100</div></div>
     </div>
+
+    <!-- ROUPAS & PEÇAS — with sub-tabs -->
     <div class="cfg-section" id="cs-outfits">
-      <div class="cfg-section-hdr" onclick="toggleCS('cs-outfits')"><div><div class="cfg-section-title">👗 Roupas</div></div><span class="cfg-chevron">▾</span></div>
-      <div class="cfg-section-body"><div id="outfit-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addSimpleItem('outfits')">+ Roupa</button><button class="mini-btn danger" onclick="removeSimpleItem('outfits')">− Última</button></div></div>
+      <div class="cfg-section-hdr" onclick="toggleCS('cs-outfits')"><div><div class="cfg-section-title">👗 Roupas & Peças</div><div class="cfg-section-sub">Roupas · Jóias · Sapatos</div></div><span class="cfg-chevron">▾</span></div>
+      <div class="cfg-section-body">
+        <div class="sub-tabs">
+          <button class="sub-tab on" id="st-roupas" onclick="switchSubTab('roupas')">👗 Roupas</button>
+          <button class="sub-tab" id="st-joias" onclick="switchSubTab('joias')">💍 Jóias</button>
+          <button class="sub-tab" id="st-sapatos" onclick="switchSubTab('sapatos')">👟 Sapatos</button>
+        </div>
+        <!-- Roupas panel -->
+        <div class="sub-panel on" id="sp-roupas">
+          <div id="outfit-inputs" style="margin-top:4px"></div>
+          <div class="add-remove-row" style="padding:0 0 4px">
+            <button class="mini-btn" onclick="addOutfit()">+ Roupa</button>
+            <button class="mini-btn danger" onclick="removeOutfit()">− Última</button>
+          </div>
+        </div>
+        <!-- Jóias panel -->
+        <div class="sub-panel" id="sp-joias">
+          <div id="joias-inputs" style="margin-top:4px"></div>
+          <div class="add-remove-row" style="padding:0 0 4px">
+            <button class="mini-btn" onclick="addItem('joias','joias-inputs')">+ Jóia</button>
+            <button class="mini-btn danger" onclick="removeItem('joias','joias-inputs')">− Última</button>
+          </div>
+        </div>
+        <!-- Sapatos panel -->
+        <div class="sub-panel" id="sp-sapatos">
+          <div id="sapatos-inputs" style="margin-top:4px"></div>
+          <div class="add-remove-row" style="padding:0 0 4px">
+            <button class="mini-btn" onclick="addItem('sapatos','sapatos-inputs')">+ Sapatos</button>
+            <button class="mini-btn danger" onclick="removeItem('sapatos','sapatos-inputs')">− Últimos</button>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="cfg-section" id="cs-joias">
-      <div class="cfg-section-hdr" onclick="toggleCS('cs-joias')"><div><div class="cfg-section-title">💍 Jóias</div></div><span class="cfg-chevron">▾</span></div>
-      <div class="cfg-section-body"><div id="joias-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addSimpleItem('joias')">+ Jóia</button><button class="mini-btn danger" onclick="removeSimpleItem('joias')">− Última</button></div></div>
-    </div>
-    <div class="cfg-section" id="cs-sapatos">
-      <div class="cfg-section-hdr" onclick="toggleCS('cs-sapatos')"><div><div class="cfg-section-title">👟 Sapatos</div></div><span class="cfg-chevron">▾</span></div>
-      <div class="cfg-section-body"><div id="sapatos-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addSimpleItem('sapatos')">+ Sapatos</button><button class="mini-btn danger" onclick="removeSimpleItem('sapatos')">− Últimos</button></div></div>
-    </div>
+
     <div class="cfg-section" id="cs-scarves">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-scarves')"><div><div class="cfg-section-title">🧣 Lenços</div></div><span class="cfg-chevron">▾</span></div>
-      <div class="cfg-section-body"><div id="scarf-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addItem('scarves')">+ Adicionar</button><button class="mini-btn danger" onclick="removeItem('scarves')">− Remover</button></div></div>
+      <div class="cfg-section-body" style="padding:14px 16px;"><div id="scarf-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addItem('scarves','scarf-inputs')">+ Adicionar</button><button class="mini-btn danger" onclick="removeItem('scarves','scarf-inputs')">− Remover</button></div></div>
     </div>
     <div class="cfg-section" id="cs-models">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-models')"><div><div class="cfg-section-title">👤 Modelos</div></div><span class="cfg-chevron">▾</span></div>
-      <div class="cfg-section-body"><div id="model-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addItem('models')">+ Adicionar</button><button class="mini-btn danger" onclick="removeItem('models')">− Remover</button></div></div>
+      <div class="cfg-section-body" style="padding:14px 16px;"><div id="model-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addItem('models','model-inputs')">+ Adicionar</button><button class="mini-btn danger" onclick="removeItem('models','model-inputs')">− Remover</button></div></div>
     </div>
     <button class="apply-btn" onclick="applyConfig()">▶ Aplicar e Gerar Looks</button>
     <p style="text-align:center;font-size:.68rem;color:var(--c-text3);padding:0 16px 20px">Mantém fotos e nomes, regenera a sequência</p>
@@ -435,35 +453,38 @@ import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/fireb
 
 const fbApp=initializeApp({apiKey:"AIzaSyAZZ-q7zM8gLZb8MMOL8Pj9zFeLLrtDAhk",authDomain:"book-claudya.firebaseapp.com",projectId:"book-claudya",storageBucket:"book-claudya.firebasestorage.app",messagingSenderId:"724090676677",appId:"1:724090676677:web:520ddb7efc45f839d917ac"});
 const db=getFirestore(fbApp);
-
 const ACCESS_PASSWORD="bookcm2026";
 const SESSION_KEY="zafia_auth";
-const CACHE_KEY="zafia_cache_v3";
+const CACHE_KEY="zafia_cache_v4";
 
 // ── CONSTANTS ──
 const DEFAULT_CATS=[["Acessório",15,[]],["Cabelo",12,[]],["Pescoço",3,[]],["Saia",15,[]],["Vestido",4,[]],["Embrulho",9,[]],["Mala",15,[]],["Tops",5,[]],["Cover Up",17,[]],["Elevate Style",5,[]]];
 const DEFAULT_OUTFITS=["Vestido Branco Linho","Calças Pretas Clássicas","Conjunto Bege Alfaiataria","Vestido Azul Marinho","Saia Midi Floral","Conjunto Castanho Camel","Calças Brancas + Blusa Seda","Vestido Terracota","Conjunto Xadrez Neutro","Calças Creme + Top Malha","Vestido Verde Oliva","Conjunto Azul Ganga","Saia Lápis Preta + Blusa Branca","Vestido Coral","Conjunto Cinzento Mescla","Calças Mostarda + Camisola Branca","Vestido Estampado Geométrico","Conjunto Burgundy","Calças Azul Royal + Blusa Neutra","Vestido Off-White Fluido"];
-const DEFAULT_JOIAS=["Colar Dourado Fino","Brincos Argola Gold","Pulseira Têxtil","Colar Pérolas","Brincos Pendente Crystal"];
-const DEFAULT_SAPATOS=["Mules Bege","Sandálias Douradas","Sneakers Brancas","Botas Pretas Cano Alto","Sabrinas Nude"];
 const DEFAULT_SCARVES=["Lenço Vermelho Geométrico","Lenço Azul Estampado Floral","Lenço Dourado Animal Print","Lenço Verde Esmeralda Liso","Lenço Rosa Pálido Bordado","Lenço Laranja Boho","Lenço Preto e Branco Gráfico","Lenço Castanho Paisley","Lenço Multicolor Tribal","Lenço Azul Céu Tie-Dye","Lenço Lilás Seda","Lenço Terracota Listrado","Lenço Prata Lurex","Lenço Mostarda Jacquard","Lenço Cinzento Degradé","Lenço Coral Floral","Lenço Turquesa Geométrico","Lenço Creme com Franja","Lenço Verde Água Liso","Lenço Bordeaux Estampado"];
 const DEFAULT_MODELS=["Claudya Moreira","Modelo B","Modelo C"];
+const DEFAULT_JOIAS=["Colar Dourado Fino","Brincos Argola Gold","Pulseira Têxtil","Colar Pérolas","Brincos Pendente Crystal"];
+const DEFAULT_SAPATOS=["Mules Bege","Sandálias Douradas","Sneakers Brancas","Botas Pretas Cano Alto","Sabrinas Nude"];
 const OUTFIT_PALETTE=["F7E8E8","D6E4F0","F5ECD7","C8D8E8","E8F5E9","F0E0C8","EDE8F5","F5DDD0","E8E8E8","FDF6E3","DDE8D8","D0E8F5","F0D8E8","FFE5D5","DCDCDC","F5F0C0","D8EEF5","EDD5D8","D5DCF0","F8F8F0"];
 const CAT_COLORS=["#c2185b","#f57f17","#2e7d32","#1565c0","#6a1b9a","#bf360c","#00695c","#4527a0","#283593","#558b2f"];
 const COST_FIELDS=["viagem","estadia","alimentacao","cachet","outros"];
 const COST_LABELS=["Viagem","Estadia","Alimentação","Cachet/Fee","Outros"];
 const DEFAULT_THEME={bg:'#12122A',surface:'#1E1E3A',card:'#252545',accent:'#C9A84C',accent2:'#E8D5A3',text:'#FFFFFF',done:'#4CAF7D'};
 const COLOR_LABELS={bg:'Fundo',surface:'Superfície',card:'Cards',accent:'Destaque (ouro)',accent2:'Destaque claro',text:'Texto',done:'Feito ✓'};
-const PIECE_TYPES=['Peça principal','Peça 2','Peça 3','Acessório','Acessório 2','Sapatos'];
 
-// ── STATE ──
+// outfit: {name, photo (main), pieces:[{name,photo}] max 3 extra}
+// joias/sapatos: simple [{name,photo}]
+
 window.state={
-  config:{locs:{studio:30,pt:30,cv:40},cats:JSON.parse(JSON.stringify(DEFAULT_CATS)),
-    outfits:DEFAULT_OUTFITS.map(n=>({name:n,photo:''})),
+  config:{
+    locs:{studio:30,pt:30,cv:40},
+    cats:JSON.parse(JSON.stringify(DEFAULT_CATS)),
+    outfits:DEFAULT_OUTFITS.map(n=>({name:n,photo:'',pieces:[]})),
     joias:DEFAULT_JOIAS.map(n=>({name:n,photo:''})),
     sapatos:DEFAULT_SAPATOS.map(n=>({name:n,photo:''})),
     scarves:DEFAULT_SCARVES.map(n=>({name:n,photo:''})),
     models:DEFAULT_MODELS.map(n=>({name:n,photo:''})),
-    theme:{...DEFAULT_THEME}},
+    theme:{...DEFAULT_THEME}
+  },
   looks:[],team:[],ui:{currentIdx:0,filter:'',galleryView:'grid'}
 };
 window.currentScreen='screen-looks';
@@ -473,37 +494,23 @@ const outfitSlideIdx={};
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function fmtEur(v){return(parseFloat(v)||0).toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
 function outfitColor(n){const i=state.config.outfits.findIndex(o=>o.name===n);return OUTFIT_PALETTE[(i<0?0:i)%OUTFIT_PALETTE.length];}
-function outfitObj(n){return state.config.outfits.find(o=>o.name===n)||null;}
-function joiasObj(n){return state.config.joias?.find(o=>o.name===n)||null;}
-function sapatosObj(n){return state.config.sapatos?.find(o=>o.name===n)||null;}
-function photoOf(type,name){const item=state.config[type]?.find(x=>x.name===name);return item?.photo||'';}
+function photoOf(type,name){const item=(state.config[type]||[]).find(x=>x.name===name);return item?.photo||'';}
 function catColorIdx(cat){return state.config.cats.findIndex(([c])=>c===cat);}
 function tutorialOf(look){const cat=state.config.cats.find(([c])=>c===look.category);if(!cat||!cat[2]||!cat[2].length)return null;return cat[2][look.tutorialIdx||0]||cat[2][0]||null;}
 function compressImage(file,maxW,quality){return new Promise(resolve=>{const reader=new FileReader();reader.onload=e=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxW/img.width);const w=Math.round(img.width*scale);const h=Math.round(img.height*scale);const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);resolve(canvas.toDataURL('image/jpeg',quality));};img.src=e.target.result;};reader.readAsDataURL(file);});}
-function normaliseOutfits(outfits){return(outfits||[]).map(o=>{if(typeof o==='string')return{name:o,photo:''};if(o.pieces)return{name:o.name,photo:o.pieces?.[0]?.photo||o.photo||''};return o;});}
-function normaliseSimple(arr,defaults){return(arr||defaults.map(n=>({name:n,photo:''})));}
 
-// Safe localStorage — avoids Safari crash
-function saveCache(data){
-  try{
-    // Save without photos to stay under Safari's ~5MB limit
-    const lean={...data,config:{...data.config,outfits:data.config.outfits.map(o=>({...o,pieces:o.pieces.map(p=>({...p,photo:''}))})),scarves:data.config.scarves.map(s=>({...s,photo:''})),models:data.config.models.map(m=>({...m,photo:''})),cats:data.config.cats.map(([n,c,tuts])=>[n,c,(tuts||[]).map(t=>({...t,photo:''}))]),}};
-    localStorage.setItem(CACHE_KEY,JSON.stringify(lean));
-  }catch(e){console.warn('Cache save failed:',e);}
-}
-function loadCache(){
-  try{const c=localStorage.getItem(CACHE_KEY);if(c){const d=JSON.parse(c);if(d.config){state.config={...state.config,...d.config};state.config.outfits=normaliseOutfits(state.config.outfits);}if(d.looks)state.looks=d.looks;if(d.team)state.team=d.team;if(d.ui)state.ui={...state.ui,...d.ui};}}catch(e){}
-}
+function normaliseOutfits(arr){return(arr||[]).map(o=>{if(typeof o==='string')return{name:o,photo:'',pieces:[]};if(!o.pieces)return{name:o.name,photo:o.photo||'',pieces:[]};return{name:o.name,photo:o.photo||'',pieces:o.pieces||[]};});}
+function normaliseSimple(arr,defaults){if(arr&&arr.length>0)return arr.map(o=>typeof o==='string'?{name:o,photo:''}:o);return defaults.map(n=>({name:n,photo:''}));}
 
-// ── SYNC STATUS ──
-function setSyncStatus(s){
-  ['sync-dot','sync-dot2'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.className='sync-dot'+(s==='syncing'?' syncing':s==='offline'?' offline':'');});
-  const txt=s==='syncing'?'a guardar…':s==='offline'?'offline':'guardado';
-  ['sync-txt','sync-txt2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=txt;});
-}
+// Safe cache (no photos)
+function saveCache(d){try{const l={...d,config:{...d.config,outfits:d.config.outfits.map(o=>({...o,photo:'',pieces:(o.pieces||[]).map(p=>({...p,photo:''}))})),joias:(d.config.joias||[]).map(o=>({...o,photo:''})),sapatos:(d.config.sapatos||[]).map(o=>({...o,photo:''})),scarves:d.config.scarves.map(s=>({...s,photo:''})),models:d.config.models.map(m=>({...m,photo:''})),cats:d.config.cats.map(([n,c,t])=>[n,c,(t||[]).map(x=>({...x,photo:''}))])}};localStorage.setItem(CACHE_KEY,JSON.stringify(l));}catch(e){}}
+function loadCache(){try{const c=localStorage.getItem(CACHE_KEY);if(c){const d=JSON.parse(c);if(d.config){state.config={...state.config,...d.config};state.config.outfits=normaliseOutfits(state.config.outfits);state.config.joias=normaliseSimple(state.config.joias,DEFAULT_JOIAS);state.config.sapatos=normaliseSimple(state.config.sapatos,DEFAULT_SAPATOS);}if(d.looks)state.looks=d.looks;if(d.team)state.team=d.team;if(d.ui)state.ui={...state.ui,...d.ui};}}catch(e){}}
+
+// ── SYNC ──
+function setSyncStatus(s){['sync-dot','sync-dot2'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.className='sync-dot'+(s==='syncing'?' syncing':s==='offline'?' offline':'');});const txt=s==='syncing'?'a guardar…':s==='offline'?'offline':'guardado';['sync-txt','sync-txt2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=txt;});}
 
 // ── FIRESTORE ──
-function catsToFS(cats){return cats.map(([name,n,tutorials])=>({name,n,tutorials:tutorials||[]}));}
+function catsToFS(cats){return cats.map(([name,n,t])=>({name,n,tutorials:t||[]}));}
 function catsFromFS(arr){if(!arr||!arr.length)return[];if(Array.isArray(arr[0]))return arr.map(c=>[c[0],c[1],c[2]||[]]);return arr.map(c=>[c.name,c.n,c.tutorials||[]]);}
 let saveTimer=null;
 function scheduleSave(){clearTimeout(saveTimer);setSyncStatus('syncing');saveTimer=setTimeout(doSave,1200);}
@@ -520,8 +527,7 @@ async function doSave(){
       setDoc(base('looks'),{items:state.looks}),
       setDoc(base('team'),{items:state.team,ui:state.ui})
     ]);
-    saveCache(state);
-    setSyncStatus('ok');
+    saveCache(state);setSyncStatus('ok');
   }catch(e){console.error(e);setSyncStatus('offline');showToast('⚠️ Erro ao guardar');}
 }
 async function loadFromFirestore(){
@@ -539,31 +545,18 @@ async function loadFromFirestore(){
       if(looksSnap.exists())state.looks=looksSnap.data().items||[];
       if(teamSnap.exists()){state.team=teamSnap.data().items||[];if(teamSnap.data().ui)state.ui={...state.ui,...teamSnap.data().ui};}
     }
-    applyTheme();renderFilters();buildCarousel();updateCounter();setSyncStatus('ok');
-    saveCache(state);
-  }catch(e){console.error('Firebase error:',e);setSyncStatus('offline');}
+    applyTheme();renderFilters();buildCarousel();updateCounter();setSyncStatus('ok');saveCache(state);
+  }catch(e){console.error('Firebase:',e);setSyncStatus('offline');}
 }
 
 // ── AUTH ──
-window.doLogin=function(){
-  const pwd=document.getElementById('login-pwd').value.trim();
-  if(pwd===ACCESS_PASSWORD){localStorage.setItem(SESSION_KEY,'1');document.getElementById('screen-login').classList.add('hidden');initApp();}
-  else{document.getElementById('login-err').textContent='⛔ Senha incorrecta.';document.getElementById('login-pwd').value='';}
-};
+window.doLogin=function(){const pwd=document.getElementById('login-pwd').value.trim();if(pwd===ACCESS_PASSWORD){localStorage.setItem(SESSION_KEY,'1');document.getElementById('screen-login').classList.add('hidden');initApp();}else{document.getElementById('login-err').textContent='⛔ Senha incorrecta.';document.getElementById('login-pwd').value='';}};
 window.doLogout=function(){if(!confirm('Sair?'))return;localStorage.removeItem(SESSION_KEY);document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById('screen-login').classList.remove('hidden');};
 
-function initApp(){
-  loadCache();
-  applyTheme();
-  document.getElementById('loading').classList.add('hidden');
-  renderFilters();buildCarousel();updateCounter();switchTab('looks');
-  const fbTO=setTimeout(()=>setSyncStatus('offline'),8000);
-  loadFromFirestore().then(()=>clearTimeout(fbTO)).catch(()=>{clearTimeout(fbTO);setSyncStatus('offline');});
-}
+function initApp(){loadCache();applyTheme();document.getElementById('loading').classList.add('hidden');renderFilters();buildCarousel();updateCounter();switchTab('looks');const fbTO=setTimeout(()=>setSyncStatus('offline'),8000);loadFromFirestore().then(()=>clearTimeout(fbTO)).catch(()=>{clearTimeout(fbTO);setSyncStatus('offline');});}
 
-// ── EXPORT/IMPORT ──
 window.exportData=function(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');const d=new Date();a.href=url;a.download=`aos-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;a.click();URL.revokeObjectURL(url);showToast('⬇ Exportado!');};
-window.importData=function(input){if(!input.files[0])return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(!d.config||!d.looks)throw new Error();window.state=d;state.config.outfits=normaliseOutfits(state.config.outfits);applyTheme();renderFilters();buildCarousel();updateCounter();scheduleSave();showToast('⬆ Importado!');}catch(e){showToast('✗ Ficheiro inválido');}};r.readAsText(input.files[0]);input.value='';};
+window.importData=function(input){if(!input.files[0])return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(!d.config||!d.looks)throw new Error();window.state=d;state.config.outfits=normaliseOutfits(state.config.outfits);state.config.joias=normaliseSimple(state.config.joias,DEFAULT_JOIAS);state.config.sapatos=normaliseSimple(state.config.sapatos,DEFAULT_SAPATOS);applyTheme();renderFilters();buildCarousel();updateCounter();scheduleSave();showToast('⬆ Importado!');}catch(e){showToast('✗ Ficheiro inválido');}};r.readAsText(input.files[0]);input.value='';};
 
 // ── THEME ──
 function applyTheme(){const th=state.config.theme,r=document.documentElement;r.style.setProperty('--c-bg',th.bg);r.style.setProperty('--c-surface',th.surface);r.style.setProperty('--c-card',th.card);r.style.setProperty('--c-accent',th.accent);r.style.setProperty('--c-accent2',th.accent2||'#E8D5A3');r.style.setProperty('--c-text',th.text);r.style.setProperty('--c-done',th.done);document.querySelector('meta[name=theme-color]').content=th.bg;}
@@ -595,47 +588,31 @@ function genLooks(){
 function defaultTeam(){return[{id:1,name:'',role:'Fotógrafo Principal',location:'PT Est+Ext+CV',phone:'',email:'',notes:'',photo:'',viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true}];}
 
 // ── SCREENS ──
-window.switchTab=function(tab){
-  const map={looks:'screen-looks',gallery:'screen-gallery',config:'screen-config',equipa:'screen-equipa'};
-  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
-  document.getElementById(map[tab]).classList.remove('hidden');
-  document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('on'));
-  const el=document.getElementById('tab-'+tab);if(el)el.classList.add('on');
-  window.currentScreen=map[tab];
-  if(tab==='gallery')renderGallery();
-  if(tab==='config')renderConfig();
-  if(tab==='equipa')renderTeam();
-};
+window.switchTab=function(tab){const map={looks:'screen-looks',gallery:'screen-gallery',config:'screen-config',equipa:'screen-equipa'};document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById(map[tab]).classList.remove('hidden');document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('on'));const el=document.getElementById('tab-'+tab);if(el)el.classList.add('on');window.currentScreen=map[tab];if(tab==='gallery')renderGallery();if(tab==='config')renderConfig();if(tab==='equipa')renderTeam();};
 window.toggleCS=function(id){document.getElementById(id).classList.toggle('open');};
 
+// sub-tabs inside Roupas & Peças
+window.switchSubTab=function(name){['roupas','joias','sapatos'].forEach(t=>{document.getElementById('st-'+t).classList.toggle('on',t===name);document.getElementById('sp-'+t).classList.toggle('on',t===name);});};
+
 // ── FILTERS ──
-function filteredLooks(){
-  const f=state.ui.filter;
-  if(!f)return state.looks;
-  if(f==='done')return state.looks.filter(l=>l.status==='done');
-  if(f==='pending')return state.looks.filter(l=>l.status!=='done');
-  return state.looks.filter(l=>l.category===f||l.location===f||l.model===f);
-}
-function renderFilters(){
-  const cats=[...new Set(state.looks.map(l=>l.category))];
-  const locs=[...new Set(state.looks.map(l=>l.location))];
-  const chips=[{v:'',l:'Todos'},{v:'done',l:'✓ Feitos'},{v:'pending',l:'⏳ Por fazer'},...cats.map(c=>({v:c,l:c})),...locs.map(l=>({v:l,l:l.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}))];
-  document.getElementById('filter-strip').innerHTML=chips.map(c=>`<span class="filter-chip ${state.ui.filter===c.v?'on':''}" onclick="setFilter('${c.v}')">${c.l}</span>`).join('');
-  document.getElementById('gallery-filter-strip').innerHTML=chips.map(c=>`<span class="filter-chip ${state.ui.filter===c.v?'on':''}" onclick="setGalleryFilter('${c.v}')">${c.l}</span>`).join('');
-}
+function filteredLooks(){const f=state.ui.filter;if(!f)return state.looks;if(f==='done')return state.looks.filter(l=>l.status==='done');if(f==='pending')return state.looks.filter(l=>l.status!=='done');return state.looks.filter(l=>l.category===f||l.location===f||l.model===f);}
+function renderFilters(){const cats=[...new Set(state.looks.map(l=>l.category))];const locs=[...new Set(state.looks.map(l=>l.location))];const chips=[{v:'',l:'Todos'},{v:'done',l:'✓ Feitos'},{v:'pending',l:'⏳ Por fazer'},...cats.map(c=>({v:c,l:c})),...locs.map(l=>({v:l,l:l.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}))];document.getElementById('filter-strip').innerHTML=chips.map(c=>`<span class="filter-chip ${state.ui.filter===c.v?'on':''}" onclick="setFilter('${c.v}')">${c.l}</span>`).join('');document.getElementById('gallery-filter-strip').innerHTML=chips.map(c=>`<span class="filter-chip ${state.ui.filter===c.v?'on':''}" onclick="setGalleryFilter('${c.v}')">${c.l}</span>`).join('');}
 window.setFilter=function(v){state.ui.filter=v;state.ui.currentIdx=0;renderFilters();buildCarousel();updateCounter();};
 window.setGalleryFilter=function(v){state.ui.filter=v;state.ui.currentIdx=0;renderFilters();renderGallery();};
 
 // ── COUNTER ──
-function updateCounter(){
-  const fl=filteredLooks();
-  const idx=Math.min(state.ui.currentIdx,Math.max(0,fl.length-1));
-  const done=fl.filter(l=>l.status==='done').length;
-  document.getElementById('looks-counter').textContent=fl.length?`${idx+1}/${fl.length}`:'0/0';
-  document.getElementById('nav-pos').textContent=fl.length?`${idx+1} / ${fl.length}`:'– / –';
-  document.getElementById('prog-fill').style.width=fl.length?(done/fl.length*100)+'%':'0%';
-  document.getElementById('btn-prev').disabled=idx===0;
-  document.getElementById('btn-next').disabled=idx>=fl.length-1;
+function updateCounter(){const fl=filteredLooks();const idx=Math.min(state.ui.currentIdx,Math.max(0,fl.length-1));const done=fl.filter(l=>l.status==='done').length;document.getElementById('looks-counter').textContent=fl.length?`${idx+1}/${fl.length}`:'0/0';document.getElementById('nav-pos').textContent=fl.length?`${idx+1} / ${fl.length}`:'– / –';document.getElementById('prog-fill').style.width=fl.length?(done/fl.length*100)+'%':'0%';document.getElementById('btn-prev').disabled=idx===0;document.getElementById('btn-next').disabled=idx>=fl.length-1;}
+
+// ── CAROUSEL SLIDES for a look ──
+// Slides: outfit main + up to 3 outfit pieces + selected joias + selected sapatos
+function getOutfitSlides(look){
+  const outfit=state.config.outfits.find(o=>o.name===look.outfit);
+  const slides=[];
+  if(outfit?.photo) slides.push({photo:outfit.photo,label:look.outfit,contain:false});
+  (outfit?.pieces||[]).forEach((p,i)=>{if(p.photo)slides.push({photo:p.photo,label:p.name||`Peça ${i+2}`,contain:false});});
+  if(look.joias){const j=state.config.joias?.find(x=>x.name===look.joias);if(j?.photo)slides.push({photo:j.photo,label:j.name,contain:false});}
+  if(look.sapatos){const s=state.config.sapatos?.find(x=>x.name===look.sapatos);if(s?.photo)slides.push({photo:s.photo,label:s.name,contain:false});}
+  return slides;
 }
 
 // ── BUILD CARD ──
@@ -643,21 +620,18 @@ function buildCard(look){
   const ci=catColorIdx(look.category);
   const catColor=CAT_COLORS[ci]||'#888';
   const oColor=outfitColor(look.outfit);
-  const outfit=outfitObj(look.outfit);
-  const oPhoto=outfit?.photo||'';
+  const slides=getOutfitSlides(look);
   const sPhoto=photoOf('scarves',look.scarf);
-  const joiasPhoto=look.joias?photoOf('joias',look.joias):'';
-  const sapatosPhoto=look.sapatos?photoOf('sapatos',look.sapatos):'';
   const tut=tutorialOf(look);
-  const tPhoto=tut?.photo||'';
-  const tName=tut?.name||'Tutorial';
+  const tPhoto=tut?.photo||'';const tName=tut?.name||'Tutorial';
   const shootingPhoto=look.shootingPhoto||'';
   const status=look.status||'';
+  const curSlide=outfitSlideIdx[look.num]||0;
 
   const outfitOpts=state.config.outfits.map(o=>`<option${o.name===look.outfit?' selected':''}>${esc(o.name)}</option>`).join('');
   const scarfOpts=state.config.scarves.map(s=>`<option${s.name===look.scarf?' selected':''}>${esc(s.name)}</option>`).join('');
-  const joiasOpts=[{name:''},...(state.config.joias||[])].map(j=>`<option value="${esc(j.name)}"${look.joias===j.name?' selected':''}>${j.name||'— nenhuma —'}</option>`).join('');
-  const sapatosOpts=[{name:''},...(state.config.sapatos||[])].map(s=>`<option value="${esc(s.name)}"${look.sapatos===s.name?' selected':''}>${s.name||'— nenhuns —'}</option>`).join('');
+  const joiasOpts=[{name:''},...(state.config.joias||[])].map(j=>`<option value="${esc(j.name)}"${(look.joias||'')===j.name?' selected':''}>${j.name||'— nenhuma —'}</option>`).join('');
+  const sapatosOpts=[{name:''},...(state.config.sapatos||[])].map(s=>`<option value="${esc(s.name)}"${(look.sapatos||'')===s.name?' selected':''}>${s.name||'— nenhuns —'}</option>`).join('');
   const modelOpts=state.config.models.map(m=>`<option${m.name===look.model?' selected':''}>${esc(m.name)}</option>`).join('');
   const locOpts=["Portugal – Estúdio","Portugal – Exterior","Cabo Verde – Exterior"].map(l=>`<option${l===look.location?' selected':''}>${l}</option>`).join('');
   const cat=state.config.cats.find(([c])=>c===look.category);
@@ -666,10 +640,19 @@ function buildCard(look){
   const statusCls=status==='done'?'done':status==='shooting'?'shooting':'idle';
   const statusLbl=status==='done'?'Feito':status==='shooting'?'Shooting':'Pronto';
 
-  function photoCell(photo,label,contain){
-    if(!photo)return`<div class="photo-cell${contain?' contain':''}"><div class="photo-cell-ph"><span class="icon">${label==='Lenço'?'🧣':label==='Tutorial'?'📋':label==='Jóias'?'💍':label==='Sapatos'?'👟':'📸'}</span><span>${label}</span></div></div>`;
-    return`<div class="photo-cell${contain?' contain':''}" onclick="openLb('${photo}')"><img src="${photo}" alt="${label}"><div class="photo-cell-lbl">${label}</div></div>`;
+  // outfit cell html
+  let outfitCellHtml='';
+  if(slides.length===0){
+    outfitCellHtml=`<div class="photo-cell-ph"><span class="icon">👗</span><span>Roupa</span></div>`;
+  } else if(slides.length===1){
+    outfitCellHtml=`<img src="${slides[0].photo}" onclick="openLb('${slides[0].photo}')"><div class="photo-cell-lbl">${esc(slides[0].label)}</div>`;
+  } else {
+    const sHTML=slides.map((s,si)=>`<div class="outfit-mini-slide${s.contain?' contain':''}"><img src="${s.photo}" onclick="openLb('${s.photo}')"><div class="photo-cell-lbl">${esc(s.label)}</div></div>`).join('');
+    const dots=slides.map((_,si)=>`<div class="outfit-mini-dot${si===curSlide?' on':''}"></div>`).join('');
+    outfitCellHtml=`<div class="outfit-mini"><div class="outfit-mini-track no-anim" id="omt-${look.num}" style="transform:translateX(-${curSlide*100}%)">${sHTML}</div><button class="outfit-mini-btn prev" onclick="slideOutfit(${look.num},-1,${slides.length})">‹</button><button class="outfit-mini-btn next" onclick="slideOutfit(${look.num},1,${slides.length})">›</button><div class="outfit-mini-dots" id="omDots-${look.num}">${dots}</div></div>`;
   }
+
+  function photoCell(photo,label,contain){if(!photo)return`<div class="photo-cell${contain?' contain':''}"><div class="photo-cell-ph"><span class="icon">${label==='Lenço'?'🧣':label==='Tutorial'?'📋':'📸'}</span><span>${label}</span></div></div>`;return`<div class="photo-cell${contain?' contain':''}" onclick="openLb('${photo}')"><img src="${photo}" alt="${label}"><div class="photo-cell-lbl">${label}</div></div>`;}
 
   const card=document.createElement('div');
   card.className='look-card';
@@ -682,7 +665,7 @@ function buildCard(look){
       <button class="card-status-btn ${statusCls}" onclick="cycleStatus(${look.num})"><div class="status-dot"></div>${statusLbl}</button>
     </div>
     <div class="card-photo-grid">
-      ${photoCell(oPhoto,'Roupa',false)}
+      <div class="photo-cell">${outfitCellHtml}</div>
       ${photoCell(sPhoto,'Lenço',false)}
       ${photoCell(tPhoto,tName,true)}
       ${photoCell(shootingPhoto,'Look final',false)}
@@ -700,117 +683,49 @@ function buildCard(look){
   return card;
 }
 
-window.slideOutfit=function(num,dir,total){
-  const cur=outfitSlideIdx[num]||0;
-  const next=Math.max(0,Math.min(total-1,cur+dir));
-  outfitSlideIdx[num]=next;
-  const track=document.getElementById('omt-'+num);
-  if(track){track.classList.remove('no-anim');track.style.transform=`translateX(-${next*100}%)`;}
-  const dotsEl=document.getElementById('omDots-'+num);
-  if(dotsEl)[...dotsEl.children].forEach((d,i)=>d.classList.toggle('on',i===next));
-};
+window.slideOutfit=function(num,dir,total){const cur=outfitSlideIdx[num]||0;const next=Math.max(0,Math.min(total-1,cur+dir));outfitSlideIdx[num]=next;const track=document.getElementById('omt-'+num);if(track){track.classList.remove('no-anim');track.style.transform=`translateX(-${next*100}%)`;}const dotsEl=document.getElementById('omDots-'+num);if(dotsEl)[...dotsEl.children].forEach((d,i)=>d.classList.toggle('on',i===next));};
 
-window.buildCarousel=function(){
-  const fl=filteredLooks();
-  const track=document.getElementById('carousel-track');
-  track.innerHTML='';
-  fl.forEach(look=>track.appendChild(buildCard(look)));
-  const idx=Math.min(state.ui.currentIdx,Math.max(0,fl.length-1));
-  state.ui.currentIdx=idx;
-  track.classList.add('no-anim');
-  requestAnimationFrame(()=>{
-    const fc=track.firstElementChild;
-    const w=fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;
-    track.style.transform=`translateX(-${idx*w}px)`;
-    requestAnimationFrame(()=>track.classList.remove('no-anim'));
-  });
-  updateCounter();
-};
+window.buildCarousel=function(){const fl=filteredLooks();const track=document.getElementById('carousel-track');track.innerHTML='';fl.forEach(look=>track.appendChild(buildCard(look)));const idx=Math.min(state.ui.currentIdx,Math.max(0,fl.length-1));state.ui.currentIdx=idx;track.classList.add('no-anim');requestAnimationFrame(()=>{const fc=track.firstElementChild;const w=fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;track.style.transform=`translateX(-${idx*w}px)`;requestAnimationFrame(()=>track.classList.remove('no-anim'));});updateCounter();};
 
-window.navTo=function(idx){
-  const fl=filteredLooks();if(idx<0||idx>=fl.length)return;
-  state.ui.currentIdx=idx;
-  const track=document.getElementById('carousel-track');
-  const fc=track.firstElementChild;
-  const w=fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;
-  track.style.transform=`translateX(-${idx*w}px)`;
-  updateCounter();scheduleSave();
-};
+window.navTo=function(idx){const fl=filteredLooks();if(idx<0||idx>=fl.length)return;state.ui.currentIdx=idx;const track=document.getElementById('carousel-track');const fc=track.firstElementChild;const w=fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;track.style.transform=`translateX(-${idx*w}px)`;updateCounter();scheduleSave();};
 
 // drag/swipe
-(function(){
-  let sx=0,sy=0,drag=false,moved=false,vpW=0;
-  const UI='select,input,textarea,button,label,.outfit-mini-btn';
-  function isUI(el){return!!el.closest(UI);}
-  function getW(){const fc=document.getElementById('carousel-track').firstElementChild;return fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;}
-  function onStart(x,y,target){if(isUI(target))return;sx=x;sy=y;drag=true;moved=false;vpW=getW();document.getElementById('carousel-track').classList.add('no-anim');}
-  function onMove(x,y){if(!drag)return;const dx=x-sx,dy=y-sy;if(!moved&&Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){drag=false;return;}if(Math.abs(dx)>4)moved=true;document.getElementById('carousel-track').style.transform=`translateX(${-(state.ui.currentIdx*vpW-dx)}px)`;}
-  function onEnd(x){if(!drag)return;drag=false;const track=document.getElementById('carousel-track');track.classList.remove('no-anim');const dx=x-sx,fl=filteredLooks(),thr=vpW*0.2;if(moved&&dx<-thr&&state.ui.currentIdx<fl.length-1)window.navTo(state.ui.currentIdx+1);else if(moved&&dx>thr&&state.ui.currentIdx>0)window.navTo(state.ui.currentIdx-1);else window.navTo(state.ui.currentIdx);}
-  const vp=document.getElementById('carousel-vp');
-  vp.addEventListener('mousedown',e=>{if(e.button!==0)return;if(!isUI(e.target))e.preventDefault();onStart(e.clientX,e.clientY,e.target);});
-  window.addEventListener('mousemove',e=>{if(drag)onMove(e.clientX,e.clientY);});
-  window.addEventListener('mouseup',e=>onEnd(e.clientX));
-  vp.addEventListener('touchstart',e=>onStart(e.touches[0].clientX,e.touches[0].clientY,e.target),{passive:true});
-  vp.addEventListener('touchmove',e=>{if(drag)onMove(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
-  vp.addEventListener('touchend',e=>onEnd(e.changedTouches[0].clientX));
-  window.addEventListener('keydown',e=>{if(window.currentScreen!=='screen-looks')return;if(e.key==='ArrowRight'||e.key==='ArrowDown')window.navTo(state.ui.currentIdx+1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')window.navTo(state.ui.currentIdx-1);});
-})();
+(function(){let sx=0,sy=0,drag=false,moved=false,vpW=0;const UI='select,input,textarea,button,label,.outfit-mini-btn';function isUI(el){return!!el.closest(UI);}function getW(){const fc=document.getElementById('carousel-track').firstElementChild;return fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;}function onStart(x,y,target){if(isUI(target))return;sx=x;sy=y;drag=true;moved=false;vpW=getW();document.getElementById('carousel-track').classList.add('no-anim');}function onMove(x,y){if(!drag)return;const dx=x-sx,dy=y-sy;if(!moved&&Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){drag=false;return;}if(Math.abs(dx)>4)moved=true;document.getElementById('carousel-track').style.transform=`translateX(${-(state.ui.currentIdx*vpW-dx)}px)`;}function onEnd(x){if(!drag)return;drag=false;const track=document.getElementById('carousel-track');track.classList.remove('no-anim');const dx=x-sx,fl=filteredLooks(),thr=vpW*0.2;if(moved&&dx<-thr&&state.ui.currentIdx<fl.length-1)window.navTo(state.ui.currentIdx+1);else if(moved&&dx>thr&&state.ui.currentIdx>0)window.navTo(state.ui.currentIdx-1);else window.navTo(state.ui.currentIdx);}const vp=document.getElementById('carousel-vp');vp.addEventListener('mousedown',e=>{if(e.button!==0)return;if(!isUI(e.target))e.preventDefault();onStart(e.clientX,e.clientY,e.target);});window.addEventListener('mousemove',e=>{if(drag)onMove(e.clientX,e.clientY);});window.addEventListener('mouseup',e=>onEnd(e.clientX));vp.addEventListener('touchstart',e=>onStart(e.touches[0].clientX,e.touches[0].clientY,e.target),{passive:true});vp.addEventListener('touchmove',e=>{if(drag)onMove(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});vp.addEventListener('touchend',e=>onEnd(e.changedTouches[0].clientX));window.addEventListener('keydown',e=>{if(window.currentScreen!=='screen-looks')return;if(e.key==='ArrowRight'||e.key==='ArrowDown')window.navTo(state.ui.currentIdx+1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')window.navTo(state.ui.currentIdx-1);});})();
 
 // ── LOOK UPDATES ──
-window.updLookField=function(num,field,val){
-  const l=state.looks.find(x=>x.num===num);if(!l)return;
-  l[field]=val;scheduleSave();
-  if(field==='outfit'||field==='tutorialIdx'||field==='scarf')rebuildCardPhotos(num);
-};
+window.updLookField=function(num,field,val){const l=state.looks.find(x=>x.num===num);if(!l)return;l[field]=val;scheduleSave();if(['outfit','joias','sapatos','tutorialIdx','scarf'].includes(field))rebuildOutfitCell(num);};
 
-function rebuildCardPhotos(num){
+function rebuildOutfitCell(num){
   const fl=filteredLooks();const idx=fl.findIndex(x=>x.num===num);if(idx<0)return;
   const cardEl=document.getElementById('carousel-track').children[idx];if(!cardEl)return;
   const look=fl[idx];
-  const outfit=outfitObj(look.outfit);
-  const oPhoto=outfit?.photo||'';
-  const sPhoto=photoOf('scarves',look.scarf);
-  const tut=tutorialOf(look);const tPhoto=tut?.photo||'';const tName=tut?.name||'Tutorial';
-  const shootingPhoto=look.shootingPhoto||'';
-  function photoCell(photo,label,contain){if(!photo)return`<div class="photo-cell${contain?' contain':''}"><div class="photo-cell-ph"><span class="icon">${label==='Lenço'?'🧣':label==='Tutorial'?'📋':label==='Jóias'?'💍':label==='Sapatos'?'👟':'📸'}</span><span>${label}</span></div></div>`;return`<div class="photo-cell${contain?' contain':''}" onclick="openLb('${photo}')"><img src="${photo}" alt="${label}"><div class="photo-cell-lbl">${label}</div></div>`;}
-  const grid=cardEl.querySelector('.card-photo-grid');
-  if(grid)grid.innerHTML=`${photoCell(oPhoto,'Roupa',false)}${photoCell(sPhoto,'Lenço',false)}${photoCell(tPhoto,tName,true)}${photoCell(shootingPhoto,'Look final',false)}`;
+  const slides=getOutfitSlides(look);
+  const curSlide=Math.min(outfitSlideIdx[num]||0,Math.max(0,slides.length-1));
+  outfitSlideIdx[num]=curSlide;
+  let html='';
+  if(slides.length===0){html=`<div class="photo-cell-ph"><span class="icon">👗</span><span>Roupa</span></div>`;}
+  else if(slides.length===1){html=`<img src="${slides[0].photo}" onclick="openLb('${slides[0].photo}')"><div class="photo-cell-lbl">${esc(slides[0].label)}</div>`;}
+  else{const sHTML=slides.map((s,si)=>`<div class="outfit-mini-slide${s.contain?' contain':''}"><img src="${s.photo}" onclick="openLb('${s.photo}')"><div class="photo-cell-lbl">${esc(s.label)}</div></div>`).join('');const dots=slides.map((_,si)=>`<div class="outfit-mini-dot${si===curSlide?' on':''}"></div>`).join('');html=`<div class="outfit-mini"><div class="outfit-mini-track no-anim" id="omt-${look.num}" style="transform:translateX(-${curSlide*100}%)">${sHTML}</div><button class="outfit-mini-btn prev" onclick="slideOutfit(${look.num},-1,${slides.length})">‹</button><button class="outfit-mini-btn next" onclick="slideOutfit(${look.num},1,${slides.length})">›</button><div class="outfit-mini-dots" id="omDots-${look.num}">${dots}</div></div>`;}
+  const cell=cardEl.querySelector('.card-photo-grid .photo-cell');
+  if(cell)cell.innerHTML=html;
 }
 
 // ── STATUS ──
-window.cycleStatus=function(num){
-  const l=state.looks.find(x=>x.num===num);if(!l)return;
-  if(!l.status||l.status===''){
-    const input=document.createElement('input');input.type='file';input.accept='image/*';input.capture='environment';
-    input.onchange=async e=>{if(!e.target.files[0])return;const c=await compressImage(e.target.files[0],900,0.8);l.shootingPhoto=c;l.status='shooting';scheduleSave();rebuildCardPhotos(num);updateStatusBtn(num);updateCounter();};
-    input.click();
-  }else if(l.status==='shooting'){l.status='done';l.done=true;scheduleSave();updateStatusBtn(num);updateCounter();}
-  else if(l.status==='done'){if(confirm('Reabrir?')){l.status='';l.done=false;scheduleSave();updateStatusBtn(num);updateCounter();}}
-};
-function updateStatusBtn(num){
-  const fl=filteredLooks();const idx=fl.findIndex(x=>x.num===num);if(idx<0)return;
-  const cardEl=document.getElementById('carousel-track').children[idx];if(!cardEl)return;
-  const status=(fl[idx].status||'');
-  const btn=cardEl.querySelector('.card-status-btn');if(!btn)return;
-  btn.className=`card-status-btn ${status==='done'?'done':status==='shooting'?'shooting':'idle'}`;
-  btn.innerHTML=`<div class="status-dot"></div>${status==='done'?'Feito':status==='shooting'?'Shooting':'Pronto'}`;
-}
+window.cycleStatus=function(num){const l=state.looks.find(x=>x.num===num);if(!l)return;if(!l.status||l.status===''){const input=document.createElement('input');input.type='file';input.accept='image/*';input.capture='environment';input.onchange=async e=>{if(!e.target.files[0])return;const c=await compressImage(e.target.files[0],900,0.8);l.shootingPhoto=c;l.status='shooting';scheduleSave();rebuildShootingCell(num);updateStatusBtn(num);updateCounter();};input.click();}else if(l.status==='shooting'){l.status='done';l.done=true;scheduleSave();updateStatusBtn(num);updateCounter();}else if(l.status==='done'){if(confirm('Reabrir?')){l.status='';l.done=false;scheduleSave();updateStatusBtn(num);updateCounter();}}};
+function rebuildShootingCell(num){const fl=filteredLooks();const idx=fl.findIndex(x=>x.num===num);if(idx<0)return;const cardEl=document.getElementById('carousel-track').children[idx];if(!cardEl)return;const look=fl[idx];const cells=cardEl.querySelectorAll('.card-photo-grid .photo-cell');if(cells[3]){if(look.shootingPhoto){cells[3].innerHTML=`<img src="${look.shootingPhoto}" onclick="openLb('${look.shootingPhoto}')"><div class="photo-cell-lbl">Look final</div>`;}else{cells[3].innerHTML=`<div class="photo-cell-ph"><span class="icon">📸</span><span>Look final</span></div>`;}}};
+function updateStatusBtn(num){const fl=filteredLooks();const idx=fl.findIndex(x=>x.num===num);if(idx<0)return;const cardEl=document.getElementById('carousel-track').children[idx];if(!cardEl)return;const status=(fl[idx].status||'');const btn=cardEl.querySelector('.card-status-btn');if(!btn)return;btn.className=`card-status-btn ${status==='done'?'done':status==='shooting'?'shooting':'idle'}`;btn.innerHTML=`<div class="status-dot"></div>${status==='done'?'Feito':status==='shooting'?'Shooting':'Pronto'}`;}
 
 // ── GALLERY ──
 function getSortedLooks(){const fl=[...filteredLooks()];const sort=document.getElementById('gallery-sort')?.value||'default';if(sort==='outfit-model')return fl.sort((a,b)=>a.outfit.localeCompare(b.outfit)||a.model.localeCompare(b.model));if(sort==='model-outfit')return fl.sort((a,b)=>a.model.localeCompare(b.model)||a.outfit.localeCompare(b.outfit));if(sort==='category')return fl.sort((a,b)=>a.category.localeCompare(b.category));if(sort==='location')return fl.sort((a,b)=>a.location.localeCompare(b.location));if(sort==='done')return fl.sort((a,b)=>Number(a.status==='done')-Number(b.status==='done'));return fl;}
 function getGroupKey(look,sort){if(sort==='outfit-model')return`${look.outfit} · ${look.model}`;if(sort==='model-outfit')return`${look.model} · ${look.outfit}`;if(sort==='category')return look.category;if(sort==='location')return look.location;return null;}
 window.renderGallery=function(){
-  const fl=getSortedLooks();
-  const done=fl.filter(l=>l.status==='done').length;
+  const fl=getSortedLooks();const done=fl.filter(l=>l.status==='done').length;
   document.getElementById('gallery-sub').textContent=`${done} / ${fl.length} feitos`;
   renderFilters();
-  const v=state.ui.galleryView||'grid';
-  const sort=document.getElementById('gallery-sort')?.value||'default';
-  const useGroups=sort!=='default'&&sort!=='done';
-  const scroll=document.getElementById('gallery-scroll');
-  const origFl=filteredLooks();
-  function cellHtml(look){const i=origFl.indexOf(look);const outfit=outfitObj(look.outfit);const fp=outfit?.pieces?.find(p=>p.photo)?.photo||'';const sPhoto=photoOf('scarves',look.scarf);const tut=tutorialOf(look);const tPhoto=tut?.photo||'';const catColor=CAT_COLORS[catColorIdx(look.category)]||'#888';const status=look.status||'';function sq(photo,icon,contain){return photo?`<img class="gallery-cell-img" src="${photo}" style="object-fit:${contain?'contain':'cover'};${contain?'background:#0a0a1a':''}" alt="">`:`<div class="gallery-cell-img-ph">${icon}</div>`;}return`<div class="gallery-cell${status==='done'?' done-cell':''}" onclick="goToLookFromGallery(${i})"><div class="gallery-cell-imgs">${sq(fp,'👗',false)}${sq(sPhoto,'🧣',false)}${sq(tPhoto,'📋',true)}</div><div class="gallery-cell-body"><div class="gallery-cell-num">#${look.num}</div><div class="gallery-cell-outfit">${esc(look.outfit)}</div><div class="gallery-cell-meta">${esc(look.model)} · ${look.location.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div><span class="gallery-cell-cat" style="background:${catColor}22;color:${catColor}">${look.category}${tut?.name?' · '+tut.name:''}</span></div>${status?`<div class="gallery-status-dot ${status}"></div>`:''}</div>`;}
-  function rowHtml(look){const i=origFl.indexOf(look);const outfit=outfitObj(look.outfit);const fp=outfit?.pieces?.find(p=>p.photo)?.photo||'';const status=look.status||'';return`<div class="list-item${status==='done'?' done-item':''}" onclick="goToLookFromGallery(${i})"><div class="list-color-bar" style="background:#${outfitColor(look.outfit)}"></div><span class="list-num">${look.num}</span><div class="list-content"><div class="list-outfit">${esc(look.outfit)}</div><div class="list-meta">${look.category} · ${esc(look.model)} · ${look.location.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div></div>${fp?`<img class="list-thumb" src="${fp}" alt="">`:`<div class="list-thumb-ph">👗</div>`}<div class="list-status-dot ${status}"></div></div>`;}
+  const v=state.ui.galleryView||'grid';const sort=document.getElementById('gallery-sort')?.value||'default';const useGroups=sort!=='default'&&sort!=='done';
+  const scroll=document.getElementById('gallery-scroll');const origFl=filteredLooks();
+  function cellHtml(look){const i=origFl.indexOf(look);const slides=getOutfitSlides(look);const fp=slides[0]?.photo||'';const sPhoto=photoOf('scarves',look.scarf);const tut=tutorialOf(look);const tPhoto=tut?.photo||'';const catColor=CAT_COLORS[catColorIdx(look.category)]||'#888';const status=look.status||'';function sq(photo,icon,contain){return photo?`<img class="gallery-cell-img" src="${photo}" style="object-fit:${contain?'contain':'cover'};${contain?'background:#0a0a1a':''}" alt="">`:`<div class="gallery-cell-img-ph">${icon}</div>`;}return`<div class="gallery-cell${status==='done'?' done-cell':''}" onclick="goToLookFromGallery(${i})"><div class="gallery-cell-imgs">${sq(fp,'👗',false)}${sq(sPhoto,'🧣',false)}${sq(tPhoto,'📋',true)}</div><div class="gallery-cell-body"><div class="gallery-cell-num">#${look.num}</div><div class="gallery-cell-outfit">${esc(look.outfit)}</div><div class="gallery-cell-meta">${esc(look.model)} · ${look.location.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div><span class="gallery-cell-cat" style="background:${catColor}22;color:${catColor}">${look.category}${tut?.name?' · '+tut.name:''}</span></div>${status?`<div class="gallery-status-dot ${status}"></div>`:''}</div>`;}
+  function rowHtml(look){const i=origFl.indexOf(look);const slides=getOutfitSlides(look);const fp=slides[0]?.photo||'';const status=look.status||'';return`<div class="list-item${status==='done'?' done-item':''}" onclick="goToLookFromGallery(${i})"><div class="list-color-bar" style="background:#${outfitColor(look.outfit)}"></div><span class="list-num">${look.num}</span><div class="list-content"><div class="list-outfit">${esc(look.outfit)}</div><div class="list-meta">${look.category} · ${esc(look.model)} · ${look.location.replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div></div>${fp?`<img class="list-thumb" src="${fp}" alt="">`:`<div class="list-thumb-ph">👗</div>`}<div class="list-status-dot ${status}"></div></div>`;}
   if(v==='grid'){if(useGroups){const groups=[];let lk=null,cg=null;fl.forEach(look=>{const key=getGroupKey(look,sort);if(key!==lk){lk=key;cg={key,looks:[]};groups.push(cg);}cg.looks.push(look);});scroll.innerHTML=groups.map(g=>`<div class="group-header">${esc(g.key)}<span class="group-count">${g.looks.length} look${g.looks.length!==1?'s':''}</span></div><div class="gallery-grid">${g.looks.map(cellHtml).join('')}</div>`).join('')+'<div style="height:20px"></div>';}else scroll.innerHTML=`<div class="gallery-grid">${fl.map(cellHtml).join('')}</div><div style="height:20px"></div>`;}
   else{if(useGroups){const groups=[];let lk=null,cg=null;fl.forEach(look=>{const key=getGroupKey(look,sort);if(key!==lk){lk=key;cg={key,looks:[]};groups.push(cg);}cg.looks.push(look);});scroll.innerHTML=groups.map(g=>`<div class="group-header">${esc(g.key)}<span class="group-count">${g.looks.length} look${g.looks.length!==1?'s':''}</span></div>${g.looks.map(rowHtml).join('')}`).join('')+'<div style="height:20px"></div>';}else scroll.innerHTML=fl.map(rowHtml).join('')+'<div style="height:20px"></div>';}
 };
@@ -823,37 +738,70 @@ function renderConfig(){
   document.getElementById('loc-pt').value=state.config.locs.pt;
   document.getElementById('loc-cv').value=state.config.locs.cv;
   updateLocHint();
+  // categories
   document.getElementById('cat-inputs').innerHTML=state.config.cats.map(([cat,n,tutorials],i)=>{const tuts=tutorials||[];return`<div style="border-bottom:1px solid var(--c-border);padding-bottom:14px;margin-bottom:14px;"><div class="cat-row"><input class="cat-name-inp" type="text" value="${esc(cat)}" placeholder="Nome…" onchange="state.config.cats[${i}][0]=this.value;scheduleSave()"><div class="cat-count-wrap"><input class="cat-count-inp" type="number" min="0" value="${n}" onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint()"><span class="cat-count-lbl">looks</span></div></div><div style="font-size:.62rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Tutoriais</div><div class="pieces-grid">${tuts.map((t,ti)=>`<div class="piece-cell">${t.photo?`<img class="piece-img contain" src="${t.photo}" onclick="openLb('${t.photo}')">`:`<div class="piece-img-ph" onclick="document.getElementById('ft-${i}-${ti}').click()"><span>📋</span><span>Adicionar</span></div>`}<input type="file" accept="image/*" id="ft-${i}-${ti}" style="display:none" onchange="handleTutorialPhoto(${i},${ti},this)"><input class="piece-name-inp" type="text" value="${esc(t.name||'')}" placeholder="Nome…" onchange="state.config.cats[${i}][2][${ti}].name=this.value;scheduleSave()"><div class="piece-actions"><span class="piece-act-btn" onclick="document.getElementById('ft-${i}-${ti}').click()">${t.photo?'🔄':'📋'}</span><span class="piece-act-btn del" onclick="removeTutorial(${i},${ti})">✕</span></div></div>`).join('')}</div><button class="mini-btn" style="width:100%;margin-top:8px;font-size:.75rem" onclick="addTutorial(${i})">+ Adicionar tutorial</button></div>`;}).join('');
   updateCatHint();
   renderOutfitInputs();
-  renderItemFields('joias','joias-inputs');
-  renderItemFields('sapatos','sapatos-inputs');
-  renderItemFields('scarves','scarf-inputs');
-  renderItemFields('models','model-inputs');
+  renderSimpleItems('joias','joias-inputs','💍');
+  renderSimpleItems('sapatos','sapatos-inputs','👟');
+  renderSimpleItems('scarves','scarf-inputs','🧣');
+  renderSimpleItems('models','model-inputs','👤');
   renderColorGrid();
 }
-function renderOutfitInputs(){document.getElementById('outfit-inputs').innerHTML=state.config.outfits.map((outfit,oi)=>{const pieces=outfit.pieces||[];const fp=pieces.find(p=>p.photo)?.photo||'';return`<div class="outfit-config-card" id="ocard-${oi}"><div class="outfit-config-hdr" onclick="toggleOutfitCard(${oi})">${fp?`<img src="${fp}" alt="">`:`<div class="outfit-config-hdr-ph">👗</div>`}<div style="flex:1;min-width:0;"><div class="outfit-config-name">${esc(outfit.name||'Roupa '+(oi+1))}</div><div style="font-size:.65rem;color:var(--c-text3)">${pieces.length} peça${pieces.length!==1?'s':''}</div></div><span class="outfit-config-chevron">▾</span></div><div class="outfit-config-body"><div class="cfg-field"><label class="cfg-lbl">Nome</label><input class="cfg-inp" type="text" value="${esc(outfit.name)}" placeholder="Ex: Vestido Branco…" onchange="state.config.outfits[${oi}].name=this.value;scheduleSave();renderOutfitInputs()"></div><div style="font-size:.65rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Peças</div><div class="pieces-grid">${pieces.map((p,pi)=>pieceCell(oi,pi,p)).join('')}</div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">${PIECE_TYPES.map(t=>`<button class="mini-btn" style="flex:0 0 auto;font-size:.7rem;padding:5px 8px" onclick="addPiece(${oi},'${t}')">+ ${t}</button>`).join('')}</div></div></div>`;}).join('');}
-function pieceCell(oi,pi,p){return`<div class="piece-cell"><div>${p.photo?`<img class="piece-img" src="${p.photo}" onclick="openLb('${p.photo}')">`:`<div class="piece-img-ph" onclick="document.getElementById('fp-${oi}-${pi}').click()"><span>${p.type?.includes('Sapato')?'👟':p.type?.includes('Aces')?'💍':'👗'}</span><span>${esc(p.type||'Peça')}</span></div>`}</div><input type="file" accept="image/*" id="fp-${oi}-${pi}" style="display:none" onchange="handlePiecePhoto(${oi},${pi},this)"><input class="piece-name-inp" type="text" value="${esc(p.name||p.type||'')}" placeholder="${esc(p.type||'Nome…')}" onchange="state.config.outfits[${oi}].pieces[${pi}].name=this.value;scheduleSave()"><div class="piece-actions"><span class="piece-act-btn" onclick="document.getElementById('fp-${oi}-${pi}').click()">${p.photo?'🔄':'📷'}</span><span class="piece-act-btn del" onclick="removePiece(${oi},${pi})">✕</span></div></div>`;}
+
+// Outfit inputs — expandable cards, main photo + up to 3 extra pieces
+function renderOutfitInputs(){
+  document.getElementById('outfit-inputs').innerHTML=(state.config.outfits||[]).map((outfit,oi)=>{
+    const pieces=outfit.pieces||[];
+    return`<div class="outfit-card" id="ocard-${oi}">
+      <div class="outfit-card-hdr" onclick="toggleOutfitCard(${oi})">
+        ${outfit.photo?`<img src="${outfit.photo}" alt="">`:`<div class="outfit-card-hdr-ph">👗</div>`}
+        <div style="flex:1;min-width:0;"><div class="outfit-card-name">${esc(outfit.name||'Roupa '+(oi+1))}</div><div style="font-size:.65rem;color:var(--c-text3)">${pieces.length} peça${pieces.length!==1?'s':''} extra</div></div>
+        <span class="outfit-card-chevron">▾</span>
+      </div>
+      <div class="outfit-card-body">
+        <div class="cfg-field" style="margin-bottom:10px"><label class="cfg-lbl">Nome</label><input class="cfg-inp" type="text" value="${esc(outfit.name)}" placeholder="Ex: Vestido Branco…" onchange="state.config.outfits[${oi}].name=this.value;scheduleSave();renderOutfitInputs()"></div>
+        <div class="cfg-lbl" style="margin-bottom:8px">Foto principal</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          ${outfit.photo?`<img src="${outfit.photo}" style="width:60px;height:60px;border-radius:8px;object-fit:cover;cursor:pointer" onclick="openLb('${outfit.photo}')">`:`<div style="width:60px;height:60px;border-radius:8px;border:2px dashed var(--c-border);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--c-text3);cursor:pointer" onclick="document.getElementById('om-${oi}').click()">👗</div>`}
+          <label class="mini-btn" style="flex:0 0 auto;cursor:pointer">${outfit.photo?'🔄 Trocar':'📷 Foto'}<input type="file" accept="image/*" id="om-${oi}" style="display:none" onchange="handleOutfitMainPhoto(${oi},this)"></label>
+          ${outfit.photo?`<button class="mini-btn danger" style="flex:0 0 auto" onclick="state.config.outfits[${oi}].photo='';scheduleSave();renderOutfitInputs()">✕</button>`:''}
+        </div>
+        <div class="cfg-lbl" style="margin-bottom:8px">Peças extra (máx. 3)</div>
+        <div class="pieces-grid">${pieces.map((p,pi)=>`<div class="piece-cell">${p.photo?`<img class="piece-img" src="${p.photo}" onclick="openLb('${p.photo}')">`:`<div class="piece-img-ph" onclick="document.getElementById('op-${oi}-${pi}').click()"><span>👗</span><span>Foto</span></div>`}<input type="file" accept="image/*" id="op-${oi}-${pi}" style="display:none" onchange="handleOutfitPiecePhoto(${oi},${pi},this)"><input class="piece-name-inp" type="text" value="${esc(p.name||'')}" placeholder="Nome da peça…" onchange="state.config.outfits[${oi}].pieces[${pi}].name=this.value;scheduleSave()"><div class="piece-actions"><span class="piece-act-btn" onclick="document.getElementById('op-${oi}-${pi}').click()">${p.photo?'🔄':'📷'}</span><span class="piece-act-btn del" onclick="removeOutfitPiece(${oi},${pi})">✕</span></div></div>`).join('')}</div>
+        ${pieces.length<3?`<button class="mini-btn" style="width:100%;margin-top:6px" onclick="addOutfitPiece(${oi})">+ Adicionar peça extra</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
 window.toggleOutfitCard=function(oi){document.getElementById('ocard-'+oi).classList.toggle('open');};
-window.addPiece=function(oi,type){state.config.outfits[oi].pieces.push({name:'',photo:'',type});renderOutfitInputs();document.getElementById('ocard-'+oi).classList.add('open');};
-window.removePiece=function(oi,pi){state.config.outfits[oi].pieces.splice(pi,1);scheduleSave();renderOutfitInputs();buildCarousel();};
-window.handlePiecePhoto=async function(oi,pi,input){if(!input.files[0])return;const c=await compressImage(input.files[0],500,0.65);state.config.outfits[oi].pieces[pi].photo=c;scheduleSave();renderOutfitInputs();buildCarousel();};
-window.addOutfit=function(){state.config.outfits.push({name:'Nova Roupa',pieces:[{name:'',photo:'',type:'Peça principal'}]});renderConfig();};
+window.handleOutfitMainPhoto=async function(oi,input){if(!input.files[0])return;const c=await compressImage(input.files[0],500,0.65);state.config.outfits[oi].photo=c;scheduleSave();renderOutfitInputs();buildCarousel();};
+window.handleOutfitPiecePhoto=async function(oi,pi,input){if(!input.files[0])return;const c=await compressImage(input.files[0],500,0.65);state.config.outfits[oi].pieces[pi].photo=c;scheduleSave();renderOutfitInputs();buildCarousel();};
+window.addOutfitPiece=function(oi){if(!state.config.outfits[oi].pieces)state.config.outfits[oi].pieces=[];if(state.config.outfits[oi].pieces.length>=3)return;state.config.outfits[oi].pieces.push({name:'',photo:''});renderOutfitInputs();document.getElementById('ocard-'+oi).classList.add('open');};
+window.removeOutfitPiece=function(oi,pi){state.config.outfits[oi].pieces.splice(pi,1);scheduleSave();renderOutfitInputs();buildCarousel();};
+window.addOutfit=function(){state.config.outfits.push({name:'Nova Roupa',photo:'',pieces:[]});renderConfig();};
 window.removeOutfit=function(){if(state.config.outfits.length>1){state.config.outfits.pop();renderConfig();}};
+
+// Simple items (joias, sapatos, scarves, models)
+function renderSimpleItems(type,cid,icon){
+  const el=document.getElementById(cid);if(!el)return;
+  el.innerHTML=`<div class="photo-grid">${(state.config[type]||[]).map((item,i)=>`<div class="photo-row">${item.photo?`<img class="photo-mini" src="${item.photo}" onclick="openLb('${item.photo}')">`:`<div class="photo-mini-ph" onclick="document.getElementById('f-${type}-${i}').click()">${icon||'📷'}</div>`}<input type="file" accept="image/*" id="f-${type}-${i}" style="display:none" onchange="handleSimplePhoto('${type}','${cid}',${i},this)"><input class="photo-name-inp" type="text" value="${esc(item.name)}" placeholder="Nome…" onchange="state.config['${type}'][${i}].name=this.value;scheduleSave()"><div class="photo-row-actions"><span style="font-size:.7rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px" onclick="document.getElementById('f-${type}-${i}').click()">${item.photo?'🔄':'📷'}</span>${item.photo?`<span style="font-size:.7rem;color:#ff6b6b;cursor:pointer;padding:2px 6px;border:1px solid rgba(255,107,107,.3);border-radius:4px" onclick="state.config['${type}'][${i}].photo='';scheduleSave();renderSimpleItems('${type}','${cid}','${icon||''}')">✕</span>`:''}</div></div>`).join('')}</div>`;
+}
+window.handleSimplePhoto=async function(type,cid,i,input){if(!input.files[0])return;const c=await compressImage(input.files[0],400,0.6);state.config[type][i].photo=c;scheduleSave();renderSimpleItems(type,cid);buildCarousel();};
+window.addItem=function(type,cid){if(!state.config[type])state.config[type]=[];state.config[type].push({name:'',photo:''});renderSimpleItems(type,cid);};
+window.removeItem=function(type,cid){if(state.config[type]&&state.config[type].length>1){state.config[type].pop();renderSimpleItems(type,cid);}};
+
 window.addTutorial=function(ci){if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2].push({name:'',photo:''});renderConfig();};
 window.removeTutorial=function(ci,ti){state.config.cats[ci][2].splice(ti,1);scheduleSave();renderConfig();};
 window.handleTutorialPhoto=async function(ci,ti,input){if(!input.files[0])return;const c=await compressImage(input.files[0],600,0.7);if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2][ti].photo=c;scheduleSave();renderConfig();buildCarousel();};
-function renderItemFields(type,cid){if(!document.getElementById(cid))return;document.getElementById(cid).innerHTML=`<div class="photo-grid">${(state.config[type]||[]).map((item,i)=>`<div class="photo-row">${item.photo?`<img class="photo-mini" src="${item.photo}" onclick="openLb('${item.photo}')">`:`<div class="photo-mini-ph" onclick="document.getElementById('f-${type}-${i}').click()">📷</div>`}<input type="file" accept="image/*" id="f-${type}-${i}" style="display:none" onchange="handleSimplePhoto('${type}',${i},this)"><input class="photo-name-inp" type="text" value="${esc(item.name)}" placeholder="Nome…" onchange="state.config['${type}'][${i}].name=this.value;scheduleSave()"><div class="photo-row-actions"><span style="font-size:.7rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px" onclick="document.getElementById('f-${type}-${i}').click()">${item.photo?'🔄':'📷'}</span>${item.photo?`<span style="font-size:.7rem;color:#ff6b6b;cursor:pointer;padding:2px 6px;border:1px solid rgba(255,107,107,.3);border-radius:4px" onclick="state.config['${type}'][${i}].photo='';scheduleSave();renderItemFields('${type}','${cid}')">✕</span>`:''}</div></div>`).join('')}</div>`;}
-window.handleSimplePhoto=async function(type,i,input){if(!input.files[0])return;const map={outfits:'outfit-inputs',joias:'joias-inputs',sapatos:'sapatos-inputs',scarves:'scarf-inputs',models:'model-inputs'};const c=await compressImage(input.files[0],400,0.6);state.config[type][i].photo=c;scheduleSave();renderItemFields(type,map[type]||type+'-inputs');buildCarousel();};
-window.addItem=function(type){if(!state.config[type])state.config[type]=[];state.config[type].push({name:'',photo:''});renderConfig();};
-window.removeItem=function(type){if(state.config[type]&&state.config[type].length>1){state.config[type].pop();renderConfig();}};
 window.updateLocHint=function(){const s=parseInt(document.getElementById('loc-studio').value)||0;const p=parseInt(document.getElementById('loc-pt').value)||0;const c=parseInt(document.getElementById('loc-cv').value)||0;const h=document.getElementById('loc-hint');h.innerHTML=`Total: <strong>${s+p+c}</strong> / 100`;h.className='cfg-hint'+((s+p+c)!==100?' err':'');};
 window.updateCatHint=function(){const t=state.config.cats.reduce((s,[,n])=>s+n,0);const h=document.getElementById('cat-hint');h.innerHTML=`Total: <strong>${t}</strong> / 100`;h.className='cfg-hint'+(t!==100?' err':'');};
 window.applyConfig=function(){state.config.locs.studio=parseInt(document.getElementById('loc-studio').value)||0;state.config.locs.pt=parseInt(document.getElementById('loc-pt').value)||0;state.config.locs.cv=parseInt(document.getElementById('loc-cv').value)||0;const ct=state.config.cats.reduce((s,[,n])=>s+n,0);const lt=state.config.locs.studio+state.config.locs.pt+state.config.locs.cv;if(ct!==100){alert(`Total categorias: ${ct}. Deve ser 100.`);return;}if(lt!==100){alert(`Total locais: ${lt}. Deve ser 100.`);return;}state.looks=genLooks();state.ui.currentIdx=0;state.ui.filter='';scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');};
 
 // ── EQUIPA ──
 function renderTeam(){renderGrandTotal();document.getElementById('team-cards').innerHTML=state.team.map(m=>renderMemberCard(m)).join('');}
-function renderMemberCard(m){const total=COST_FIELDS.reduce((s,f)=>s+(parseFloat(m[f])||0),0);const initials=m.name?m.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase():'?';return`<div class="member-card${m.open?' open':''}" id="mc-${m.id}"><div class="member-hdr" onclick="toggleMember(${m.id})"><div class="member-avatar">${m.photo?`<img src="${m.photo}" alt="">`:`${initials}`}</div><div><div class="member-name">${m.name||'Novo Membro'}</div><div class="member-role">${m.role||'Função'}</div></div><div class="member-total">${fmtEur(total)}</div><span class="member-chevron">▾</span></div><div class="member-body"><div class="member-field"><div class="member-lbl">Foto</div><div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">${m.photo?`<img src="${m.photo}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--c-border);cursor:pointer" onclick="openLb('${m.photo}')">`:`<div style="width:48px;height:48px;border-radius:50%;border:2px dashed var(--c-border);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--c-text3)">👤</div>`}<label style="padding:8px 14px;border:1.5px solid var(--c-border);border-radius:8px;font-size:.78rem;color:var(--c-text2);cursor:pointer">${m.photo?'Trocar':'Adicionar foto'}<input type="file" accept="image/*" style="display:none" onchange="handleMemberPhoto(${m.id},this)"></label>${m.photo?`<button class="mini-btn danger" style="width:auto;padding:8px 10px;flex:unset" onclick="remMemberPhoto(${m.id})">✕</button>`:''}</div></div>${[['name','text','Nome completo','Nome…'],['role','text','Função','Fotógrafo…'],['location','text','Local(is)','PT Est…'],['phone','tel','Telemóvel','+351…'],['email','email','Email','email@…'],['notes','text','Notas','Obs…']].map(([f,t,l,p])=>`<div class="member-field"><div class="member-lbl">${l}</div><input class="member-inp" type="${t}" value="${esc(m[f]||'')}" placeholder="${p}" oninput="updMember(${m.id},'${f}',this.value)"></div>`).join('')}<div class="member-field"><div class="member-lbl">Despesas</div><div class="cost-grid-2">${COST_FIELDS.map((f,i)=>`<div><div style="font-size:.6rem;color:var(--c-text3);text-transform:uppercase;margin-bottom:3px">${COST_LABELS[i]}</div><input class="member-inp mono" type="number" min="0" step="0.01" value="${m[f]||''}" placeholder="0,00" oninput="updMember(${m.id},'${f}',parseFloat(this.value)||0)"></div>`).join('')}</div><div class="member-total-row"><span class="mtl">Total</span><span class="mtv" id="mt-${m.id}">${fmtEur(total)}</span></div></div><button class="mini-btn danger" style="width:100%;margin-top:8px" onclick="removeMember(${m.id})">✕ Remover membro</button></div></div>`;}
+function renderMemberCard(m){const total=COST_FIELDS.reduce((s,f)=>s+(parseFloat(m[f])||0),0);const initials=m.name?m.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase():'?';return`<div class="member-card${m.open?' open':''}" id="mc-${m.id}"><div class="member-hdr" onclick="toggleMember(${m.id})"><div class="member-avatar">${m.photo?`<img src="${m.photo}" alt="">`:`${initials}`}</div><div><div class="member-name">${m.name||'Novo Membro'}</div><div class="member-role">${m.role||'Função'}</div></div><div class="member-total">${fmtEur(total)}</div><span class="member-chevron">▾</span></div><div class="member-body"><div class="member-field"><div class="member-lbl">Foto</div><div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">${m.photo?`<img src="${m.photo}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--c-border);cursor:pointer" onclick="openLb('${m.photo}')">`:`<div style="width:48px;height:48px;border-radius:50%;border:2px dashed var(--c-border);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--c-text3)">👤</div>`}<label style="padding:8px 14px;border:1.5px solid var(--c-border);border-radius:8px;font-size:.78rem;color:var(--c-text2);cursor:pointer">${m.photo?'Trocar':'Foto'}<input type="file" accept="image/*" style="display:none" onchange="handleMemberPhoto(${m.id},this)"></label>${m.photo?`<button class="mini-btn danger" style="width:auto;padding:8px 10px;flex:unset" onclick="remMemberPhoto(${m.id})">✕</button>`:''}</div></div>${[['name','text','Nome','Nome…'],['role','text','Função','Fotógrafo…'],['location','text','Local(is)','PT Est…'],['phone','tel','Telemóvel','+351…'],['email','email','Email','email@…'],['notes','text','Notas','Obs…']].map(([f,t,l,p])=>`<div class="member-field"><div class="member-lbl">${l}</div><input class="member-inp" type="${t}" value="${esc(m[f]||'')}" placeholder="${p}" oninput="updMember(${m.id},'${f}',this.value)"></div>`).join('')}<div class="member-field"><div class="member-lbl">Despesas</div><div class="cost-grid-2">${COST_FIELDS.map((f,i)=>`<div><div style="font-size:.6rem;color:var(--c-text3);text-transform:uppercase;margin-bottom:3px">${COST_LABELS[i]}</div><input class="member-inp mono" type="number" min="0" step="0.01" value="${m[f]||''}" placeholder="0,00" oninput="updMember(${m.id},'${f}',parseFloat(this.value)||0)"></div>`).join('')}</div><div class="member-total-row"><span class="mtl">Total</span><span class="mtv" id="mt-${m.id}">${fmtEur(total)}</span></div></div><button class="mini-btn danger" style="width:100%;margin-top:8px" onclick="removeMember(${m.id})">✕ Remover</button></div></div>`;}
 function renderGrandTotal(){const totals={};COST_FIELDS.forEach(f=>{totals[f]=state.team.reduce((s,m)=>s+(parseFloat(m[f])||0),0);});const grand=Object.values(totals).reduce((s,v)=>s+v,0);document.getElementById('gt-amount').textContent=fmtEur(grand);document.getElementById('gt-breakdown').innerHTML=COST_FIELDS.map((f,i)=>`<div class="gt-bk"><span class="gt-bk-val">${fmtEur(totals[f])}</span><span class="gt-bk-lbl">${COST_LABELS[i]}</span></div>`).join('');}
 window.toggleMember=function(id){const m=state.team.find(t=>t.id===id);if(!m)return;m.open=!m.open;scheduleSave();renderTeam();};
 window.updMember=function(id,field,val){const m=state.team.find(t=>t.id===id);if(!m)return;m[field]=val;const total=COST_FIELDS.reduce((s,f)=>s+(parseFloat(m[f])||0),0);const el=document.getElementById('mt-'+id);if(el)el.textContent=fmtEur(total);renderGrandTotal();scheduleSave();};
@@ -866,12 +814,12 @@ window.openLb=function(src){if(!src)return;document.getElementById('lb-img').src
 window.closeLightbox=function(){document.getElementById('lightbox').classList.remove('show');};
 window.showToast=function(msg){const t=document.getElementById('toast');t.textContent=msg||'✓ Guardado';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);};
 window.scheduleSave=scheduleSave;
-window.renderItemFields=renderItemFields;
+window.renderSimpleItems=renderSimpleItems;
 window.renderOutfitInputs=renderOutfitInputs;
 window.applyTheme=applyTheme;
 window.renderColorGrid=renderColorGrid;
 
-// ── BOOT — MUST BE LAST ──
+// ── BOOT ──
 document.getElementById('loading').classList.add('hidden');
 if(localStorage.getItem(SESSION_KEY)==='1') initApp();
 else document.getElementById('screen-login').classList.remove('hidden');
