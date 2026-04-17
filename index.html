@@ -685,24 +685,6 @@ function buildCard(look){
 
 window.slideOutfit=function(num,dir,total){const cur=outfitSlideIdx[num]||0;const next=Math.max(0,Math.min(total-1,cur+dir));outfitSlideIdx[num]=next;const track=document.getElementById('omt-'+num);if(track){track.classList.remove('no-anim');track.style.transform=`translateX(-${next*100}%)`;}const dotsEl=document.getElementById('omDots-'+num);if(dotsEl)[...dotsEl.children].forEach((d,i)=>d.classList.toggle('on',i===next));};
 
-window.buildCarousel=function(){
-  const fl=filteredLooks();
-  const track=document.getElementById('carousel-track');
-  // virtual rendering — only build 3 cards at a time (prev, current, next)
-  // use a fixed-width container sized to total
-  const idx=Math.min(state.ui.currentIdx,Math.max(0,fl.length-1));
-  state.ui.currentIdx=idx;
-  renderVirtualCards(fl,idx);
-  track.classList.add('no-anim');
-  requestAnimationFrame(()=>{
-    const fc=track.firstElementChild;
-    const w=fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;
-    track.style.transform=`translateX(-${idx*w}px)`;
-    requestAnimationFrame(()=>track.classList.remove('no-anim'));
-  });
-  updateCounter();
-};
-
 function getCardWidth(){
   // On desktop the card has a max-width, so use the card's actual width not the viewport
   const fc=document.getElementById('carousel-track').firstElementChild;
@@ -714,6 +696,7 @@ function getCardWidth(){
 
 // keep track of which indices are rendered
 let renderedIndices=new Set();
+function renderVirtualCards(fl,idx){
   const track=document.getElementById('carousel-track');
   const toRender=new Set([idx-1,idx,idx+1].filter(i=>i>=0&&i<fl.length));
 
