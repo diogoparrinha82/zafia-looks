@@ -380,8 +380,16 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
       <div class="cfg-section-body"><div id="cat-inputs"></div><div class="cfg-hint" id="cat-hint">Total: <strong>0</strong> / 100</div></div>
     </div>
     <div class="cfg-section" id="cs-outfits">
-      <div class="cfg-section-hdr" onclick="toggleCS('cs-outfits')"><div><div class="cfg-section-title">👗 Roupas & Peças</div></div><span class="cfg-chevron">▾</span></div>
-      <div class="cfg-section-body"><div id="outfit-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addOutfit()">+ Roupa</button><button class="mini-btn danger" onclick="removeOutfit()">− Última</button></div></div>
+      <div class="cfg-section-hdr" onclick="toggleCS('cs-outfits')"><div><div class="cfg-section-title">👗 Roupas</div></div><span class="cfg-chevron">▾</span></div>
+      <div class="cfg-section-body"><div id="outfit-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addSimpleItem('outfits')">+ Roupa</button><button class="mini-btn danger" onclick="removeSimpleItem('outfits')">− Última</button></div></div>
+    </div>
+    <div class="cfg-section" id="cs-joias">
+      <div class="cfg-section-hdr" onclick="toggleCS('cs-joias')"><div><div class="cfg-section-title">💍 Jóias</div></div><span class="cfg-chevron">▾</span></div>
+      <div class="cfg-section-body"><div id="joias-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addSimpleItem('joias')">+ Jóia</button><button class="mini-btn danger" onclick="removeSimpleItem('joias')">− Última</button></div></div>
+    </div>
+    <div class="cfg-section" id="cs-sapatos">
+      <div class="cfg-section-hdr" onclick="toggleCS('cs-sapatos')"><div><div class="cfg-section-title">👟 Sapatos</div></div><span class="cfg-chevron">▾</span></div>
+      <div class="cfg-section-body"><div id="sapatos-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addSimpleItem('sapatos')">+ Sapatos</button><button class="mini-btn danger" onclick="removeSimpleItem('sapatos')">− Últimos</button></div></div>
     </div>
     <div class="cfg-section" id="cs-scarves">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-scarves')"><div><div class="cfg-section-title">🧣 Lenços</div></div><span class="cfg-chevron">▾</span></div>
@@ -435,6 +443,8 @@ const CACHE_KEY="zafia_cache_v3";
 // ── CONSTANTS ──
 const DEFAULT_CATS=[["Acessório",15,[]],["Cabelo",12,[]],["Pescoço",3,[]],["Saia",15,[]],["Vestido",4,[]],["Embrulho",9,[]],["Mala",15,[]],["Tops",5,[]],["Cover Up",17,[]],["Elevate Style",5,[]]];
 const DEFAULT_OUTFITS=["Vestido Branco Linho","Calças Pretas Clássicas","Conjunto Bege Alfaiataria","Vestido Azul Marinho","Saia Midi Floral","Conjunto Castanho Camel","Calças Brancas + Blusa Seda","Vestido Terracota","Conjunto Xadrez Neutro","Calças Creme + Top Malha","Vestido Verde Oliva","Conjunto Azul Ganga","Saia Lápis Preta + Blusa Branca","Vestido Coral","Conjunto Cinzento Mescla","Calças Mostarda + Camisola Branca","Vestido Estampado Geométrico","Conjunto Burgundy","Calças Azul Royal + Blusa Neutra","Vestido Off-White Fluido"];
+const DEFAULT_JOIAS=["Colar Dourado Fino","Brincos Argola Gold","Pulseira Têxtil","Colar Pérolas","Brincos Pendente Crystal"];
+const DEFAULT_SAPATOS=["Mules Bege","Sandálias Douradas","Sneakers Brancas","Botas Pretas Cano Alto","Sabrinas Nude"];
 const DEFAULT_SCARVES=["Lenço Vermelho Geométrico","Lenço Azul Estampado Floral","Lenço Dourado Animal Print","Lenço Verde Esmeralda Liso","Lenço Rosa Pálido Bordado","Lenço Laranja Boho","Lenço Preto e Branco Gráfico","Lenço Castanho Paisley","Lenço Multicolor Tribal","Lenço Azul Céu Tie-Dye","Lenço Lilás Seda","Lenço Terracota Listrado","Lenço Prata Lurex","Lenço Mostarda Jacquard","Lenço Cinzento Degradé","Lenço Coral Floral","Lenço Turquesa Geométrico","Lenço Creme com Franja","Lenço Verde Água Liso","Lenço Bordeaux Estampado"];
 const DEFAULT_MODELS=["Claudya Moreira","Modelo B","Modelo C"];
 const OUTFIT_PALETTE=["F7E8E8","D6E4F0","F5ECD7","C8D8E8","E8F5E9","F0E0C8","EDE8F5","F5DDD0","E8E8E8","FDF6E3","DDE8D8","D0E8F5","F0D8E8","FFE5D5","DCDCDC","F5F0C0","D8EEF5","EDD5D8","D5DCF0","F8F8F0"];
@@ -448,7 +458,9 @@ const PIECE_TYPES=['Peça principal','Peça 2','Peça 3','Acessório','Acessóri
 // ── STATE ──
 window.state={
   config:{locs:{studio:30,pt:30,cv:40},cats:JSON.parse(JSON.stringify(DEFAULT_CATS)),
-    outfits:DEFAULT_OUTFITS.map(n=>({name:n,pieces:[{name:'',photo:'',type:'Peça principal'}]})),
+    outfits:DEFAULT_OUTFITS.map(n=>({name:n,photo:''})),
+    joias:DEFAULT_JOIAS.map(n=>({name:n,photo:''})),
+    sapatos:DEFAULT_SAPATOS.map(n=>({name:n,photo:''})),
     scarves:DEFAULT_SCARVES.map(n=>({name:n,photo:''})),
     models:DEFAULT_MODELS.map(n=>({name:n,photo:''})),
     theme:{...DEFAULT_THEME}},
@@ -462,11 +474,14 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function fmtEur(v){return(parseFloat(v)||0).toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';}
 function outfitColor(n){const i=state.config.outfits.findIndex(o=>o.name===n);return OUTFIT_PALETTE[(i<0?0:i)%OUTFIT_PALETTE.length];}
 function outfitObj(n){return state.config.outfits.find(o=>o.name===n)||null;}
-function photoOf(type,name){const item=state.config[type].find(x=>x.name===name);return item?.photo||'';}
+function joiasObj(n){return state.config.joias?.find(o=>o.name===n)||null;}
+function sapatosObj(n){return state.config.sapatos?.find(o=>o.name===n)||null;}
+function photoOf(type,name){const item=state.config[type]?.find(x=>x.name===name);return item?.photo||'';}
 function catColorIdx(cat){return state.config.cats.findIndex(([c])=>c===cat);}
 function tutorialOf(look){const cat=state.config.cats.find(([c])=>c===look.category);if(!cat||!cat[2]||!cat[2].length)return null;return cat[2][look.tutorialIdx||0]||cat[2][0]||null;}
 function compressImage(file,maxW,quality){return new Promise(resolve=>{const reader=new FileReader();reader.onload=e=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxW/img.width);const w=Math.round(img.width*scale);const h=Math.round(img.height*scale);const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);resolve(canvas.toDataURL('image/jpeg',quality));};img.src=e.target.result;};reader.readAsDataURL(file);});}
-function normaliseOutfits(outfits){return(outfits||[]).map(o=>{if(typeof o==='string')return{name:o,pieces:[{name:'',photo:'',type:'Peça principal'}]};if(!o.pieces)return{...o,pieces:[{name:'',photo:o.photo||'',type:'Peça principal'}]};return o;});}
+function normaliseOutfits(outfits){return(outfits||[]).map(o=>{if(typeof o==='string')return{name:o,photo:''};if(o.pieces)return{name:o.name,photo:o.pieces?.[0]?.photo||o.photo||''};return o;});}
+function normaliseSimple(arr,defaults){return(arr||defaults.map(n=>({name:n,photo:''})));}
 
 // Safe localStorage — avoids Safari crash
 function saveCache(data){
@@ -498,6 +513,8 @@ async function doSave(){
     await Promise.all([
       setDoc(base('config'),{locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme,ts:Date.now()}),
       setDoc(base('outfits'),{items:state.config.outfits}),
+      setDoc(base('joias'),{items:state.config.joias||[]}),
+      setDoc(base('sapatos'),{items:state.config.sapatos||[]}),
       setDoc(base('scarves'),{items:state.config.scarves}),
       setDoc(base('models'),{items:state.config.models}),
       setDoc(base('looks'),{items:state.looks}),
@@ -510,11 +527,13 @@ async function doSave(){
 async function loadFromFirestore(){
   try{
     const base=n=>doc(db,'shared','data','docs',n);
-    const [cfgSnap,outSnap,scaSnap,modSnap,looksSnap,teamSnap]=await Promise.all([getDoc(base('config')),getDoc(base('outfits')),getDoc(base('scarves')),getDoc(base('models')),getDoc(base('looks')),getDoc(base('team'))]);
+    const [cfgSnap,outSnap,joiSnap,sapSnap,scaSnap,modSnap,looksSnap,teamSnap]=await Promise.all([getDoc(base('config')),getDoc(base('outfits')),getDoc(base('joias')),getDoc(base('sapatos')),getDoc(base('scarves')),getDoc(base('models')),getDoc(base('looks')),getDoc(base('team'))]);
     if(!cfgSnap.exists()&&!looksSnap.exists()){state.looks=genLooks();state.team=defaultTeam();doSave();}
     else{
       if(cfgSnap.exists()){const c=cfgSnap.data();state.config.locs=c.locs||state.config.locs;state.config.cats=catsFromFS(c.cats)||state.config.cats;state.config.theme=c.theme||state.config.theme;}
       if(outSnap.exists())state.config.outfits=normaliseOutfits(outSnap.data().items);
+      if(joiSnap.exists())state.config.joias=normaliseSimple(joiSnap.data().items,DEFAULT_JOIAS);
+      if(sapSnap.exists())state.config.sapatos=normaliseSimple(sapSnap.data().items,DEFAULT_SAPATOS);
       if(scaSnap.exists())state.config.scarves=scaSnap.data().items||state.config.scarves;
       if(modSnap.exists())state.config.models=modSnap.data().items||state.config.models;
       if(looksSnap.exists())state.looks=looksSnap.data().items||[];
@@ -567,7 +586,7 @@ function genLooks(){
     const pairs=[];for(const o of oNames)for(const m of mNames)pairs.push([o,m]);
     const sel=shuf(pairs,r).slice(0,Math.min(count,pairs.length));
     while(sel.length<count){const ex=shuf(pairs,r);for(const p of ex){if(sel.length>=count)break;sel.push(p);}}
-    byCat.push(sel.slice(0,count).map(([outfit,model])=>({category:cat,outfit,scarf:sp[si++%sp.length],location:locPool[li++%locPool.length],model,done:false,status:'',shootingPhoto:'',notes:'',tutorialIdx:0})));
+    byCat.push(sel.slice(0,count).map(([outfit,model])=>({category:cat,outfit,scarf:sp[si++%sp.length],location:locPool[li++%locPool.length],model,joias:'',sapatos:'',done:false,status:'',shootingPhoto:'',notes:'',tutorialIdx:0})));
   }
   const flat=[];const ml=Math.max(...byCat.map(c=>c.length));
   for(let i=0;i<ml;i++)for(const cl of byCat)if(i<cl.length)flat.push(cl[i]);
@@ -625,9 +644,10 @@ function buildCard(look){
   const catColor=CAT_COLORS[ci]||'#888';
   const oColor=outfitColor(look.outfit);
   const outfit=outfitObj(look.outfit);
-  const allPieces=outfit?.pieces||[];
-  const piecesWithPhoto=allPieces.filter(p=>p.photo);
+  const oPhoto=outfit?.photo||'';
   const sPhoto=photoOf('scarves',look.scarf);
+  const joiasPhoto=look.joias?photoOf('joias',look.joias):'';
+  const sapatosPhoto=look.sapatos?photoOf('sapatos',look.sapatos):'';
   const tut=tutorialOf(look);
   const tPhoto=tut?.photo||'';
   const tName=tut?.name||'Tutorial';
@@ -636,6 +656,8 @@ function buildCard(look){
 
   const outfitOpts=state.config.outfits.map(o=>`<option${o.name===look.outfit?' selected':''}>${esc(o.name)}</option>`).join('');
   const scarfOpts=state.config.scarves.map(s=>`<option${s.name===look.scarf?' selected':''}>${esc(s.name)}</option>`).join('');
+  const joiasOpts=[{name:''},...(state.config.joias||[])].map(j=>`<option value="${esc(j.name)}"${look.joias===j.name?' selected':''}>${j.name||'— nenhuma —'}</option>`).join('');
+  const sapatosOpts=[{name:''},...(state.config.sapatos||[])].map(s=>`<option value="${esc(s.name)}"${look.sapatos===s.name?' selected':''}>${s.name||'— nenhuns —'}</option>`).join('');
   const modelOpts=state.config.models.map(m=>`<option${m.name===look.model?' selected':''}>${esc(m.name)}</option>`).join('');
   const locOpts=["Portugal – Estúdio","Portugal – Exterior","Cabo Verde – Exterior"].map(l=>`<option${l===look.location?' selected':''}>${l}</option>`).join('');
   const cat=state.config.cats.find(([c])=>c===look.category);
@@ -644,31 +666,10 @@ function buildCard(look){
   const statusCls=status==='done'?'done':status==='shooting'?'shooting':'idle';
   const statusLbl=status==='done'?'Feito':status==='shooting'?'Shooting':'Pronto';
 
-  // outfit cell — mini carousel if multiple photos
-  const curSlide=outfitSlideIdx[look.num]||0;
-  let outfitInner='';
-  if(piecesWithPhoto.length===0){
-    outfitInner=`<div class="photo-cell-ph"><span class="icon">👗</span><span>Roupa</span></div>`;
-  } else if(piecesWithPhoto.length===1){
-    outfitInner=`<img src="${piecesWithPhoto[0].photo}" alt="${esc(piecesWithPhoto[0].name||piecesWithPhoto[0].type||'Roupa')}" onclick="openLb('${piecesWithPhoto[0].photo}')"><div class="photo-cell-lbl">${esc(piecesWithPhoto[0].name||piecesWithPhoto[0].type||'Roupa')}</div>`;
-  } else {
-    const slides=piecesWithPhoto.map((p,pi)=>`<div class="outfit-mini-slide"><img src="${p.photo}" onclick="openLb('${p.photo}')"><div class="photo-cell-lbl">${esc(p.name||p.type||'Peça '+(pi+1))}</div></div>`).join('');
-    const dots=piecesWithPhoto.map((_,pi)=>`<div class="outfit-mini-dot${pi===curSlide?' on':''}"></div>`).join('');
-    outfitInner=`<div class="outfit-mini"><div class="outfit-mini-track no-anim" id="omt-${look.num}" style="transform:translateX(-${curSlide*100}%)">${slides}</div><button class="outfit-mini-btn prev" onclick="slideOutfit(${look.num},-1,${piecesWithPhoto.length})">‹</button><button class="outfit-mini-btn next" onclick="slideOutfit(${look.num},1,${piecesWithPhoto.length})">›</button><div class="outfit-mini-dots" id="omDots-${look.num}">${dots}</div></div>`;
-  }
-
   function photoCell(photo,label,contain){
-    if(!photo)return`<div class="photo-cell${contain?' contain':''}"><div class="photo-cell-ph"><span class="icon">${label==='Lenço'?'🧣':label==='Tutorial'?'📋':'📸'}</span><span>${label}</span></div></div>`;
+    if(!photo)return`<div class="photo-cell${contain?' contain':''}"><div class="photo-cell-ph"><span class="icon">${label==='Lenço'?'🧣':label==='Tutorial'?'📋':label==='Jóias'?'💍':label==='Sapatos'?'👟':'📸'}</span><span>${label}</span></div></div>`;
     return`<div class="photo-cell${contain?' contain':''}" onclick="openLb('${photo}')"><img src="${photo}" alt="${label}"><div class="photo-cell-lbl">${label}</div></div>`;
   }
-
-  // pieces sub-rows for the roupa field
-  const piecesSubHtml=allPieces.length>1?`<div class="pieces-sub">${allPieces.map(p=>`
-    <div class="piece-sub-row">
-      ${p.photo?`<img class="piece-sub-thumb" src="${p.photo}" onclick="openLb('${p.photo}')">`:`<div class="piece-sub-thumb-ph">${p.type?.includes('Sapato')?'👟':p.type?.includes('Aces')?'💍':'👗'}</div>`}
-      <span class="piece-sub-type">${esc(p.type||'Peça')}</span>
-      <span class="piece-sub-name">${esc(p.name||'—')}</span>
-    </div>`).join('')}</div>`:'';
 
   const card=document.createElement('div');
   card.className='look-card';
@@ -681,18 +682,16 @@ function buildCard(look){
       <button class="card-status-btn ${statusCls}" onclick="cycleStatus(${look.num})"><div class="status-dot"></div>${statusLbl}</button>
     </div>
     <div class="card-photo-grid">
-      <div class="photo-cell">${outfitInner}</div>
+      ${photoCell(oPhoto,'Roupa',false)}
       ${photoCell(sPhoto,'Lenço',false)}
       ${photoCell(tPhoto,tName,true)}
       ${photoCell(shootingPhoto,'Look final',false)}
     </div>
     <div class="card-fields">
-      <div class="field-row">
-        <div class="field-lbl">Roupa</div>
-        <select class="field-sel" onchange="updLookField(${look.num},'outfit',this.value)">${outfitOpts}</select>
-        ${piecesSubHtml}
-      </div>
+      <div class="field-row"><div class="field-lbl">Roupa</div><select class="field-sel" onchange="updLookField(${look.num},'outfit',this.value)">${outfitOpts}</select></div>
       <div class="field-row"><div class="field-lbl">Lenço</div><select class="field-sel" onchange="updLookField(${look.num},'scarf',this.value)">${scarfOpts}</select></div>
+      <div class="field-row"><div class="field-lbl">Jóias</div><select class="field-sel" onchange="updLookField(${look.num},'joias',this.value)">${joiasOpts}</select></div>
+      <div class="field-row"><div class="field-lbl">Sapatos</div><select class="field-sel" onchange="updLookField(${look.num},'sapatos',this.value)">${sapatosOpts}</select></div>
       <div class="field-row"><div class="field-lbl">Modelo</div><select class="field-sel" onchange="updLookField(${look.num},'model',this.value)">${modelOpts}</select></div>
       <div class="field-row"><div class="field-lbl">Tutorial (${look.category})</div><select class="field-sel" onchange="updLookField(${look.num},'tutorialIdx',parseInt(this.value))">${tutOpts}</select></div>
       <div class="field-row"><div class="field-lbl">Local</div><select class="field-sel" onchange="updLookField(${look.num},'location',this.value)">${locOpts}</select></div>
@@ -769,21 +768,13 @@ function rebuildCardPhotos(num){
   const cardEl=document.getElementById('carousel-track').children[idx];if(!cardEl)return;
   const look=fl[idx];
   const outfit=outfitObj(look.outfit);
-  const piecesWithPhoto=(outfit?.pieces||[]).filter(p=>p.photo);
+  const oPhoto=outfit?.photo||'';
   const sPhoto=photoOf('scarves',look.scarf);
   const tut=tutorialOf(look);const tPhoto=tut?.photo||'';const tName=tut?.name||'Tutorial';
   const shootingPhoto=look.shootingPhoto||'';
-  const curSlide=outfitSlideIdx[look.num]||0;
-
-  let outfitInner='';
-  if(piecesWithPhoto.length===0){outfitInner=`<div class="photo-cell-ph"><span class="icon">👗</span><span>Roupa</span></div>`;}
-  else if(piecesWithPhoto.length===1){outfitInner=`<img src="${piecesWithPhoto[0].photo}" onclick="openLb('${piecesWithPhoto[0].photo}')"><div class="photo-cell-lbl">${esc(piecesWithPhoto[0].name||piecesWithPhoto[0].type||'Roupa')}</div>`;}
-  else{const slides=piecesWithPhoto.map((p,pi)=>`<div class="outfit-mini-slide"><img src="${p.photo}" onclick="openLb('${p.photo}')"><div class="photo-cell-lbl">${esc(p.name||p.type||'Peça '+(pi+1))}</div></div>`).join('');const dots=piecesWithPhoto.map((_,pi)=>`<div class="outfit-mini-dot${pi===curSlide?' on':''}"></div>`).join('');outfitInner=`<div class="outfit-mini"><div class="outfit-mini-track no-anim" id="omt-${look.num}" style="transform:translateX(-${curSlide*100}%)">${slides}</div><button class="outfit-mini-btn prev" onclick="slideOutfit(${look.num},-1,${piecesWithPhoto.length})">‹</button><button class="outfit-mini-btn next" onclick="slideOutfit(${look.num},1,${piecesWithPhoto.length})">›</button><div class="outfit-mini-dots" id="omDots-${look.num}">${dots}</div></div>`;}
-
-  function photoCell(photo,label,contain){if(!photo)return`<div class="photo-cell${contain?' contain':''}"><div class="photo-cell-ph"><span class="icon">${label==='Lenço'?'🧣':label==='Tutorial'?'📋':'📸'}</span><span>${label}</span></div></div>`;return`<div class="photo-cell${contain?' contain':''}" onclick="openLb('${photo}')"><img src="${photo}" alt="${label}"><div class="photo-cell-lbl">${label}</div></div>`;}
-
+  function photoCell(photo,label,contain){if(!photo)return`<div class="photo-cell${contain?' contain':''}"><div class="photo-cell-ph"><span class="icon">${label==='Lenço'?'🧣':label==='Tutorial'?'📋':label==='Jóias'?'💍':label==='Sapatos'?'👟':'📸'}</span><span>${label}</span></div></div>`;return`<div class="photo-cell${contain?' contain':''}" onclick="openLb('${photo}')"><img src="${photo}" alt="${label}"><div class="photo-cell-lbl">${label}</div></div>`;}
   const grid=cardEl.querySelector('.card-photo-grid');
-  if(grid)grid.innerHTML=`<div class="photo-cell">${outfitInner}</div>${photoCell(sPhoto,'Lenço',false)}${photoCell(tPhoto,tName,true)}${photoCell(shootingPhoto,'Look final',false)}`;
+  if(grid)grid.innerHTML=`${photoCell(oPhoto,'Roupa',false)}${photoCell(sPhoto,'Lenço',false)}${photoCell(tPhoto,tName,true)}${photoCell(shootingPhoto,'Look final',false)}`;
 }
 
 // ── STATUS ──
@@ -835,6 +826,8 @@ function renderConfig(){
   document.getElementById('cat-inputs').innerHTML=state.config.cats.map(([cat,n,tutorials],i)=>{const tuts=tutorials||[];return`<div style="border-bottom:1px solid var(--c-border);padding-bottom:14px;margin-bottom:14px;"><div class="cat-row"><input class="cat-name-inp" type="text" value="${esc(cat)}" placeholder="Nome…" onchange="state.config.cats[${i}][0]=this.value;scheduleSave()"><div class="cat-count-wrap"><input class="cat-count-inp" type="number" min="0" value="${n}" onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint()"><span class="cat-count-lbl">looks</span></div></div><div style="font-size:.62rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Tutoriais</div><div class="pieces-grid">${tuts.map((t,ti)=>`<div class="piece-cell">${t.photo?`<img class="piece-img contain" src="${t.photo}" onclick="openLb('${t.photo}')">`:`<div class="piece-img-ph" onclick="document.getElementById('ft-${i}-${ti}').click()"><span>📋</span><span>Adicionar</span></div>`}<input type="file" accept="image/*" id="ft-${i}-${ti}" style="display:none" onchange="handleTutorialPhoto(${i},${ti},this)"><input class="piece-name-inp" type="text" value="${esc(t.name||'')}" placeholder="Nome…" onchange="state.config.cats[${i}][2][${ti}].name=this.value;scheduleSave()"><div class="piece-actions"><span class="piece-act-btn" onclick="document.getElementById('ft-${i}-${ti}').click()">${t.photo?'🔄':'📋'}</span><span class="piece-act-btn del" onclick="removeTutorial(${i},${ti})">✕</span></div></div>`).join('')}</div><button class="mini-btn" style="width:100%;margin-top:8px;font-size:.75rem" onclick="addTutorial(${i})">+ Adicionar tutorial</button></div>`;}).join('');
   updateCatHint();
   renderOutfitInputs();
+  renderItemFields('joias','joias-inputs');
+  renderItemFields('sapatos','sapatos-inputs');
   renderItemFields('scarves','scarf-inputs');
   renderItemFields('models','model-inputs');
   renderColorGrid();
@@ -850,10 +843,10 @@ window.removeOutfit=function(){if(state.config.outfits.length>1){state.config.ou
 window.addTutorial=function(ci){if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2].push({name:'',photo:''});renderConfig();};
 window.removeTutorial=function(ci,ti){state.config.cats[ci][2].splice(ti,1);scheduleSave();renderConfig();};
 window.handleTutorialPhoto=async function(ci,ti,input){if(!input.files[0])return;const c=await compressImage(input.files[0],600,0.7);if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2][ti].photo=c;scheduleSave();renderConfig();buildCarousel();};
-function renderItemFields(type,cid){document.getElementById(cid).innerHTML=`<div class="photo-grid">${state.config[type].map((item,i)=>`<div class="photo-row">${item.photo?`<img class="photo-mini" src="${item.photo}" onclick="openLb('${item.photo}')">`:`<div class="photo-mini-ph" onclick="document.getElementById('f-${type}-${i}').click()">📷</div>`}<input type="file" accept="image/*" id="f-${type}-${i}" style="display:none" onchange="handleSimplePhoto('${type}',${i},this)"><input class="photo-name-inp" type="text" value="${esc(item.name)}" placeholder="Nome…" onchange="state.config['${type}'][${i}].name=this.value;scheduleSave()"><div class="photo-row-actions"><span style="font-size:.7rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px" onclick="document.getElementById('f-${type}-${i}').click()">${item.photo?'🔄':'📷'}</span>${item.photo?`<span style="font-size:.7rem;color:#ff6b6b;cursor:pointer;padding:2px 6px;border:1px solid rgba(255,107,107,.3);border-radius:4px" onclick="state.config['${type}'][${i}].photo='';scheduleSave();renderItemFields('${type}','${cid}')">✕</span>`:''}</div></div>`).join('')}</div>`;}
-window.handleSimplePhoto=async function(type,i,input){if(!input.files[0])return;const map={scarves:'scarf-inputs',models:'model-inputs'};const c=await compressImage(input.files[0],400,0.55);state.config[type][i].photo=c;scheduleSave();renderItemFields(type,map[type]);buildCarousel();};
-window.addItem=function(type){state.config[type].push({name:'',photo:''});renderConfig();};
-window.removeItem=function(type){if(state.config[type].length>1){state.config[type].pop();renderConfig();}};
+function renderItemFields(type,cid){if(!document.getElementById(cid))return;document.getElementById(cid).innerHTML=`<div class="photo-grid">${(state.config[type]||[]).map((item,i)=>`<div class="photo-row">${item.photo?`<img class="photo-mini" src="${item.photo}" onclick="openLb('${item.photo}')">`:`<div class="photo-mini-ph" onclick="document.getElementById('f-${type}-${i}').click()">📷</div>`}<input type="file" accept="image/*" id="f-${type}-${i}" style="display:none" onchange="handleSimplePhoto('${type}',${i},this)"><input class="photo-name-inp" type="text" value="${esc(item.name)}" placeholder="Nome…" onchange="state.config['${type}'][${i}].name=this.value;scheduleSave()"><div class="photo-row-actions"><span style="font-size:.7rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px" onclick="document.getElementById('f-${type}-${i}').click()">${item.photo?'🔄':'📷'}</span>${item.photo?`<span style="font-size:.7rem;color:#ff6b6b;cursor:pointer;padding:2px 6px;border:1px solid rgba(255,107,107,.3);border-radius:4px" onclick="state.config['${type}'][${i}].photo='';scheduleSave();renderItemFields('${type}','${cid}')">✕</span>`:''}</div></div>`).join('')}</div>`;}
+window.handleSimplePhoto=async function(type,i,input){if(!input.files[0])return;const map={outfits:'outfit-inputs',joias:'joias-inputs',sapatos:'sapatos-inputs',scarves:'scarf-inputs',models:'model-inputs'};const c=await compressImage(input.files[0],400,0.6);state.config[type][i].photo=c;scheduleSave();renderItemFields(type,map[type]||type+'-inputs');buildCarousel();};
+window.addItem=function(type){if(!state.config[type])state.config[type]=[];state.config[type].push({name:'',photo:''});renderConfig();};
+window.removeItem=function(type){if(state.config[type]&&state.config[type].length>1){state.config[type].pop();renderConfig();}};
 window.updateLocHint=function(){const s=parseInt(document.getElementById('loc-studio').value)||0;const p=parseInt(document.getElementById('loc-pt').value)||0;const c=parseInt(document.getElementById('loc-cv').value)||0;const h=document.getElementById('loc-hint');h.innerHTML=`Total: <strong>${s+p+c}</strong> / 100`;h.className='cfg-hint'+((s+p+c)!==100?' err':'');};
 window.updateCatHint=function(){const t=state.config.cats.reduce((s,[,n])=>s+n,0);const h=document.getElementById('cat-hint');h.innerHTML=`Total: <strong>${t}</strong> / 100`;h.className='cfg-hint'+(t!==100?' err':'');};
 window.applyConfig=function(){state.config.locs.studio=parseInt(document.getElementById('loc-studio').value)||0;state.config.locs.pt=parseInt(document.getElementById('loc-pt').value)||0;state.config.locs.cv=parseInt(document.getElementById('loc-cv').value)||0;const ct=state.config.cats.reduce((s,[,n])=>s+n,0);const lt=state.config.locs.studio+state.config.locs.pt+state.config.locs.cv;if(ct!==100){alert(`Total categorias: ${ct}. Deve ser 100.`);return;}if(lt!==100){alert(`Total locais: ${lt}. Deve ser 100.`);return;}state.looks=genLooks();state.ui.currentIdx=0;state.ui.filter='';scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');};
