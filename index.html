@@ -61,10 +61,11 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .carousel-viewport{flex:1;overflow:hidden;position:relative;}
 .carousel-track{display:flex;height:100%;transition:transform .35s cubic-bezier(.4,0,.2,1);will-change:transform;}
 .carousel-track.no-anim{transition:none;}
-.look-card{min-width:100%;width:100%;height:100%;background:var(--c-card);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;position:relative;}
+.look-card{min-width:100%;width:100%;height:100%;background:var(--c-card);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;position:relative;box-sizing:border-box;}
 @media(min-width:700px){
-  .carousel-track{justify-content:center;}
-  .look-card{min-width:min(100%,540px);width:min(100%,540px);margin:0 auto;border-left:1px solid var(--c-border);border-right:1px solid var(--c-border);}
+  .look-card{background:var(--c-bg);padding:0 max(0px,calc((100% - 540px) / 2));}
+  .look-card::before{content:'';position:absolute;top:0;bottom:0;left:max(0px,calc((100% - 540px) / 2));right:max(0px,calc((100% - 540px) / 2));background:var(--c-card);border-left:1px solid var(--c-border);border-right:1px solid var(--c-border);pointer-events:none;z-index:0;}
+  .look-card > *{position:relative;z-index:1;}
 }
 .card-color-bar{height:5px;flex-shrink:0;}
 .card-header{padding:10px 16px 8px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
@@ -686,12 +687,8 @@ function buildCard(look){
 window.slideOutfit=function(num,dir,total){const cur=outfitSlideIdx[num]||0;const next=Math.max(0,Math.min(total-1,cur+dir));outfitSlideIdx[num]=next;const track=document.getElementById('omt-'+num);if(track){track.classList.remove('no-anim');track.style.transform=`translateX(-${next*100}%)`;}const dotsEl=document.getElementById('omDots-'+num);if(dotsEl)[...dotsEl.children].forEach((d,i)=>d.classList.toggle('on',i===next));};
 
 function getCardWidth(){
-  // On desktop the card has a max-width, so use the card's actual width not the viewport
-  const fc=document.getElementById('carousel-track').firstElementChild;
-  if(fc&&fc.offsetWidth>0) return fc.offsetWidth;
-  // fallback: check if desktop max-width applies
-  const vp=document.getElementById('carousel-vp');
-  return Math.min(vp.offsetWidth, 540);
+  // cards always fill the viewport width — the 540px max is visual padding only
+  return document.getElementById('carousel-vp').offsetWidth;
 }
 
 // keep track of which indices are rendered
@@ -772,8 +769,7 @@ window.navTo=function(idx){
   const fl=filteredLooks();if(idx<0||idx>=fl.length)return;
   state.ui.currentIdx=idx;
   const track=document.getElementById('carousel-track');
-  const fc=track.firstElementChild;
-  const w=fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;
+  const w=getCardWidth();
   track.style.transform=`translateX(-${idx*w}px)`;
   updateCounter();scheduleSave();
   // render adjacent cards after navigation
@@ -781,7 +777,7 @@ window.navTo=function(idx){
 };
 
 // drag/swipe
-(function(){let sx=0,sy=0,drag=false,moved=false,vpW=0;const UI='select,input,textarea,button,label,.outfit-mini-btn';function isUI(el){return!!el.closest(UI);}function getW(){const fc=document.getElementById('carousel-track').firstElementChild;return fc?fc.offsetWidth:document.getElementById('carousel-vp').offsetWidth;}function onStart(x,y,target){if(isUI(target))return;sx=x;sy=y;drag=true;moved=false;vpW=getW();document.getElementById('carousel-track').classList.add('no-anim');}function onMove(x,y){if(!drag)return;const dx=x-sx,dy=y-sy;if(!moved&&Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){drag=false;return;}if(Math.abs(dx)>4)moved=true;document.getElementById('carousel-track').style.transform=`translateX(${-(state.ui.currentIdx*vpW-dx)}px)`;}function onEnd(x){if(!drag)return;drag=false;const track=document.getElementById('carousel-track');track.classList.remove('no-anim');const dx=x-sx,fl=filteredLooks(),thr=vpW*0.2;if(moved&&dx<-thr&&state.ui.currentIdx<fl.length-1)window.navTo(state.ui.currentIdx+1);else if(moved&&dx>thr&&state.ui.currentIdx>0)window.navTo(state.ui.currentIdx-1);else window.navTo(state.ui.currentIdx);}const vp=document.getElementById('carousel-vp');vp.addEventListener('mousedown',e=>{if(e.button!==0)return;if(!isUI(e.target))e.preventDefault();onStart(e.clientX,e.clientY,e.target);});window.addEventListener('mousemove',e=>{if(drag)onMove(e.clientX,e.clientY);});window.addEventListener('mouseup',e=>onEnd(e.clientX));vp.addEventListener('touchstart',e=>onStart(e.touches[0].clientX,e.touches[0].clientY,e.target),{passive:true});vp.addEventListener('touchmove',e=>{if(drag)onMove(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});vp.addEventListener('touchend',e=>onEnd(e.changedTouches[0].clientX));window.addEventListener('keydown',e=>{if(window.currentScreen!=='screen-looks')return;if(e.key==='ArrowRight'||e.key==='ArrowDown')window.navTo(state.ui.currentIdx+1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')window.navTo(state.ui.currentIdx-1);});})();
+(function(){let sx=0,sy=0,drag=false,moved=false,vpW=0;const UI='select,input,textarea,button,label,.outfit-mini-btn';function isUI(el){return!!el.closest(UI);}function getW(){return document.getElementById('carousel-vp').offsetWidth;}function onStart(x,y,target){if(isUI(target))return;sx=x;sy=y;drag=true;moved=false;vpW=getW();document.getElementById('carousel-track').classList.add('no-anim');}function onMove(x,y){if(!drag)return;const dx=x-sx,dy=y-sy;if(!moved&&Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){drag=false;return;}if(Math.abs(dx)>4)moved=true;document.getElementById('carousel-track').style.transform=`translateX(${-(state.ui.currentIdx*vpW-dx)}px)`;}function onEnd(x){if(!drag)return;drag=false;const track=document.getElementById('carousel-track');track.classList.remove('no-anim');const dx=x-sx,fl=filteredLooks(),thr=vpW*0.2;if(moved&&dx<-thr&&state.ui.currentIdx<fl.length-1)window.navTo(state.ui.currentIdx+1);else if(moved&&dx>thr&&state.ui.currentIdx>0)window.navTo(state.ui.currentIdx-1);else window.navTo(state.ui.currentIdx);}const vp=document.getElementById('carousel-vp');vp.addEventListener('mousedown',e=>{if(e.button!==0)return;if(!isUI(e.target))e.preventDefault();onStart(e.clientX,e.clientY,e.target);});window.addEventListener('mousemove',e=>{if(drag)onMove(e.clientX,e.clientY);});window.addEventListener('mouseup',e=>onEnd(e.clientX));vp.addEventListener('touchstart',e=>onStart(e.touches[0].clientX,e.touches[0].clientY,e.target),{passive:true});vp.addEventListener('touchmove',e=>{if(drag)onMove(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});vp.addEventListener('touchend',e=>onEnd(e.changedTouches[0].clientX));window.addEventListener('keydown',e=>{if(window.currentScreen!=='screen-looks')return;if(e.key==='ArrowRight'||e.key==='ArrowDown')window.navTo(state.ui.currentIdx+1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')window.navTo(state.ui.currentIdx-1);});})();
 
 // ── LOOK UPDATES ──
 window.updLookField=function(num,field,val){const l=state.looks.find(x=>x.num===num);if(!l)return;l[field]=val;scheduleSave();if(['outfit','joias','sapatos','tutorialIdx','scarf'].includes(field))rebuildOutfitCell(num);};
