@@ -61,11 +61,11 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .carousel-viewport{flex:1;overflow:hidden;position:relative;}
 .carousel-track{display:flex;height:100%;transition:transform .35s cubic-bezier(.4,0,.2,1);will-change:transform;}
 .carousel-track.no-anim{transition:none;}
-.look-card{min-width:100%;width:100%;height:100%;background:var(--c-card);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;position:relative;box-sizing:border-box;}
-@media(min-width:700px){
-  .look-card{background:var(--c-bg);padding:0 max(0px,calc((100% - 540px) / 2));}
-  .look-card::before{content:'';position:absolute;top:0;bottom:0;left:max(0px,calc((100% - 540px) / 2));right:max(0px,calc((100% - 540px) / 2));background:var(--c-card);border-left:1px solid var(--c-border);border-right:1px solid var(--c-border);pointer-events:none;z-index:0;}
-  .look-card > *{position:relative;z-index:1;}
+.look-card{min-width:100%;width:100%;height:100%;background:var(--c-card);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;position:relative;box-sizing:border-box;transition:opacity .3s ease,transform .3s ease;}
+@media(min-width:900px){
+  .look-card{min-width:calc(100% / 3);width:calc(100% / 3);border-right:1px solid var(--c-border);opacity:.45;transform:scale(.96);cursor:pointer;}
+  .look-card.is-featured{opacity:1;transform:scale(1);cursor:default;}
+  .look-card.is-featured::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;box-shadow:inset 0 0 0 2px var(--c-accent,var(--c-text));pointer-events:none;z-index:10;}
 }
 .card-color-bar{height:5px;flex-shrink:0;}
 .card-header{padding:10px 16px 8px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
@@ -505,7 +505,7 @@ function normaliseSimple(arr,defaults){if(arr&&arr.length>0)return arr.map(o=>ty
 
 // Safe cache (no photos)
 function saveCache(d){try{const l={...d,config:{...d.config,outfits:d.config.outfits.map(o=>({...o,photo:'',pieces:(o.pieces||[]).map(p=>({...p,photo:''}))})),joias:(d.config.joias||[]).map(o=>({...o,photo:''})),sapatos:(d.config.sapatos||[]).map(o=>({...o,photo:''})),scarves:d.config.scarves.map(s=>({...s,photo:''})),models:d.config.models.map(m=>({...m,photo:''})),cats:d.config.cats.map(([n,c,t])=>[n,c,(t||[]).map(x=>({...x,photo:''}))])}};localStorage.setItem(CACHE_KEY,JSON.stringify(l));}catch(e){}}
-function loadCache(){try{const c=localStorage.getItem(CACHE_KEY);if(c){const d=JSON.parse(c);if(d.config){state.config={...state.config,...d.config};state.config.outfits=normaliseOutfits(state.config.outfits);state.config.joias=normaliseSimple(state.config.joias,DEFAULT_JOIAS);state.config.sapatos=normaliseSimple(state.config.sapatos,DEFAULT_SAPATOS);}if(d.looks)state.looks=d.looks;if(d.team)state.team=d.team;if(d.ui)state.ui={...state.ui,...d.ui};}}catch(e){}}
+function loadCache(){try{const c=localStorage.getItem(CACHE_KEY);if(c){const d=JSON.parse(c);if(d.config){state.config={...state.config,...d.config};state.config.outfits=normaliseOutfits(state.config.outfits);state.config.joias=normaliseSimple(state.config.joias,DEFAULT_JOIAS);state.config.sapatos=normaliseSimple(state.config.sapatos,DEFAULT_SAPATOS);}if(d.looks)state.looks=d.looks;if(d.team)state.team=d.team;if(d.ui){const {currentIdx,filter,...restUi}=d.ui;state.ui={...state.ui,...restUi};}}}catch(e){}}
 
 // ── SYNC ──
 function setSyncStatus(s){['sync-dot','sync-dot2'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.className='sync-dot'+(s==='syncing'?' syncing':s==='offline'?' offline':'');});const txt=s==='syncing'?'a guardar…':s==='offline'?'offline':'guardado';['sync-txt','sync-txt2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=txt;});}
@@ -544,7 +544,7 @@ async function loadFromFirestore(){
       if(scaSnap.exists())state.config.scarves=scaSnap.data().items||state.config.scarves;
       if(modSnap.exists())state.config.models=modSnap.data().items||state.config.models;
       if(looksSnap.exists())state.looks=looksSnap.data().items||[];
-      if(teamSnap.exists()){state.team=teamSnap.data().items||[];if(teamSnap.data().ui)state.ui={...state.ui,...teamSnap.data().ui};}
+      if(teamSnap.exists()){state.team=teamSnap.data().items||[];if(teamSnap.data().ui){const {currentIdx,filter,...restUi}=teamSnap.data().ui;state.ui={...state.ui,...restUi};}}
     }
     applyTheme();renderFilters();buildCarousel();updateCounter();setSyncStatus('ok');saveCache(state);
   }catch(e){console.error('Firebase:',e);setSyncStatus('offline');}
@@ -554,7 +554,7 @@ async function loadFromFirestore(){
 window.doLogin=function(){const pwd=document.getElementById('login-pwd').value.trim();if(pwd===ACCESS_PASSWORD){localStorage.setItem(SESSION_KEY,'1');document.getElementById('screen-login').classList.add('hidden');initApp();}else{document.getElementById('login-err').textContent='⛔ Senha incorrecta.';document.getElementById('login-pwd').value='';}};
 window.doLogout=function(){if(!confirm('Sair?'))return;localStorage.removeItem(SESSION_KEY);document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById('screen-login').classList.remove('hidden');};
 
-function initApp(){loadCache();applyTheme();document.getElementById('loading').classList.add('hidden');renderFilters();buildCarousel();updateCounter();switchTab('looks');const fbTO=setTimeout(()=>setSyncStatus('offline'),8000);loadFromFirestore().then(()=>clearTimeout(fbTO)).catch(()=>{clearTimeout(fbTO);setSyncStatus('offline');});}
+function initApp(){loadCache();state.ui.currentIdx=0;state.ui.filter='';applyTheme();document.getElementById('loading').classList.add('hidden');renderFilters();buildCarousel();updateCounter();switchTab('looks');const fbTO=setTimeout(()=>setSyncStatus('offline'),8000);loadFromFirestore().then(()=>clearTimeout(fbTO)).catch(()=>{clearTimeout(fbTO);setSyncStatus('offline');});}
 
 window.exportData=function(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');const d=new Date();a.href=url;a.download=`aos-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;a.click();URL.revokeObjectURL(url);showToast('⬇ Exportado!');};
 window.importData=function(input){if(!input.files[0])return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(!d.config||!d.looks)throw new Error();window.state=d;state.config.outfits=normaliseOutfits(state.config.outfits);state.config.joias=normaliseSimple(state.config.joias,DEFAULT_JOIAS);state.config.sapatos=normaliseSimple(state.config.sapatos,DEFAULT_SAPATOS);applyTheme();renderFilters();buildCarousel();updateCounter();scheduleSave();showToast('⬆ Importado!');}catch(e){showToast('✗ Ficheiro inválido');}};r.readAsText(input.files[0]);input.value='';};
@@ -687,15 +687,21 @@ function buildCard(look){
 window.slideOutfit=function(num,dir,total){const cur=outfitSlideIdx[num]||0;const next=Math.max(0,Math.min(total-1,cur+dir));outfitSlideIdx[num]=next;const track=document.getElementById('omt-'+num);if(track){track.classList.remove('no-anim');track.style.transform=`translateX(-${next*100}%)`;}const dotsEl=document.getElementById('omDots-'+num);if(dotsEl)[...dotsEl.children].forEach((d,i)=>d.classList.toggle('on',i===next));};
 
 function getCardWidth(){
-  // cards always fill the viewport width — the 540px max is visual padding only
-  return document.getElementById('carousel-vp').offsetWidth;
+  const vp=document.getElementById('carousel-vp');
+  const vpw=vp.offsetWidth;
+  // desktop: 3 cards visible, each 1/3 of viewport
+  if(window.innerWidth>=900) return vpw/3;
+  return vpw;
 }
 
 // keep track of which indices are rendered
 let renderedIndices=new Set();
 function renderVirtualCards(fl,idx){
   const track=document.getElementById('carousel-track');
-  const toRender=new Set([idx-1,idx,idx+1].filter(i=>i>=0&&i<fl.length));
+  // desktop shows 3 cards at once starting from idx, so render a wider window
+  const isDesktop=window.innerWidth>=900;
+  const range=isDesktop?[idx-1,idx,idx+1,idx+2,idx+3]:[idx-1,idx,idx+1];
+  const toRender=new Set(range.filter(i=>i>=0&&i<fl.length));
 
   // remove cards that are far away
   for(const ri of renderedIndices){
@@ -731,6 +737,7 @@ function renderVirtualCards(fl,idx){
       else track.appendChild(realCard);
     }
   }
+  updateFeatured();
 }
 
 // initial full setup — create placeholders for all, real cards for first 3
@@ -761,6 +768,7 @@ function initCarousel(){
     });
   });
   updateCounter();
+  updateFeatured();
 }
 
 window.buildCarousel=initCarousel;
@@ -774,13 +782,43 @@ window.navTo=function(idx){
   updateCounter();scheduleSave();
   // render adjacent cards after navigation
   renderVirtualCards(fl,idx);
+  updateFeatured();
 };
 
+// mark the active card as featured and wire clicks on side cards
+function updateFeatured(){
+  const track=document.getElementById('carousel-track');
+  if(!track)return;
+  const activeNum=filteredLooks()[state.ui.currentIdx]?.num;
+  [...track.children].forEach(card=>{
+    const n=parseInt(card.dataset.lookNum||'0');
+    const isActive=n===activeNum;
+    card.classList.toggle('is-featured',isActive);
+    // bind click handler once
+    if(!card.dataset.clickBound){
+      card.dataset.clickBound='1';
+      card.addEventListener('click',e=>{
+        // only navigate if we're on desktop and clicking a non-featured card
+        if(window.innerWidth<900)return;
+        if(card.classList.contains('is-featured'))return;
+        // ignore if clicking UI inside card
+        if(e.target.closest('select,input,textarea,button,label,.outfit-mini-btn'))return;
+        const fl=filteredLooks();
+        const ri=fl.findIndex(l=>l.num===parseInt(card.dataset.lookNum));
+        if(ri>=0)window.navTo(ri);
+      });
+    }
+  });
+}
+
 // drag/swipe
-(function(){let sx=0,sy=0,drag=false,moved=false,vpW=0;const UI='select,input,textarea,button,label,.outfit-mini-btn';function isUI(el){return!!el.closest(UI);}function getW(){return document.getElementById('carousel-vp').offsetWidth;}function onStart(x,y,target){if(isUI(target))return;sx=x;sy=y;drag=true;moved=false;vpW=getW();document.getElementById('carousel-track').classList.add('no-anim');}function onMove(x,y){if(!drag)return;const dx=x-sx,dy=y-sy;if(!moved&&Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){drag=false;return;}if(Math.abs(dx)>4)moved=true;document.getElementById('carousel-track').style.transform=`translateX(${-(state.ui.currentIdx*vpW-dx)}px)`;}function onEnd(x){if(!drag)return;drag=false;const track=document.getElementById('carousel-track');track.classList.remove('no-anim');const dx=x-sx,fl=filteredLooks(),thr=vpW*0.2;if(moved&&dx<-thr&&state.ui.currentIdx<fl.length-1)window.navTo(state.ui.currentIdx+1);else if(moved&&dx>thr&&state.ui.currentIdx>0)window.navTo(state.ui.currentIdx-1);else window.navTo(state.ui.currentIdx);}const vp=document.getElementById('carousel-vp');vp.addEventListener('mousedown',e=>{if(e.button!==0)return;if(!isUI(e.target))e.preventDefault();onStart(e.clientX,e.clientY,e.target);});window.addEventListener('mousemove',e=>{if(drag)onMove(e.clientX,e.clientY);});window.addEventListener('mouseup',e=>onEnd(e.clientX));vp.addEventListener('touchstart',e=>onStart(e.touches[0].clientX,e.touches[0].clientY,e.target),{passive:true});vp.addEventListener('touchmove',e=>{if(drag)onMove(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});vp.addEventListener('touchend',e=>onEnd(e.changedTouches[0].clientX));window.addEventListener('keydown',e=>{if(window.currentScreen!=='screen-looks')return;if(e.key==='ArrowRight'||e.key==='ArrowDown')window.navTo(state.ui.currentIdx+1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')window.navTo(state.ui.currentIdx-1);});})();
+(function(){let sx=0,sy=0,drag=false,moved=false,vpW=0;const UI='select,input,textarea,button,label,.outfit-mini-btn';function isUI(el){return!!el.closest(UI);}function getW(){return getCardWidth();}function onStart(x,y,target){if(isUI(target))return;sx=x;sy=y;drag=true;moved=false;vpW=getW();document.getElementById('carousel-track').classList.add('no-anim');}function onMove(x,y){if(!drag)return;const dx=x-sx,dy=y-sy;if(!moved&&Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){drag=false;return;}if(Math.abs(dx)>4)moved=true;document.getElementById('carousel-track').style.transform=`translateX(${-(state.ui.currentIdx*vpW-dx)}px)`;}function onEnd(x){if(!drag)return;drag=false;const track=document.getElementById('carousel-track');track.classList.remove('no-anim');const dx=x-sx,fl=filteredLooks(),thr=vpW*0.2;if(moved&&dx<-thr&&state.ui.currentIdx<fl.length-1)window.navTo(state.ui.currentIdx+1);else if(moved&&dx>thr&&state.ui.currentIdx>0)window.navTo(state.ui.currentIdx-1);else window.navTo(state.ui.currentIdx);}const vp=document.getElementById('carousel-vp');vp.addEventListener('mousedown',e=>{if(e.button!==0)return;if(!isUI(e.target))e.preventDefault();onStart(e.clientX,e.clientY,e.target);});window.addEventListener('mousemove',e=>{if(drag)onMove(e.clientX,e.clientY);});window.addEventListener('mouseup',e=>onEnd(e.clientX));vp.addEventListener('touchstart',e=>onStart(e.touches[0].clientX,e.touches[0].clientY,e.target),{passive:true});vp.addEventListener('touchmove',e=>{if(drag)onMove(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});vp.addEventListener('touchend',e=>onEnd(e.changedTouches[0].clientX));window.addEventListener('keydown',e=>{if(window.currentScreen!=='screen-looks')return;if(e.key==='ArrowRight'||e.key==='ArrowDown')window.navTo(state.ui.currentIdx+1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')window.navTo(state.ui.currentIdx-1);});})();
 
 // ── LOOK UPDATES ──
 window.updLookField=function(num,field,val){const l=state.looks.find(x=>x.num===num);if(!l)return;l[field]=val;scheduleSave();if(['outfit','joias','sapatos','tutorialIdx','scarf'].includes(field))rebuildOutfitCell(num);};
+
+// reposition on resize (card width changes between mobile and desktop)
+(function(){let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{if(window.currentScreen!=='screen-looks')return;const track=document.getElementById('carousel-track');if(!track)return;const w=getCardWidth();track.classList.add('no-anim');track.style.transform=`translateX(-${state.ui.currentIdx*w}px)`;const fl=filteredLooks();renderVirtualCards(fl,state.ui.currentIdx);requestAnimationFrame(()=>track.classList.remove('no-anim'));},150);});})();
 
 function rebuildOutfitCell(num){
   const fl=filteredLooks();const idx=fl.findIndex(x=>x.num===num);if(idx<0)return;
