@@ -111,6 +111,37 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .field-sel option{background:#1E1E3A;color:white;}
 .field-inp{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'Jost',sans-serif;font-size:.88rem;outline:none;}
 .field-inp::placeholder{color:var(--c-text3);}
+/* VISUAL PICKER BUTTON (replaces select for image-based fields) */
+.field-pick{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'Jost',sans-serif;font-size:.88rem;outline:none;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;padding:0;}
+.field-pick-thumb{width:28px;height:28px;border-radius:6px;flex-shrink:0;background:var(--c-bg);display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--c-border);}
+.field-pick-thumb img{width:100%;height:100%;object-fit:cover;}
+.field-pick-thumb.contain img{object-fit:contain;}
+.field-pick-thumb-icon{font-size:.9rem;opacity:.5;}
+.field-pick-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.field-pick-arrow{font-size:.65rem;color:var(--c-text3);flex-shrink:0;}
+/* PICKER MODAL */
+.picker-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.picker-overlay.open{opacity:1;pointer-events:auto;}
+.picker-panel{background:var(--c-surface);border-radius:var(--radius);border:1px solid var(--c-border);width:100%;max-width:720px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;transform:scale(.96);transition:transform .2s;}
+.picker-overlay.open .picker-panel{transform:scale(1);}
+.picker-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--c-border);flex-shrink:0;}
+.picker-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--c-accent);font-weight:700;letter-spacing:.04em;}
+.picker-close{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--c-border);background:transparent;color:var(--c-text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.picker-close:hover{background:var(--c-card);}
+.picker-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:16px;overflow-y:auto;flex:1;}
+@media(min-width:500px){.picker-grid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:700px){.picker-grid{grid-template-columns:repeat(4,1fr);}}
+.picker-item{background:var(--c-card);border-radius:var(--radius-sm);border:2px solid transparent;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;transition:all .15s;position:relative;}
+.picker-item:hover{border-color:var(--c-border);transform:translateY(-2px);}
+.picker-item.selected{border-color:var(--c-accent);box-shadow:0 0 0 3px rgba(201,168,76,.2);}
+.picker-item-photo{aspect-ratio:1;background:var(--c-bg);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.picker-item-photo img{width:100%;height:100%;object-fit:cover;}
+.picker-item-photo.contain img{object-fit:contain;}
+.picker-item-photo-ph{font-size:2rem;opacity:.3;}
+.picker-item-name{padding:8px 10px;font-size:.78rem;color:var(--c-text);line-height:1.3;word-break:break-word;}
+.picker-item-check{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:var(--c-accent);color:var(--c-bg);display:none;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;}
+.picker-item.selected .picker-item-check{display:flex;}
+.picker-none{grid-column:1 / -1;text-align:center;color:var(--c-text3);font-size:.8rem;padding:30px;font-style:italic;}
 .card-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;padding-bottom:calc(8px + var(--safe-bottom));border-top:1px solid var(--c-border);flex-shrink:0;}
 .card-nav-btn{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--c-border);background:var(--c-surface);color:var(--c-text);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .card-nav-btn:hover,.card-nav-btn:active{background:var(--c-accent);border-color:var(--c-accent);color:var(--c-bg);}
@@ -448,6 +479,16 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 <div class="lightbox" id="lightbox" onclick="closeLightbox()"><span class="lb-close">✕</span><img id="lb-img" src="" alt=""></div>
 <div class="toast" id="toast"></div>
 
+<div class="picker-overlay" id="picker-overlay" onclick="if(event.target===this)closePicker()">
+  <div class="picker-panel">
+    <div class="picker-header">
+      <div class="picker-title" id="picker-title">Escolher</div>
+      <button class="picker-close" onclick="closePicker()">✕</button>
+    </div>
+    <div class="picker-grid" id="picker-grid"></div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -629,11 +670,22 @@ function buildCard(look){
   const status=look.status||'';
   const curSlide=outfitSlideIdx[look.num]||0;
 
-  const outfitOpts=state.config.outfits.map(o=>`<option${o.name===look.outfit?' selected':''}>${esc(o.name)}</option>`).join('');
-  const scarfOpts=state.config.scarves.map(s=>`<option${s.name===look.scarf?' selected':''}>${esc(s.name)}</option>`).join('');
-  const joiasOpts=[{name:''},...(state.config.joias||[])].map(j=>`<option value="${esc(j.name)}"${(look.joias||'')===j.name?' selected':''}>${j.name||'— nenhuma —'}</option>`).join('');
-  const sapatosOpts=[{name:''},...(state.config.sapatos||[])].map(s=>`<option value="${esc(s.name)}"${(look.sapatos||'')===s.name?' selected':''}>${s.name||'— nenhuns —'}</option>`).join('');
-  const modelOpts=state.config.models.map(m=>`<option${m.name===look.model?' selected':''}>${esc(m.name)}</option>`).join('');
+  // helper for visual picker buttons
+  function pickBtn(field,label,currentName,photo,contain,isIconFallback){
+    const hasPhoto=photo&&photo.length>0;
+    const thumbHtml=hasPhoto
+      ?`<div class="field-pick-thumb${contain?' contain':''}"><img src="${photo}"></div>`
+      :`<div class="field-pick-thumb"><span class="field-pick-thumb-icon">${isIconFallback}</span></div>`;
+    const displayName=currentName||`— nenhum${['joias','sapatos'].includes(field)?'':'a'} —`;
+    return `<div class="field-row"><div class="field-lbl">${label}</div><button class="field-pick" onclick="openPicker(${look.num},'${field}')">${thumbHtml}<span class="field-pick-name">${esc(displayName)}</span><span class="field-pick-arrow">▾</span></button></div>`;
+  }
+
+  // figure out current photos for each field
+  const currentOutfitPhoto=slides[0]?.photo||'';
+  const currentScarfPhoto=sPhoto;
+  const currentJoiasPhoto=photoOf('joias',look.joias);
+  const currentSapatosPhoto=photoOf('sapatos',look.sapatos);
+  const currentModelPhoto=photoOf('models',look.model);
   const locOpts=["Portugal – Estúdio","Portugal – Exterior","Cabo Verde – Exterior"].map(l=>`<option${l===look.location?' selected':''}>${l}</option>`).join('');
   const cat=state.config.cats.find(([c])=>c===look.category);
   const tutorials=cat?.[2]||[];
@@ -672,11 +724,11 @@ function buildCard(look){
       ${photoCell(shootingPhoto,'Look final',false)}
     </div>
     <div class="card-fields">
-      <div class="field-row"><div class="field-lbl">Roupa</div><select class="field-sel" onchange="updLookField(${look.num},'outfit',this.value)">${outfitOpts}</select></div>
-      <div class="field-row"><div class="field-lbl">Lenço</div><select class="field-sel" onchange="updLookField(${look.num},'scarf',this.value)">${scarfOpts}</select></div>
-      <div class="field-row"><div class="field-lbl">Jóias</div><select class="field-sel" onchange="updLookField(${look.num},'joias',this.value)">${joiasOpts}</select></div>
-      <div class="field-row"><div class="field-lbl">Sapatos</div><select class="field-sel" onchange="updLookField(${look.num},'sapatos',this.value)">${sapatosOpts}</select></div>
-      <div class="field-row"><div class="field-lbl">Modelo</div><select class="field-sel" onchange="updLookField(${look.num},'model',this.value)">${modelOpts}</select></div>
+      ${pickBtn('outfit','Roupa',look.outfit,currentOutfitPhoto,false,'👗')}
+      ${pickBtn('scarf','Lenço',look.scarf,currentScarfPhoto,false,'🧣')}
+      ${pickBtn('joias','Jóias',look.joias,currentJoiasPhoto,true,'💍')}
+      ${pickBtn('sapatos','Sapatos',look.sapatos,currentSapatosPhoto,false,'👟')}
+      ${pickBtn('model','Modelo',look.model,currentModelPhoto,false,'👤')}
       <div class="field-row"><div class="field-lbl">Tutorial (${look.category})</div><select class="field-sel" onchange="updLookField(${look.num},'tutorialIdx',parseInt(this.value))">${tutOpts}</select></div>
       <div class="field-row"><div class="field-lbl">Local</div><select class="field-sel" onchange="updLookField(${look.num},'location',this.value)">${locOpts}</select></div>
       <div class="field-row"><div class="field-lbl">Notas</div><input class="field-inp" type="text" value="${esc(look.notes||'')}" placeholder="Adicionar nota…" onchange="updLookField(${look.num},'notes',this.value)"></div>
@@ -953,6 +1005,90 @@ window.removeMember=function(id){if(!confirm('Remover?'))return;state.team=state
 
 window.openLb=function(src){if(!src)return;document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('show');};
 window.closeLightbox=function(){document.getElementById('lightbox').classList.remove('show');};
+
+// ── VISUAL PICKER ──
+const PICKER_CONFIG={
+  outfit:{title:'Escolher roupa',source:'outfits',nullable:false,icon:'👗',contain:false,getPhoto:o=>o.photo||(o.pieces&&o.pieces[0]?.photo)||''},
+  scarf:{title:'Escolher lenço',source:'scarves',nullable:false,icon:'🧣',contain:false,getPhoto:o=>o.photo||''},
+  joias:{title:'Escolher jóias',source:'joias',nullable:true,icon:'💍',contain:true,getPhoto:o=>o.photo||''},
+  sapatos:{title:'Escolher sapatos',source:'sapatos',nullable:true,icon:'👟',contain:false,getPhoto:o=>o.photo||''},
+  model:{title:'Escolher modelo',source:'models',nullable:false,icon:'👤',contain:false,getPhoto:o=>o.photo||''}
+};
+
+window.openPicker=function(lookNum,field){
+  const cfg=PICKER_CONFIG[field];if(!cfg)return;
+  const look=state.looks.find(l=>l.num===lookNum);if(!look)return;
+  const items=state.config[cfg.source]||[];
+  const currentValue=field==='outfit'?look.outfit:field==='scarf'?look.scarf:field==='joias'?(look.joias||''):field==='sapatos'?(look.sapatos||''):look.model;
+  document.getElementById('picker-title').textContent=cfg.title;
+  const grid=document.getElementById('picker-grid');
+  // store context for event delegation
+  grid.dataset.lookNum=lookNum;
+  grid.dataset.field=field;
+  let html='';
+  // "none" option for nullable fields
+  if(cfg.nullable){
+    const isSel=!currentValue;
+    html+=`<div class="picker-item${isSel?' selected':''}" data-value=""><div class="picker-item-photo"><span class="picker-item-photo-ph">∅</span></div><div class="picker-item-name">— nenhum${field==='joias'?'a':'s'} —</div>${isSel?'<div class="picker-item-check">✓</div>':''}</div>`;
+  }
+  if(items.length===0){
+    html+=`<div class="picker-none">Sem items configurados. Adiciona em Configuração.</div>`;
+  } else {
+    items.forEach(item=>{
+      const photo=cfg.getPhoto(item);
+      const isSel=item.name===currentValue;
+      const photoHtml=photo
+        ?`<div class="picker-item-photo${cfg.contain?' contain':''}"><img src="${photo}"></div>`
+        :`<div class="picker-item-photo"><span class="picker-item-photo-ph">${cfg.icon}</span></div>`;
+      html+=`<div class="picker-item${isSel?' selected':''}" data-value="${esc(item.name)}">${photoHtml}<div class="picker-item-name">${esc(item.name||'(sem nome)')}</div>${isSel?'<div class="picker-item-check">✓</div>':''}</div>`;
+    });
+  }
+  grid.innerHTML=html;
+  document.getElementById('picker-overlay').classList.add('open');
+};
+
+window.closePicker=function(){
+  document.getElementById('picker-overlay').classList.remove('open');
+};
+
+window.pickItem=function(lookNum,field,value){
+  // field is 'outfit', 'scarf', 'joias', 'sapatos', 'model' — matches the look property name
+  updLookField(lookNum,field,value);
+  // update the card's pick button to reflect the new selection
+  const fl=filteredLooks();
+  const idx=fl.findIndex(x=>x.num===lookNum);
+  if(idx>=0){
+    const cardEl=document.getElementById('carousel-track').children[idx];
+    if(cardEl){
+      // rebuild just this card to refresh the pick buttons
+      const newCard=buildCard(fl[idx]);
+      cardEl.replaceWith(newCard);
+      updateFeatured();
+    }
+  }
+  closePicker();
+};
+
+// event delegation for picker item clicks (avoids issues with quotes in names)
+(function(){
+  const grid=document.getElementById('picker-grid');
+  if(!grid)return;
+  grid.addEventListener('click',e=>{
+    const item=e.target.closest('.picker-item');
+    if(!item)return;
+    const lookNum=parseInt(grid.dataset.lookNum);
+    const field=grid.dataset.field;
+    const value=item.dataset.value||'';
+    if(isNaN(lookNum)||!field)return;
+    window.pickItem(lookNum,field,value);
+  });
+  // close on Escape
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&document.getElementById('picker-overlay').classList.contains('open')){
+      window.closePicker();
+    }
+  });
+})();
 window.showToast=function(msg){const t=document.getElementById('toast');t.textContent=msg||'✓ Guardado';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);};
 window.scheduleSave=scheduleSave;
 window.renderSimpleItems=renderSimpleItems;
