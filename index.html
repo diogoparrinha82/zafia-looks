@@ -301,9 +301,18 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .mtl{font-size:.68rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.06em;}
 .mtv{font-family:'DM Mono',monospace;color:var(--c-accent);font-size:.95rem;}
 .add-member-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:calc(100% - 32px);margin:10px 16px;padding:13px;background:transparent;border:2px dashed var(--c-border);border-radius:var(--radius);color:var(--c-text2);font-family:'Jost',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;}
-.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:999;display:none;align-items:center;justify-content:center;}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:999;display:none;align-items:center;justify-content:center;flex-direction:column;}
 .lightbox.show{display:flex;}
-.lightbox img{max-width:94vw;max-height:94vh;border-radius:10px;object-fit:contain;}
+.lightbox img{max-width:94vw;max-height:82vh;border-radius:10px;object-fit:contain;}
+.lightbox canvas{max-width:94vw;max-height:82vh;border-radius:10px;}
+.lb-stage{position:relative;display:flex;align-items:center;justify-content:center;max-width:94vw;max-height:82vh;}
+.lb-label{position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);color:var(--c-text);font-family:'Jost',sans-serif;font-size:.85rem;background:rgba(0,0,0,.6);padding:4px 12px;border-radius:50px;white-space:nowrap;}
+.lb-counter{position:absolute;top:-30px;left:50%;transform:translateX(-50%);color:var(--c-text3);font-family:'DM Mono',monospace;font-size:.75rem;}
+.lb-nav-btn{position:fixed;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);background:rgba(0,0,0,.5);color:white;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:1000;}
+.lb-nav-btn:hover{background:rgba(0,0,0,.8);border-color:var(--c-accent);}
+.lb-nav-btn.prev{left:20px;}
+.lb-nav-btn.next{right:20px;}
+.lb-nav-btn:disabled{opacity:.2;cursor:default;}
 .lb-close{position:absolute;top:calc(var(--safe-top)+14px);right:16px;color:white;font-size:1.6rem;cursor:pointer;padding:6px;}
 .toast{position:fixed;bottom:calc(var(--safe-bottom)+70px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--c-surface);color:var(--c-accent);padding:9px 20px;border-radius:50px;font-size:.78rem;font-weight:500;border:1px solid var(--c-border);opacity:0;transition:all .3s;pointer-events:none;z-index:100;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -478,7 +487,18 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
   </div>
 </div>
 
-<div class="lightbox" id="lightbox" onclick="closeLightbox()"><span class="lb-close">✕</span><img id="lb-img" src="" alt=""></div>
+<div class="lightbox" id="lightbox">
+  <span class="lb-close" onclick="closeLightbox()">✕</span>
+  <button class="lb-nav-btn prev" id="lb-prev" onclick="event.stopPropagation();lbNav(-1)">‹</button>
+  <div class="lb-stage" id="lb-stage" onclick="event.stopPropagation()">
+    <div class="lb-counter" id="lb-counter"></div>
+    <img id="lb-img" src="" alt="" style="display:none">
+    <canvas id="lb-canvas" style="display:none"></canvas>
+    <div class="lb-label" id="lb-label"></div>
+  </div>
+  <button class="lb-nav-btn next" id="lb-next" onclick="event.stopPropagation();lbNav(1)">›</button>
+  <div style="position:fixed;inset:0;z-index:-1" onclick="closeLightbox()"></div>
+</div>
 <div class="toast" id="toast"></div>
 
 <div class="picker-overlay" id="picker-overlay" onclick="if(event.target===this)closePicker()">
@@ -535,6 +555,13 @@ window.currentScreen='screen-looks';
 const outfitSlideIdx={};
 const scarfSlideIdx={};
 const joiaSlideIdx={};
+// registry of gallery slide sets for lightbox, by key "num:type:idx" → slides array cached at build time
+const LB_GALLERIES={};
+window.openLbFor=function(key,startIdx){
+  const slides=LB_GALLERIES[key];
+  if(!slides||!slides.length){return;}
+  window.openLbGallery(slides,startIdx||0);
+};
 
 // ── HELPERS ──
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -740,26 +767,28 @@ function buildCard(look){
   const locOpts=["Portugal – Estúdio","Portugal – Exterior","Cabo Verde – Exterior"].map(l=>`<option${l===look.location?' selected':''}>${l}</option>`).join('');
 
   // outfit cell html
+  LB_GALLERIES['outfit:'+look.num]=slides;
   let outfitCellHtml='';
   if(slides.length===0){
     outfitCellHtml=`<div class="photo-cell-ph"><span class="icon">👗</span><span>Roupa</span></div>`;
   } else if(slides.length===1){
-    outfitCellHtml=`<img src="${slides[0].photo}" onclick="openLb('${slides[0].photo}')"><div class="photo-cell-lbl">${esc(slides[0].label)}</div>`;
+    outfitCellHtml=`<img src="${slides[0].photo}" onclick="openLbFor('outfit:${look.num}',0)"><div class="photo-cell-lbl">${esc(slides[0].label)}</div>`;
   } else {
-    const sHTML=slides.map((s,si)=>`<div class="outfit-mini-slide${s.contain?' contain':''}"><img src="${s.photo}" onclick="openLb('${s.photo}')"><div class="photo-cell-lbl">${esc(s.label)}</div></div>`).join('');
+    const sHTML=slides.map((s,si)=>`<div class="outfit-mini-slide${s.contain?' contain':''}"><img src="${s.photo}" onclick="openLbFor('outfit:${look.num}',${si})"><div class="photo-cell-lbl">${esc(s.label)}</div></div>`).join('');
     const dots=slides.map((_,si)=>`<div class="outfit-mini-dot${si===curSlide?' on':''}"></div>`).join('');
     outfitCellHtml=`<div class="outfit-mini"><div class="outfit-mini-track no-anim" id="omt-${look.num}" style="transform:translateX(-${curSlide*100}%)">${sHTML}</div><button class="outfit-mini-btn prev" onclick="slideOutfit(${look.num},-1,${slides.length})">‹</button><button class="outfit-mini-btn next" onclick="slideOutfit(${look.num},1,${slides.length})">›</button><div class="outfit-mini-dots" id="omDots-${look.num}">${dots}</div></div>`;
   }
 
   function photoCell(photo,label,contain){if(!photo)return`<div class="photo-cell${contain?' contain':''}"><div class="photo-cell-ph"><span class="icon">${label==='Lenço'?'🧣':label==='Tutorial'?'📋':'📸'}</span><span>${label}</span></div></div>`;return`<div class="photo-cell${contain?' contain':''}" onclick="openLb('${photo}')"><img src="${photo}" alt="${label}"><div class="photo-cell-lbl">${label}</div></div>`;}
 
-  // multi-photo cell with mini carousel (for scarves and joias)
-  function multiCell(slidesArr,label,icon,contain,cur,slideFnName){
+  // multi-photo cell with mini carousel (for scarves)
+  function multiCell(slidesArr,label,icon,contain,cur,slideFnName,galleryKey){
+    LB_GALLERIES[galleryKey]=slidesArr;
     if(slidesArr.length===0)return `<div class="photo-cell${contain?' contain':''}"><div class="photo-cell-ph"><span class="icon">${icon}</span><span>${label}</span></div></div>`;
-    if(slidesArr.length===1){return `<div class="photo-cell${contain?' contain':''}" onclick="openLb('${slidesArr[0].photo}')"><img src="${slidesArr[0].photo}" alt="${label}"><div class="photo-cell-lbl">${esc(slidesArr[0].label||label)}</div></div>`;}
+    if(slidesArr.length===1){return `<div class="photo-cell${contain?' contain':''}" onclick="openLbFor('${galleryKey}',0)"><img src="${slidesArr[0].photo}" alt="${label}"><div class="photo-cell-lbl">${esc(slidesArr[0].label||label)}</div></div>`;}
     const idStem=slideFnName==='slideScarf'?'scm-':'sjm-';
     const dotsId=slideFnName==='slideScarf'?'scDots-':'sjDots-';
-    const sHTML=slidesArr.map(s=>`<div class="outfit-mini-slide${contain?' contain':''}"><img src="${s.photo}" onclick="openLb('${s.photo}')"><div class="photo-cell-lbl">${esc(s.label||label)}</div></div>`).join('');
+    const sHTML=slidesArr.map((s,si)=>`<div class="outfit-mini-slide${contain?' contain':''}"><img src="${s.photo}" onclick="openLbFor('${galleryKey}',${si})"><div class="photo-cell-lbl">${esc(s.label||label)}</div></div>`).join('');
     const dots=slidesArr.map((_,si)=>`<div class="outfit-mini-dot${si===cur?' on':''}"></div>`).join('');
     return `<div class="photo-cell${contain?' contain':''}"><div class="outfit-mini"><div class="outfit-mini-track no-anim" id="${idStem}${look.num}" style="transform:translateX(-${cur*100}%)">${sHTML}</div><button class="outfit-mini-btn prev" onclick="${slideFnName}(${look.num},-1,${slidesArr.length})">‹</button><button class="outfit-mini-btn next" onclick="${slideFnName}(${look.num},1,${slidesArr.length})">›</button><div class="outfit-mini-dots" id="${dotsId}${look.num}">${dots}</div></div></div>`;
   }
@@ -776,7 +805,7 @@ function buildCard(look){
     </div>
     <div class="card-photo-grid">
       <div class="photo-cell">${outfitCellHtml}</div>
-      ${multiCell(scarfSlides,'Lenço','🧣',false,curScarfSlide,'slideScarf')}
+      ${multiCell(scarfSlides,'Lenço','🧣',false,curScarfSlide,'slideScarf','scarf:'+look.num)}
       ${photoCell(tPhoto,tName,true)}
       ${photoCell(shootingPhoto,'Look final',false)}
     </div>
@@ -1065,8 +1094,129 @@ window.remMemberPhoto=function(id){const m=state.team.find(t=>t.id===id);if(!m)r
 window.addMember=function(){state.team.push({id:Date.now(),name:'',role:'',location:'',phone:'',email:'',notes:'',photo:'',viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true});scheduleSave();renderTeam();};
 window.removeMember=function(id){if(!confirm('Remover?'))return;state.team=state.team.filter(m=>m.id!==id);scheduleSave();renderTeam();};
 
-window.openLb=function(src){if(!src)return;document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('show');};
+// ── LIGHTBOX ──
+let lbState={slides:[],idx:0};
+
+function lbShowSingle(src){
+  const img=document.getElementById('lb-img');
+  const canvas=document.getElementById('lb-canvas');
+  canvas.style.display='none';
+  img.style.display='block';
+  img.src=src;
+}
+
+function lbRenderCombined(slides){
+  const img=document.getElementById('lb-img');
+  const canvas=document.getElementById('lb-canvas');
+  img.style.display='none';
+  canvas.style.display='block';
+  const n=slides.length;
+  const cols=2;
+  const rows=Math.ceil(n/cols);
+  const cellW=500,cellH=500,lblH=60,gap=10,pad=20;
+  const W=cols*cellW+(cols-1)*gap+pad*2;
+  const H=rows*(cellH+lblH)+(rows-1)*gap+pad*2;
+  canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#12122A';ctx.fillRect(0,0,W,H);
+  let loaded=0;
+  slides.forEach((s,i)=>{
+    const col=i%cols,row=Math.floor(i/cols);
+    const x=pad+col*(cellW+gap);
+    const y=pad+row*(cellH+lblH+gap);
+    // bg for cell
+    ctx.fillStyle='#252545';ctx.fillRect(x,y,cellW,cellH);
+    const im=new Image();
+    im.crossOrigin='anonymous';
+    im.onload=()=>{
+      // fit image inside cell preserving aspect (contain)
+      const ir=im.width/im.height;
+      const cr=cellW/cellH;
+      let dw,dh,dx,dy;
+      if(ir>cr){dw=cellW;dh=cellW/ir;dx=x;dy=y+(cellH-dh)/2;}
+      else{dh=cellH;dw=cellH*ir;dx=x+(cellW-dw)/2;dy=y;}
+      ctx.drawImage(im,dx,dy,dw,dh);
+      // label below
+      ctx.fillStyle='#FFFFFF';
+      ctx.font='600 22px Jost, sans-serif';
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      const lbl=s.label||'';
+      const maxW=cellW-20;
+      let display=lbl;
+      if(ctx.measureText(lbl).width>maxW){
+        while(display.length>3&&ctx.measureText(display+'…').width>maxW)display=display.slice(0,-1);
+        display+='…';
+      }
+      ctx.fillText(display,x+cellW/2,y+cellH+lblH/2);
+      loaded++;
+    };
+    im.onerror=()=>{loaded++;};
+    im.src=s.photo;
+  });
+}
+
+function lbUpdate(){
+  const total=lbState.slides.length;
+  const showCombined=total>1&&lbState.idx===total; // extra "combined" slide at end
+  const effectiveTotal=total>1?total+1:total;
+  document.getElementById('lb-counter').textContent=total>1?`${lbState.idx+1} / ${effectiveTotal}`:'';
+  document.getElementById('lb-prev').disabled=lbState.idx===0;
+  document.getElementById('lb-next').disabled=lbState.idx>=effectiveTotal-1;
+  const lblEl=document.getElementById('lb-label');
+  if(showCombined){
+    lbRenderCombined(lbState.slides);
+    lblEl.textContent='Todos os itens';
+  } else {
+    const s=lbState.slides[lbState.idx];
+    lbShowSingle(s.photo);
+    lblEl.textContent=s.label||'';
+  }
+  // hide arrows when only one slide
+  document.getElementById('lb-prev').style.display=total>1?'flex':'none';
+  document.getElementById('lb-next').style.display=total>1?'flex':'none';
+}
+
+window.openLb=function(src,label){
+  if(!src)return;
+  lbState={slides:[{photo:src,label:label||''}],idx:0};
+  lbUpdate();
+  document.getElementById('lightbox').classList.add('show');
+};
+
+window.openLbGallery=function(slides,startIdx){
+  if(!slides||!slides.length)return;
+  lbState={slides:slides.slice(),idx:Math.max(0,Math.min(startIdx||0,slides.length-1))};
+  lbUpdate();
+  document.getElementById('lightbox').classList.add('show');
+};
+
+window.lbNav=function(dir){
+  const total=lbState.slides.length;
+  const max=total>1?total:total-1; // +1 for combined if multi
+  const next=lbState.idx+dir;
+  if(next<0||next>max)return;
+  lbState.idx=next;
+  lbUpdate();
+};
+
 window.closeLightbox=function(){document.getElementById('lightbox').classList.remove('show');};
+
+// keyboard nav for lightbox
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('lightbox').classList.contains('show'))return;
+  if(e.key==='ArrowRight')window.lbNav(1);
+  else if(e.key==='ArrowLeft')window.lbNav(-1);
+  else if(e.key==='Escape')window.closeLightbox();
+});
+// swipe nav for lightbox
+(function(){
+  const stage=document.getElementById('lb-stage');if(!stage)return;
+  let sx=0,sy=0,moved=false;
+  stage.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;moved=false;},{passive:true});
+  stage.addEventListener('touchmove',e=>{const dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>10)moved=true;},{passive:true});
+  stage.addEventListener('touchend',e=>{if(!moved)return;const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)<40)return;window.lbNav(dx<0?1:-1);});
+})();
 
 // ── VISUAL PICKER ──
 const PICKER_CONFIG={
