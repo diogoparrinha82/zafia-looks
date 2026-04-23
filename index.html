@@ -176,11 +176,11 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .a4-status-pill{display:inline-block;margin-top:.5mm;padding:.8mm 2.5mm;border-radius:2mm;font-size:2mm;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
 
 /* Central items block — all items together, flex wrap, natural aspect ratios */
-.a4-items-block{flex:1;display:flex;flex-wrap:wrap;justify-content:center;align-content:center;gap:5mm;padding:4mm 0;min-height:0;overflow:hidden;}
-.a4-item{display:flex;flex-direction:column;align-items:center;gap:1.5mm;width:44mm;}
-.a4-item-photo{width:44mm;height:58mm;background:#f5f5f5;border-radius:2mm;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid #e5e5e5;}
+.a4-items-block{flex:1;display:flex;flex-wrap:wrap;justify-content:center;align-content:center;gap:3mm;padding:2mm 0;min-height:0;overflow:hidden;}
+.a4-item{display:flex;flex-direction:column;align-items:center;gap:.8mm;width:28mm;}
+.a4-item-photo{width:28mm;height:36mm;background:#f5f5f5;border-radius:1.5mm;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid #e5e5e5;}
 .a4-item-photo img{max-width:100%;max-height:100%;width:auto;height:auto;display:block;object-fit:contain;}
-.a4-item-name{font-size:2.4mm;color:#333;text-align:center;line-height:1.2;font-weight:500;width:44mm;word-wrap:break-word;}
+.a4-item-name{font-size:1.8mm;color:#333;text-align:center;line-height:1.15;font-weight:500;width:28mm;word-wrap:break-word;}
 .a4-notes{font-size:2.2mm;color:#444;font-style:italic;padding:1.5mm 2.5mm;background:#fafafa;border-left:2px solid #ddd;border-radius:1mm;margin-top:2mm;}
 .a4-footer{margin-top:auto;padding-top:2mm;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:1.9mm;color:#999;}
 
@@ -1107,20 +1107,22 @@ window.downloadPdf=async function(){
   if(!fl.length){alert('Não há looks para exportar.');return;}
   const {jsPDF}=window.jspdf;
   showToast('⏳ A gerar PDF…');
-  // create a hidden container with all sheets at real A4 size (210x297mm)
+  // create a hidden container with all sheets at real A4 size (fixed 210mm, overriding max-width:100%)
   const area=document.getElementById('sheets-print-area');
-  area.style.cssText='position:fixed;left:-10000px;top:0;display:block;background:#fff;z-index:-1;';
-  area.innerHTML=`<div class="sheets-container" style="padding:0;gap:0;background:#fff">${fl.map(buildA4Sheet).join('')}</div>`;
+  area.style.cssText='position:fixed;left:-10000px;top:0;display:block;background:#fff;z-index:-1;width:210mm;';
+  area.innerHTML=`<div class="sheets-container" style="padding:0;gap:0;background:#fff;width:210mm">${fl.map(buildA4Sheet).join('')}</div>`;
+  // force sheets to exact A4 dimensions (override max-width:100%)
+  area.querySelectorAll('.a4-sheet').forEach(s=>{s.style.width='210mm';s.style.maxWidth='210mm';s.style.height='297mm';s.style.aspectRatio='auto';});
   // wait for images to load
   const imgs=area.querySelectorAll('img');
   await Promise.all([...imgs].map(img=>img.complete?Promise.resolve():new Promise(res=>{img.onload=img.onerror=res;})));
-  await new Promise(r=>setTimeout(r,100));
+  await new Promise(r=>setTimeout(r,200));
   const sheets=area.querySelectorAll('.a4-sheet');
   const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   for(let i=0;i<sheets.length;i++){
     const sheet=sheets[i];
     try{
-      const canvas=await html2canvas(sheet,{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false,width:sheet.offsetWidth,height:sheet.offsetHeight});
+      const canvas=await html2canvas(sheet,{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false,width:sheet.offsetWidth,height:sheet.offsetHeight,windowWidth:sheet.offsetWidth,windowHeight:sheet.offsetHeight});
       const imgData=canvas.toDataURL('image/jpeg',0.92);
       if(i>0)pdf.addPage();
       pdf.addImage(imgData,'JPEG',0,0,210,297);
