@@ -374,6 +374,8 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .loading-txt{font-size:.78rem;color:var(--c-text3);}
 @keyframes spin{to{transform:rotate(360deg);}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -429,7 +431,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
       <option value="location">Local</option>
       <option value="done">Por fazer primeiro</option>
     </select>
-    <button id="gv-print" class="mini-btn" style="flex:0 0 auto;padding:6px 10px" onclick="printSheets()" title="Imprimir">🖨</button>
+    <button id="gv-print" class="mini-btn" style="flex:0 0 auto;padding:6px 12px" onclick="downloadPdf()" title="Download PDF">PDF</button>
   </div>
   <div class="scroll-area" id="gallery-scroll"></div>
 </div>
@@ -1099,20 +1101,36 @@ function buildA4Sheet(look){
   </div>`;
 }
 
-window.printSheets=function(){renderSheetsForPrint();setTimeout(()=>{window.print();},100);};
-
-// ── A4 PRINT HELPERS ──
-function renderSheetsForPrint(){
+window.downloadPdf=async function(){
+  if(!window.jspdf||!window.html2canvas){alert('Aguarda um momento, a carregar…');return;}
   const fl=getSortedLooks();
+  if(!fl.length){alert('Não há looks para exportar.');return;}
+  const {jsPDF}=window.jspdf;
+  showToast('⏳ A gerar PDF…');
+  // create a hidden container with all sheets at real A4 size (210x297mm)
   const area=document.getElementById('sheets-print-area');
-  if(!area)return;
-  area.style.display='block';
-  area.innerHTML=`<div class="sheets-container">${fl.map(buildA4Sheet).join('')}</div>`;
-  // hide again after print completes
-  const cleanup=()=>{area.style.display='none';area.innerHTML='';window.removeEventListener('afterprint',cleanup);};
-  window.addEventListener('afterprint',cleanup);
-}
-window.printAllSheets=function(){renderSheetsForPrint();setTimeout(()=>window.print(),100);};
+  area.style.cssText='position:fixed;left:-10000px;top:0;display:block;background:#fff;z-index:-1;';
+  area.innerHTML=`<div class="sheets-container" style="padding:0;gap:0;background:#fff">${fl.map(buildA4Sheet).join('')}</div>`;
+  // wait for images to load
+  const imgs=area.querySelectorAll('img');
+  await Promise.all([...imgs].map(img=>img.complete?Promise.resolve():new Promise(res=>{img.onload=img.onerror=res;})));
+  await new Promise(r=>setTimeout(r,100));
+  const sheets=area.querySelectorAll('.a4-sheet');
+  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  for(let i=0;i<sheets.length;i++){
+    const sheet=sheets[i];
+    try{
+      const canvas=await html2canvas(sheet,{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false,width:sheet.offsetWidth,height:sheet.offsetHeight});
+      const imgData=canvas.toDataURL('image/jpeg',0.92);
+      if(i>0)pdf.addPage();
+      pdf.addImage(imgData,'JPEG',0,0,210,297);
+    }catch(e){console.error('PDF page '+i+':',e);}
+  }
+  area.style.display='none';
+  area.innerHTML='';
+  pdf.save(`art-of-scarves-looks-${Date.now()}.pdf`);
+  showToast('✓ PDF gerado');
+};
 
 // ── SHEETS OVERLAY ──
 let sheetState={looks:[],idx:0};
