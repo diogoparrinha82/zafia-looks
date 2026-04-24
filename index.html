@@ -659,32 +659,73 @@ function scheduleSave(){clearTimeout(saveTimer);setSyncStatus('syncing');saveTim
 async function doSave(){
   try{
     const base=n=>doc(db,'shared','data','docs',n);
+    // split array items into chunks that fit Firestore's 1MB/doc limit
+    // we aim for ~700KB per chunk to leave headroom; fallback to smaller if huge photos
+    async function saveChunked(prefix,items){
+      // serialize items individually, pack until chunk exceeds threshold
+      const MAX_CHUNK_BYTES=700*1024;
+      const chunks=[];
+      let current=[],curSize=0;
+      for(const item of items){
+        const sz=JSON.stringify(item).length;
+        if(curSize+sz>MAX_CHUNK_BYTES&&current.length){chunks.push(current);current=[];curSize=0;}
+        current.push(item);curSize+=sz;
+      }
+      if(current.length)chunks.push(current);
+      // write chunks as prefix_chunk_0, prefix_chunk_1, ...
+      const writes=chunks.map((ch,i)=>setDoc(base(`${prefix}_chunk_${i}`),{items:ch}));
+      // meta doc records chunk count so loader knows how many to fetch
+      writes.push(setDoc(base(prefix),{chunked:true,chunks:chunks.length,ts:Date.now()}));
+      // clean up old stale chunks (best-effort: overwrite beyond current count with empty)
+      for(let i=chunks.length;i<20;i++){writes.push(setDoc(base(`${prefix}_chunk_${i}`),{items:[],_stale:true}));}
+      await Promise.all(writes);
+    }
     await Promise.all([
       setDoc(base('config'),{locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme,ts:Date.now()}),
-      setDoc(base('outfits'),{items:state.config.outfits}),
-      setDoc(base('joias'),{items:state.config.joias||[]}),
-      setDoc(base('sapatos'),{items:state.config.sapatos||[]}),
-      setDoc(base('scarves'),{items:state.config.scarves}),
-      setDoc(base('models'),{items:state.config.models}),
-      setDoc(base('looks'),{items:state.looks}),
+      saveChunked('outfits',state.config.outfits),
+      saveChunked('joias',state.config.joias||[]),
+      saveChunked('sapatos',state.config.sapatos||[]),
+      saveChunked('scarves',state.config.scarves),
+      saveChunked('models',state.config.models),
+      saveChunked('looks',state.looks),
       setDoc(base('team'),{items:state.team,ui:state.ui})
     ]);
     saveCache(state);setSyncStatus('ok');
   }catch(e){console.error(e);setSyncStatus('offline');showToast('⚠️ Erro ao guardar');}
 }
+async function loadChunked(base,prefix){
+  const metaSnap=await getDoc(base(prefix));
+  if(!metaSnap.exists())return null;
+  const meta=metaSnap.data();
+  // backward compat: old format stored items directly in prefix doc
+  if(!meta.chunked)return meta.items||[];
+  const chunkSnaps=await Promise.all(Array.from({length:meta.chunks},(_,i)=>getDoc(base(`${prefix}_chunk_${i}`))));
+  const all=[];
+  chunkSnaps.forEach(s=>{if(s.exists()){const d=s.data();if(!d._stale&&Array.isArray(d.items))all.push(...d.items);}});
+  return all;
+}
 async function loadFromFirestore(){
   try{
     const base=n=>doc(db,'shared','data','docs',n);
-    const [cfgSnap,outSnap,joiSnap,sapSnap,scaSnap,modSnap,looksSnap,teamSnap]=await Promise.all([getDoc(base('config')),getDoc(base('outfits')),getDoc(base('joias')),getDoc(base('sapatos')),getDoc(base('scarves')),getDoc(base('models')),getDoc(base('looks')),getDoc(base('team'))]);
-    if(!cfgSnap.exists()&&!looksSnap.exists()){state.looks=genLooks();state.team=defaultTeam();doSave();}
+    const [cfgSnap,teamSnap,outfits,joias,sapatos,scarves,models,looks]=await Promise.all([
+      getDoc(base('config')),
+      getDoc(base('team')),
+      loadChunked(base,'outfits'),
+      loadChunked(base,'joias'),
+      loadChunked(base,'sapatos'),
+      loadChunked(base,'scarves'),
+      loadChunked(base,'models'),
+      loadChunked(base,'looks')
+    ]);
+    if(!cfgSnap.exists()&&looks===null){state.looks=genLooks();state.team=defaultTeam();doSave();}
     else{
       if(cfgSnap.exists()){const c=cfgSnap.data();state.config.locs=c.locs||state.config.locs;state.config.cats=catsFromFS(c.cats)||state.config.cats;state.config.theme=c.theme||state.config.theme;}
-      if(outSnap.exists())state.config.outfits=normaliseOutfits(outSnap.data().items);
-      if(joiSnap.exists())state.config.joias=normaliseSimple(joiSnap.data().items,DEFAULT_JOIAS);
-      if(sapSnap.exists())state.config.sapatos=normaliseSimple(sapSnap.data().items,DEFAULT_SAPATOS);
-      if(scaSnap.exists())state.config.scarves=scaSnap.data().items||state.config.scarves;
-      if(modSnap.exists())state.config.models=modSnap.data().items||state.config.models;
-      if(looksSnap.exists())state.looks=migrateLooks(looksSnap.data().items||[]);
+      if(outfits!==null)state.config.outfits=normaliseOutfits(outfits);
+      if(joias!==null)state.config.joias=normaliseSimple(joias,DEFAULT_JOIAS);
+      if(sapatos!==null)state.config.sapatos=normaliseSimple(sapatos,DEFAULT_SAPATOS);
+      if(scarves!==null)state.config.scarves=scarves;
+      if(models!==null)state.config.models=models;
+      if(looks!==null)state.looks=migrateLooks(looks);
       if(teamSnap.exists()){state.team=teamSnap.data().items||[];if(teamSnap.data().ui){const {currentIdx,filter,...restUi}=teamSnap.data().ui;state.ui={...state.ui,...restUi};}}
     }
     applyTheme();renderFilters();buildCarousel();updateCounter();setSyncStatus('ok');saveCache(state);
@@ -1265,8 +1306,8 @@ function renderOutfitInputs(){
 }
 
 window.toggleOutfitCard=function(oi){document.getElementById('ocard-'+oi).classList.toggle('open');};
-window.handleOutfitMainPhoto=async function(oi,input){if(!input.files[0])return;const c=await compressImage(input.files[0],500,0.65);state.config.outfits[oi].photo=c;scheduleSave();renderOutfitInputs();buildCarousel();};
-window.handleOutfitPiecePhoto=async function(oi,pi,input){if(!input.files[0])return;const c=await compressImage(input.files[0],500,0.65);state.config.outfits[oi].pieces[pi].photo=c;scheduleSave();renderOutfitInputs();buildCarousel();};
+window.handleOutfitMainPhoto=async function(oi,input){if(!input.files[0])return;const c=await compressImage(input.files[0],400,0.6);state.config.outfits[oi].photo=c;scheduleSave();renderOutfitInputs();buildCarousel();};
+window.handleOutfitPiecePhoto=async function(oi,pi,input){if(!input.files[0])return;const c=await compressImage(input.files[0],400,0.6);state.config.outfits[oi].pieces[pi].photo=c;scheduleSave();renderOutfitInputs();buildCarousel();};
 window.addOutfitPiece=function(oi){if(!state.config.outfits[oi].pieces)state.config.outfits[oi].pieces=[];if(state.config.outfits[oi].pieces.length>=3)return;state.config.outfits[oi].pieces.push({name:'',photo:''});renderOutfitInputs();document.getElementById('ocard-'+oi).classList.add('open');};
 window.removeOutfitPiece=function(oi,pi){state.config.outfits[oi].pieces.splice(pi,1);scheduleSave();renderOutfitInputs();buildCarousel();};
 window.addOutfit=function(){state.config.outfits.push({name:'Nova Roupa',photo:'',pieces:[]});renderConfig();};
