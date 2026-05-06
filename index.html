@@ -487,15 +487,13 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
           <div class="cfg-field"><label class="cfg-lbl">CV Ext.</label><input class="cfg-inp num" type="number" min="0" id="loc-cv" value="40" oninput="state.config.locs.cv=parseInt(this.value)||0;updateLocHint();scheduleSave()"></div>
         </div>
         <div class="cfg-hint" id="loc-hint">Total: <strong>100</strong> / 100</div>
-        <button class="mini-btn accent" style="width:100%;margin-top:10px" onclick="regenerateFromLocs()">▶ Aplicar e Gerar Looks</button>
-        <p style="text-align:center;font-size:.65rem;color:var(--c-text3);margin-top:6px">Regenera a sequência com a nova distribuição de locais</p>
       </div>
     </div>
     <div class="cfg-section" id="cs-cats">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-cats')"><div><div class="cfg-section-title">Categorias & Tutoriais</div></div><span class="cfg-chevron">▾</span></div>
       <div class="cfg-section-body" style="padding:14px 16px;"><div id="cat-inputs"></div><div class="cfg-hint" id="cat-hint">Total: <strong>0</strong> / 100</div>
         <button class="mini-btn accent" style="width:100%;margin-top:10px" onclick="regenerateFromCats()">▶ Aplicar e Gerar Looks</button>
-        <p style="text-align:center;font-size:.65rem;color:var(--c-text3);margin-top:6px">Regenera a sequência com a nova distribuição de categorias</p>
+        <p style="text-align:center;font-size:.65rem;color:var(--c-text3);margin-top:6px">Cria uma nova lista de looks vazios para preencher</p>
       </div>
     </div>
 
@@ -1390,7 +1388,6 @@ window.handleTutorialPhoto=async function(ci,ti,input){if(!input.files[0])return
 window.updateLocHint=function(){const s=parseInt(document.getElementById('loc-studio').value)||0;const p=parseInt(document.getElementById('loc-pt').value)||0;const c=parseInt(document.getElementById('loc-cv').value)||0;const h=document.getElementById('loc-hint');h.innerHTML=`Total: <strong>${s+p+c}</strong> / 100`;h.className='cfg-hint'+((s+p+c)!==100?' err':'');};
 window.updateCatHint=function(){const t=state.config.cats.reduce((s,[,n])=>s+n,0);const h=document.getElementById('cat-hint');h.innerHTML=`Total: <strong>${t}</strong> / 100`;h.className='cfg-hint'+(t!==100?' err':'');};
 window.regenerateFromCats=function(){const ct=state.config.cats.reduce((s,[,n])=>s+n,0);if(ct!==100){alert(`Total de categorias: ${ct}. Deve ser 100 para gerar os looks.`);return;}if(state.looks&&state.looks.length&&!confirm('Vai gerar uma nova lista de looks vazia. As atribuições actuais (roupa, modelo, local, lenço, jóias, sapatos, fotos de shooting) serão perdidas. Continuar?'))return;state.looks=genLooksEmpty();state.ui.currentIdx=0;state.ui.filter='';scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');};
-window.regenerateFromLocs=function(){const lt=state.config.locs.studio+state.config.locs.pt+state.config.locs.cv;if(lt!==100){alert(`Total de locais: ${lt}. Deve ser 100 para gerar os looks.`);return;}if(state.looks&&state.looks.length&&!confirm('Vai gerar uma nova lista de looks vazia. As atribuições actuais (roupa, modelo, local, lenço, jóias, sapatos, fotos de shooting) serão perdidas. Continuar?'))return;state.looks=genLooksEmpty();state.ui.currentIdx=0;state.ui.filter='';scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');};
 
 // ── EQUIPA ──
 function renderTeam(){renderGrandTotal();document.getElementById('team-cards').innerHTML=state.team.map(m=>renderMemberCard(m)).join('');}
