@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -431,9 +430,9 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 
 <div class="screen hidden" id="screen-gallery">
   <div class="nav-bar">
-    <button class="nav-btn" onclick="switchTab('looks')">← Voltar</button>
+    <button class="menu-btn" onclick="openDrawer()" aria-label="Menu"><span></span><span></span><span></span></button>
     <div><div class="nav-title">Galeria</div><div class="nav-sub" id="gallery-sub"></div></div>
-    <div style="width:60px"></div>
+    <div style="width:36px"></div>
   </div>
   <div class="filter-strip" id="gallery-filter-strip"></div>
   <div class="gallery-toolbar">
@@ -455,7 +454,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 
 <div class="screen hidden" id="screen-config">
   <div class="nav-bar">
-    <div style="width:60px"></div>
+    <button class="menu-btn" onclick="openDrawer()" aria-label="Menu"><span></span><span></span><span></span></button>
     <div><div class="nav-title">Configuração</div></div>
     <button class="nav-btn" onclick="doLogout()" style="color:#C72A1C;">Sair</button>
   </div>
@@ -476,9 +475,9 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
       <div class="cfg-section-hdr" onclick="toggleCS('cs-locs')"><div><div class="cfg-section-title">Locais</div></div><span class="cfg-chevron">▾</span></div>
       <div class="cfg-section-body" style="padding:14px 16px;">
         <div class="cfg-grid-3">
-          <div class="cfg-field"><label class="cfg-lbl">Estúdio</label><input class="cfg-inp num" type="number" min="0" id="loc-studio" value="30" oninput="updateLocHint()"></div>
-          <div class="cfg-field"><label class="cfg-lbl">PT Ext.</label><input class="cfg-inp num" type="number" min="0" id="loc-pt" value="30" oninput="updateLocHint()"></div>
-          <div class="cfg-field"><label class="cfg-lbl">CV Ext.</label><input class="cfg-inp num" type="number" min="0" id="loc-cv" value="40" oninput="updateLocHint()"></div>
+          <div class="cfg-field"><label class="cfg-lbl">Estúdio</label><input class="cfg-inp num" type="number" min="0" id="loc-studio" value="30" oninput="state.config.locs.studio=parseInt(this.value)||0;updateLocHint();scheduleSave()"></div>
+          <div class="cfg-field"><label class="cfg-lbl">PT Ext.</label><input class="cfg-inp num" type="number" min="0" id="loc-pt" value="30" oninput="state.config.locs.pt=parseInt(this.value)||0;updateLocHint();scheduleSave()"></div>
+          <div class="cfg-field"><label class="cfg-lbl">CV Ext.</label><input class="cfg-inp num" type="number" min="0" id="loc-cv" value="40" oninput="state.config.locs.cv=parseInt(this.value)||0;updateLocHint();scheduleSave()"></div>
         </div>
         <div class="cfg-hint" id="loc-hint">Total: <strong>100</strong> / 100</div>
       </div>
@@ -532,13 +531,12 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
       <div class="cfg-section-hdr" onclick="toggleCS('cs-models')"><div><div class="cfg-section-title">Modelos</div></div><span class="cfg-chevron">▾</span></div>
       <div class="cfg-section-body" style="padding:14px 16px;"><div id="model-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addItem('models','model-inputs')">+ Adicionar</button><button class="mini-btn danger" onclick="removeItem('models','model-inputs')">− Remover</button></div></div>
     </div>
-    <button class="apply-btn" onclick="applyConfig()">▶ Aplicar e Gerar Looks</button>
-    <p style="text-align:center;font-size:.68rem;color:var(--c-text3);padding:0 16px 20px">Mantém fotos e nomes, regenera a sequência</p>
+    <div style="height:20px"></div>
   </div>
 </div>
 
 <div class="screen hidden" id="screen-equipa">
-  <div class="nav-bar"><div style="width:60px"></div><div><div class="nav-title">Equipa & Custos</div></div><div style="width:60px"></div></div>
+  <div class="nav-bar"><button class="menu-btn" onclick="openDrawer()" aria-label="Menu"><span></span><span></span><span></span></button><div><div class="nav-title">Equipa & Custos</div></div><div style="width:36px"></div></div>
   <div class="grand-total-strip">
     <div><div class="gt-label">Total Produção</div><div class="gt-amount" id="gt-amount">0,00 €</div></div>
     <div class="gt-breakdown" id="gt-breakdown"></div>
@@ -1294,7 +1292,7 @@ function renderConfig(){
   document.getElementById('loc-cv').value=state.config.locs.cv;
   updateLocHint();
   // categories
-  document.getElementById('cat-inputs').innerHTML=state.config.cats.map(([cat,n,tutorials],i)=>{const tuts=tutorials||[];return`<div style="border-bottom:1px solid var(--c-border);padding-bottom:14px;margin-bottom:14px;"><div class="cat-row"><input class="cat-name-inp" type="text" value="${esc(cat)}" placeholder="Nome…" onchange="state.config.cats[${i}][0]=this.value;scheduleSave()"><div class="cat-count-wrap"><input class="cat-count-inp" type="number" min="0" value="${n}" onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint()"><span class="cat-count-lbl">looks</span></div></div><div style="font-size:.62rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Tutoriais</div><div class="pieces-grid">${tuts.map((t,ti)=>`<div class="piece-cell">${t.photo?`<img class="piece-img contain" src="${t.photo}" onclick="openLb('${t.photo}')">`:`<div class="piece-img-ph" onclick="document.getElementById('ft-${i}-${ti}').click()"><span>📋</span><span>Adicionar</span></div>`}<input type="file" accept="image/*" id="ft-${i}-${ti}" style="display:none" onchange="handleTutorialPhoto(${i},${ti},this)"><input class="piece-name-inp" type="text" value="${esc(t.name||'')}" placeholder="Nome…" onchange="state.config.cats[${i}][2][${ti}].name=this.value;scheduleSave()"><div class="piece-actions"><span class="piece-act-btn" onclick="document.getElementById('ft-${i}-${ti}').click()">${t.photo?'🔄':'📋'}</span><span class="piece-act-btn del" onclick="removeTutorial(${i},${ti})">✕</span></div></div>`).join('')}</div><button class="mini-btn" style="width:100%;margin-top:8px;font-size:.75rem" onclick="addTutorial(${i})">+ Adicionar tutorial</button></div>`;}).join('');
+  document.getElementById('cat-inputs').innerHTML=state.config.cats.map(([cat,n,tutorials],i)=>{const tuts=tutorials||[];return`<div style="border-bottom:1px solid var(--c-border);padding-bottom:14px;margin-bottom:14px;"><div class="cat-row"><input class="cat-name-inp" type="text" value="${esc(cat)}" placeholder="Nome…" onchange="state.config.cats[${i}][0]=this.value;scheduleSave()"><div class="cat-count-wrap"><input class="cat-count-inp" type="number" min="0" value="${n}" onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint();scheduleSave()"><span class="cat-count-lbl">looks</span></div></div><div style="font-size:.62rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Tutoriais</div><div class="pieces-grid">${tuts.map((t,ti)=>`<div class="piece-cell">${t.photo?`<img class="piece-img contain" src="${t.photo}" onclick="openLb('${t.photo}')">`:`<div class="piece-img-ph" onclick="document.getElementById('ft-${i}-${ti}').click()"><span>📋</span><span>Adicionar</span></div>`}<input type="file" accept="image/*" id="ft-${i}-${ti}" style="display:none" onchange="handleTutorialPhoto(${i},${ti},this)"><input class="piece-name-inp" type="text" value="${esc(t.name||'')}" placeholder="Nome…" onchange="state.config.cats[${i}][2][${ti}].name=this.value;scheduleSave()"><div class="piece-actions"><span class="piece-act-btn" onclick="document.getElementById('ft-${i}-${ti}').click()">${t.photo?'🔄':'📋'}</span><span class="piece-act-btn del" onclick="removeTutorial(${i},${ti})">✕</span></div></div>`).join('')}</div><button class="mini-btn" style="width:100%;margin-top:8px;font-size:.75rem" onclick="addTutorial(${i})">+ Adicionar tutorial</button></div>`;}).join('');
   updateCatHint();
   renderOutfitInputs();
   renderSimpleItems('joias','joias-inputs','💍');
