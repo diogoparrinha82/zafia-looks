@@ -65,6 +65,13 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 /* Slide-in drawer */
 .drawer-scrim{position:fixed;inset:0;background:rgba(22,24,20,0);z-index:90;pointer-events:none;transition:background .25s ease;}
 .drawer-scrim.open{background:rgba(22,24,20,.32);pointer-events:auto;}
+.pipe-ovl{position:fixed;inset:0;background:rgba(22,24,20,.55);z-index:200;display:none;align-items:stretch;justify-content:stretch;}
+.pipe-ovl.open{display:flex;}
+.pipe-frame-wrap{flex:1;background:var(--c-card);display:flex;flex-direction:column;}
+.pipe-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--c-surface);border-bottom:1px solid var(--c-border);}
+.pipe-hdr-title{font-family:'Inter Tight',sans-serif;font-weight:600;color:var(--c-accent);font-size:.95rem;}
+.pipe-close{background:transparent;border:none;font-size:1.4rem;color:var(--c-text2);cursor:pointer;padding:4px 10px;line-height:1;}
+.pipe-iframe{flex:1;width:100%;border:none;background:var(--c-card);}
 .drawer{position:fixed;top:0;left:0;bottom:0;width:78%;max-width:320px;background:var(--c-bg);z-index:91;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:0 0 0 1px var(--c-border);}
 .drawer.open{transform:translateX(0);}
 .drawer-hdr{padding:calc(var(--safe-top)+18px) 22px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--c-border);}
@@ -480,11 +487,16 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
           <div class="cfg-field"><label class="cfg-lbl">CV Ext.</label><input class="cfg-inp num" type="number" min="0" id="loc-cv" value="40" oninput="state.config.locs.cv=parseInt(this.value)||0;updateLocHint();scheduleSave()"></div>
         </div>
         <div class="cfg-hint" id="loc-hint">Total: <strong>100</strong> / 100</div>
+        <button class="mini-btn accent" style="width:100%;margin-top:10px" onclick="regenerateFromLocs()">▶ Aplicar e Gerar Looks</button>
+        <p style="text-align:center;font-size:.65rem;color:var(--c-text3);margin-top:6px">Regenera a sequência com a nova distribuição de locais</p>
       </div>
     </div>
     <div class="cfg-section" id="cs-cats">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-cats')"><div><div class="cfg-section-title">Categorias & Tutoriais</div></div><span class="cfg-chevron">▾</span></div>
-      <div class="cfg-section-body" style="padding:14px 16px;"><div id="cat-inputs"></div><div class="cfg-hint" id="cat-hint">Total: <strong>0</strong> / 100</div></div>
+      <div class="cfg-section-body" style="padding:14px 16px;"><div id="cat-inputs"></div><div class="cfg-hint" id="cat-hint">Total: <strong>0</strong> / 100</div>
+        <button class="mini-btn accent" style="width:100%;margin-top:10px" onclick="regenerateFromCats()">▶ Aplicar e Gerar Looks</button>
+        <p style="text-align:center;font-size:.65rem;color:var(--c-text3);margin-top:6px">Regenera a sequência com a nova distribuição de categorias</p>
+      </div>
     </div>
 
     <!-- ROUPAS & PEÇAS — with sub-tabs -->
@@ -536,7 +548,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 </div>
 
 <div class="screen hidden" id="screen-equipa">
-  <div class="nav-bar"><button class="menu-btn" onclick="openDrawer()" aria-label="Menu"><span></span><span></span><span></span></button><div><div class="nav-title">Equipa & Custos</div></div><div style="width:36px"></div></div>
+  <div class="nav-bar"><button class="menu-btn" onclick="openDrawer()" aria-label="Menu"><span></span><span></span><span></span></button><div><div class="nav-title">Equipa & Custos</div></div><button class="nav-btn" onclick="openPipeline()" aria-label="Abrir Pipeline" title="Pipeline">⚡</button></div>
   <div class="grand-total-strip">
     <div><div class="gt-label">Total Produção</div><div class="gt-amount" id="gt-amount">0,00 €</div></div>
     <div class="gt-breakdown" id="gt-breakdown"></div>
@@ -799,6 +811,14 @@ function genLooks(){
     while(sel.length<count){const ex=shuf(pairs,r);for(const p of ex){if(sel.length>=count)break;sel.push(p);}}
     byCat.push(sel.slice(0,count).map(([outfit,model])=>({category:cat,outfit:[outfit],scarf:[sp[si++%sp.length]],location:locPool[li++%locPool.length],model,joias:[],sapatos:'',done:false,status:'',shootingPhoto:'',notes:'',tutorialIdx:0})));
   }
+  const flat=[];const ml=Math.max(...byCat.map(c=>c.length));
+  for(let i=0;i<ml;i++)for(const cl of byCat)if(i<cl.length)flat.push(cl[i]);
+  return flat.map((l,i)=>({...l,num:i+1}));
+}
+function genLooksEmpty(){
+  const{cats}=state.config;
+  const total=cats.reduce((s,[,n])=>s+n,0);if(!total)return[];
+  const byCat=cats.map(([cat,count])=>Array.from({length:count},()=>({category:cat,outfit:[],scarf:[],location:'',model:'',joias:[],sapatos:'',done:false,status:'',shootingPhoto:'',notes:'',tutorialIdx:0})));
   const flat=[];const ml=Math.max(...byCat.map(c=>c.length));
   for(let i=0;i<ml;i++)for(const cl of byCat)if(i<cl.length)flat.push(cl[i]);
   return flat.map((l,i)=>({...l,num:i+1}));
@@ -1369,7 +1389,8 @@ window.removeTutorial=function(ci,ti){state.config.cats[ci][2].splice(ti,1);sche
 window.handleTutorialPhoto=async function(ci,ti,input){if(!input.files[0])return;const c=await compressImage(input.files[0],600,0.7);if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2][ti].photo=c;scheduleSave();renderConfig();buildCarousel();};
 window.updateLocHint=function(){const s=parseInt(document.getElementById('loc-studio').value)||0;const p=parseInt(document.getElementById('loc-pt').value)||0;const c=parseInt(document.getElementById('loc-cv').value)||0;const h=document.getElementById('loc-hint');h.innerHTML=`Total: <strong>${s+p+c}</strong> / 100`;h.className='cfg-hint'+((s+p+c)!==100?' err':'');};
 window.updateCatHint=function(){const t=state.config.cats.reduce((s,[,n])=>s+n,0);const h=document.getElementById('cat-hint');h.innerHTML=`Total: <strong>${t}</strong> / 100`;h.className='cfg-hint'+(t!==100?' err':'');};
-window.applyConfig=function(){state.config.locs.studio=parseInt(document.getElementById('loc-studio').value)||0;state.config.locs.pt=parseInt(document.getElementById('loc-pt').value)||0;state.config.locs.cv=parseInt(document.getElementById('loc-cv').value)||0;const ct=state.config.cats.reduce((s,[,n])=>s+n,0);const lt=state.config.locs.studio+state.config.locs.pt+state.config.locs.cv;if(ct!==100){alert(`Total categorias: ${ct}. Deve ser 100.`);return;}if(lt!==100){alert(`Total locais: ${lt}. Deve ser 100.`);return;}state.looks=genLooks();state.ui.currentIdx=0;state.ui.filter='';scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');};
+window.regenerateFromCats=function(){const ct=state.config.cats.reduce((s,[,n])=>s+n,0);if(ct!==100){alert(`Total de categorias: ${ct}. Deve ser 100 para gerar os looks.`);return;}if(state.looks&&state.looks.length&&!confirm('Vai gerar uma nova lista de looks vazia. As atribuições actuais (roupa, modelo, local, lenço, jóias, sapatos, fotos de shooting) serão perdidas. Continuar?'))return;state.looks=genLooksEmpty();state.ui.currentIdx=0;state.ui.filter='';scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');};
+window.regenerateFromLocs=function(){const lt=state.config.locs.studio+state.config.locs.pt+state.config.locs.cv;if(lt!==100){alert(`Total de locais: ${lt}. Deve ser 100 para gerar os looks.`);return;}if(state.looks&&state.looks.length&&!confirm('Vai gerar uma nova lista de looks vazia. As atribuições actuais (roupa, modelo, local, lenço, jóias, sapatos, fotos de shooting) serão perdidas. Continuar?'))return;state.looks=genLooksEmpty();state.ui.currentIdx=0;state.ui.filter='';scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');};
 
 // ── EQUIPA ──
 function renderTeam(){renderGrandTotal();document.getElementById('team-cards').innerHTML=state.team.map(m=>renderMemberCard(m)).join('');}
@@ -1646,6 +1667,21 @@ window.renderColorGrid=renderColorGrid;
 document.getElementById('loading').classList.add('hidden');
 if(localStorage.getItem(SESSION_KEY)==='1') initApp();
 else document.getElementById('screen-login').classList.remove('hidden');
+
+// Pipeline overlay (lazy-loaded iframe)
+window.openPipeline=function(){const o=document.getElementById('pipe-ovl');const f=document.getElementById('pipe-iframe');if(!f.src)f.src='https://diogoparrinha82.github.io/zafia-looks/pipeline.html';o.classList.add('open');document.body.style.overflow='hidden';};
+window.closePipeline=function(){document.getElementById('pipe-ovl').classList.remove('open');document.body.style.overflow='';};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('pipe-ovl').classList.contains('open'))closePipeline();});
 </script>
+
+<div class="pipe-ovl" id="pipe-ovl">
+  <div class="pipe-frame-wrap">
+    <div class="pipe-hdr">
+      <div class="pipe-hdr-title">⚡ Pipeline</div>
+      <button class="pipe-close" onclick="closePipeline()" aria-label="Fechar">✕</button>
+    </div>
+    <iframe class="pipe-iframe" id="pipe-iframe" title="Pipeline"></iframe>
+  </div>
+</div>
 </body>
 </html>
