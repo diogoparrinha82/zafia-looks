@@ -1334,6 +1334,7 @@ function renderOutfitInputs(){
           <div class="outfit-card-name">${esc(outfit.name||'Roupa '+(oi+1))}</div>
           <div style="font-size:.65rem;color:var(--c-text3)">${pieces.length} peça${pieces.length!==1?'s':''} extra</div>
         </div>
+        <span style="font-size:.85rem;color:#C72A1C;cursor:pointer;padding:4px 8px;border:1px solid rgba(199,42,28,.3);border-radius:4px;margin-right:6px" onclick="event.stopPropagation();removeOutfitAt(${oi})" title="Eliminar roupa">🗑</span>
         <span class="outfit-card-chevron">▾</span>
       </div>
       <div class="outfit-card-body">
@@ -1351,15 +1352,17 @@ window.addOutfitPiece=function(oi){if(!state.config.outfits[oi].pieces)state.con
 window.removeOutfitPiece=function(oi,pi){state.config.outfits[oi].pieces.splice(pi,1);scheduleSave();renderOutfitInputs();buildCarousel();};
 window.addOutfit=function(){state.config.outfits.push({name:'Nova Roupa',photo:'',pieces:[]});renderConfig();};
 window.removeOutfit=function(){if(state.config.outfits.length>1){state.config.outfits.pop();renderConfig();}};
+window.removeOutfitAt=function(oi){if(!state.config.outfits||!state.config.outfits[oi])return;if(state.config.outfits.length<=1){alert('Tem de existir pelo menos uma roupa.');return;}const o=state.config.outfits[oi];const label=o.name||`Roupa ${oi+1}`;if(!confirm(`Eliminar "${label}"?`))return;state.config.outfits.splice(oi,1);scheduleSave();renderConfig();buildCarousel();};
 
 // Simple items (joias, sapatos, scarves, models)
 function renderSimpleItems(type,cid,icon){
   const el=document.getElementById(cid);if(!el)return;
-  el.innerHTML=`<div class="photo-grid">${(state.config[type]||[]).map((item,i)=>`<div class="photo-row">${item.photo?`<img class="photo-mini" src="${item.photo}" onclick="openLb('${item.photo}')">`:`<div class="photo-mini-ph" onclick="document.getElementById('f-${type}-${i}').click()">${icon||'📷'}</div>`}<input type="file" accept="image/*" id="f-${type}-${i}" style="display:none" onchange="handleSimplePhoto('${type}','${cid}',${i},this)"><input class="photo-name-inp" type="text" value="${esc(item.name)}" placeholder="Nome…" onchange="state.config['${type}'][${i}].name=this.value;scheduleSave()"><div class="photo-row-actions"><span style="font-size:.7rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px" onclick="document.getElementById('f-${type}-${i}').click()">${item.photo?'🔄':'📷'}</span>${item.photo?`<span style="font-size:.7rem;color:#C72A1C;cursor:pointer;padding:2px 6px;border:1px solid rgba(255,107,107,.3);border-radius:4px" onclick="state.config['${type}'][${i}].photo='';scheduleSave();renderSimpleItems('${type}','${cid}','${icon||''}')">✕</span>`:''}</div></div>`).join('')}</div>`;
+  el.innerHTML=`<div class="photo-grid">${(state.config[type]||[]).map((item,i)=>`<div class="photo-row">${item.photo?`<img class="photo-mini" src="${item.photo}" onclick="openLb('${item.photo}')">`:`<div class="photo-mini-ph" onclick="document.getElementById('f-${type}-${i}').click()">${icon||'📷'}</div>`}<input type="file" accept="image/*" id="f-${type}-${i}" style="display:none" onchange="handleSimplePhoto('${type}','${cid}',${i},this)"><input class="photo-name-inp" type="text" value="${esc(item.name)}" placeholder="Nome…" onchange="state.config['${type}'][${i}].name=this.value;scheduleSave()"><div class="photo-row-actions"><span style="font-size:.7rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px" onclick="document.getElementById('f-${type}-${i}').click()" title="${item.photo?'Trocar foto':'Adicionar foto'}">${item.photo?'🔄':'📷'}</span><span style="font-size:.7rem;color:#C72A1C;cursor:pointer;padding:2px 6px;border:1px solid rgba(199,42,28,.3);border-radius:4px" onclick="removeItemAt('${type}','${cid}',${i},'${icon||''}')" title="Eliminar">🗑</span></div></div>`).join('')}</div>`;
 }
 window.handleSimplePhoto=async function(type,cid,i,input){if(!input.files[0])return;const c=await compressImage(input.files[0],400,0.6);state.config[type][i].photo=c;scheduleSave();renderSimpleItems(type,cid);buildCarousel();};
 window.addItem=function(type,cid){if(!state.config[type])state.config[type]=[];state.config[type].push({name:'',photo:''});renderSimpleItems(type,cid);};
 window.removeItem=function(type,cid){if(state.config[type]&&state.config[type].length>1){state.config[type].pop();renderSimpleItems(type,cid);}};
+window.removeItemAt=function(type,cid,i,icon){if(!state.config[type]||!state.config[type][i])return;const it=state.config[type][i];const label=it.name||'este item';if(!confirm(`Eliminar "${label}"?`))return;state.config[type].splice(i,1);scheduleSave();renderSimpleItems(type,cid,icon);buildCarousel();};
 
 window.addTutorial=function(ci){if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2].push({name:'',photo:''});renderConfig();};
 window.removeTutorial=function(ci,ti){state.config.cats[ci][2].splice(ti,1);scheduleSave();renderConfig();};
