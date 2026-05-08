@@ -72,6 +72,19 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .pipe-hdr-title{font-family:'Inter Tight',sans-serif;font-weight:600;color:var(--c-accent);font-size:.95rem;}
 .pipe-close{background:transparent;border:none;font-size:1.4rem;color:var(--c-text2);cursor:pointer;padding:4px 10px;line-height:1;}
 .pipe-iframe{flex:1;width:100%;border:none;background:var(--c-card);}
+.pin-ovl{position:fixed;inset:0;background:rgba(22,24,20,.55);z-index:210;display:none;align-items:center;justify-content:center;padding:20px;}
+.pin-ovl.open{display:flex;}
+.pin-card{background:var(--c-card);border-radius:14px;width:100%;max-width:320px;padding:24px 22px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.pin-title{font-family:'Inter Tight',sans-serif;font-weight:600;color:var(--c-text);font-size:1.05rem;text-align:center;margin-bottom:6px;}
+.pin-sub{font-size:.78rem;color:var(--c-text3);text-align:center;margin-bottom:18px;}
+.pin-input{width:100%;padding:12px 14px;font-size:1.4rem;font-family:'Inter',sans-serif;letter-spacing:.5em;text-align:center;border:1px solid var(--c-border);border-radius:8px;background:var(--c-surface);color:var(--c-text);box-sizing:border-box;}
+.pin-input:focus{outline:none;border-color:var(--c-accent);}
+.pin-input.err{border-color:#C72A1C;animation:pinShake .3s;}
+@keyframes pinShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.pin-actions{display:flex;gap:8px;margin-top:14px;}
+.pin-btn{flex:1;padding:11px;border-radius:8px;border:1px solid var(--c-border);background:var(--c-surface);color:var(--c-text);font-size:.85rem;cursor:pointer;font-family:'Inter',sans-serif;}
+.pin-btn.primary{background:var(--c-accent);color:#fff;border-color:var(--c-accent);}
+.pin-err{font-size:.72rem;color:#C72A1C;text-align:center;margin-top:10px;min-height:14px;}
 .drawer{position:fixed;top:0;left:0;bottom:0;width:78%;max-width:320px;background:var(--c-bg);z-index:91;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:0 0 0 1px var(--c-border);}
 .drawer.open{transform:translateX(0);}
 .drawer-hdr{padding:calc(var(--safe-top)+18px) 22px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--c-border);}
@@ -824,7 +837,7 @@ function genLooksEmpty(){
 function defaultTeam(){return[{id:1,name:'',role:'Fotógrafo Principal',location:'PT Est+Ext+CV',phone:'',email:'',notes:'',photo:'',viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true}];}
 
 // ── SCREENS ──
-window.switchTab=function(tab){const map={looks:'screen-looks',gallery:'screen-gallery',config:'screen-config',equipa:'screen-equipa'};document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById(map[tab]).classList.remove('hidden');document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('on'));const el=document.getElementById('tab-'+tab);if(el)el.classList.add('on');document.querySelectorAll('.drawer-item').forEach(d=>d.classList.remove('on'));const di=document.getElementById('drw-'+tab);if(di)di.classList.add('on');window.currentScreen=map[tab];if(tab==='gallery')renderGallery();if(tab==='config')renderConfig();if(tab==='equipa')renderTeam();};
+window.switchTab=function(tab){if(tab==='equipa'&&!state.ui.equipaUnlocked){promptPIN(()=>{state.ui.equipaUnlocked=true;switchTab('equipa');});return;}const map={looks:'screen-looks',gallery:'screen-gallery',config:'screen-config',equipa:'screen-equipa'};document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById(map[tab]).classList.remove('hidden');document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('on'));const el=document.getElementById('tab-'+tab);if(el)el.classList.add('on');document.querySelectorAll('.drawer-item').forEach(d=>d.classList.remove('on'));const di=document.getElementById('drw-'+tab);if(di)di.classList.add('on');window.currentScreen=map[tab];if(tab==='gallery')renderGallery();if(tab==='config')renderConfig();if(tab==='equipa')renderTeam();};
 window.toggleCS=function(id){document.getElementById(id).classList.toggle('open');};
 
 // sub-tabs inside Roupas & Peças
@@ -1669,6 +1682,14 @@ else document.getElementById('screen-login').classList.remove('hidden');
 window.openPipeline=function(){const o=document.getElementById('pipe-ovl');const f=document.getElementById('pipe-iframe');if(!f.src)f.src='https://diogoparrinha82.github.io/zafia-looks/pipeline.html';o.classList.add('open');document.body.style.overflow='hidden';};
 window.closePipeline=function(){document.getElementById('pipe-ovl').classList.remove('open');document.body.style.overflow='';};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('pipe-ovl').classList.contains('open'))closePipeline();});
+
+// PIN gate for restricted sections
+const PIN_CODE='1000';
+let pinPending=null;
+window.promptPIN=function(onSuccess){pinPending=onSuccess;const inp=document.getElementById('pin-input');inp.value='';document.getElementById('pin-err').textContent='';inp.classList.remove('err');document.getElementById('pin-ovl').classList.add('open');setTimeout(()=>inp.focus(),50);};
+window.cancelPIN=function(){pinPending=null;document.getElementById('pin-ovl').classList.remove('open');};
+window.submitPIN=function(){const inp=document.getElementById('pin-input');const v=(inp.value||'').trim();if(v===PIN_CODE){const cb=pinPending;pinPending=null;document.getElementById('pin-ovl').classList.remove('open');if(cb)cb();}else{inp.classList.add('err');document.getElementById('pin-err').textContent='PIN incorrecto';setTimeout(()=>inp.classList.remove('err'),400);inp.value='';inp.focus();}};
+document.addEventListener('keydown',e=>{if(!document.getElementById('pin-ovl').classList.contains('open'))return;if(e.key==='Escape')cancelPIN();if(e.key==='Enter')submitPIN();});
 </script>
 
 <div class="pipe-ovl" id="pipe-ovl">
@@ -1678,6 +1699,19 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElement
       <button class="pipe-close" onclick="closePipeline()" aria-label="Fechar">✕</button>
     </div>
     <iframe class="pipe-iframe" id="pipe-iframe" title="Pipeline"></iframe>
+  </div>
+</div>
+
+<div class="pin-ovl" id="pin-ovl">
+  <div class="pin-card">
+    <div class="pin-title">🔒 Acesso Restrito</div>
+    <div class="pin-sub">Introduz o PIN para aceder a Equipa & Custos</div>
+    <input class="pin-input" id="pin-input" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off">
+    <div class="pin-err" id="pin-err"></div>
+    <div class="pin-actions">
+      <button class="pin-btn" onclick="cancelPIN()">Cancelar</button>
+      <button class="pin-btn primary" onclick="submitPIN()">Desbloquear</button>
+    </div>
   </div>
 </div>
 </body>
