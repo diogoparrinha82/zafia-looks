@@ -189,10 +189,21 @@
   .now-line{position:absolute;top:0;bottom:0;width:2px;background:var(--red);pointer-events:none;z-index:5;border-radius:2px}
   .now-line::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--red)}
 
-  .bar{position:absolute;top:50%;transform:translateY(-50%);height:32px;border-radius:8px;display:flex;align-items:center;padding:0 10px;color:#fff;font-size:11px;font-weight:600;cursor:pointer;transition:transform .2s ease, box-shadow .2s ease, height .2s;box-shadow:0 1px 2px rgba(0,0,0,.12);overflow:hidden;white-space:nowrap}
+  .bar{position:absolute;top:50%;transform:translateY(-50%);height:32px;border-radius:8px;display:flex;align-items:center;padding:0 10px;color:#fff;font-size:11px;font-weight:600;cursor:grab;transition:transform .2s ease, box-shadow .2s ease, height .2s;box-shadow:0 1px 2px rgba(0,0,0,.12);overflow:hidden;white-space:nowrap;user-select:none;touch-action:none}
   .bar:hover{transform:translateY(-50%) scale(1.02);box-shadow:0 4px 12px rgba(0,0,0,.18);z-index:4;height:38px}
-  .bar.milestone{width:32px!important;height:32px;border-radius:50%;padding:0;background:#fff!important;color:var(--yellow)!important;border:2.5px solid var(--yellow);display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 0 4px var(--surface),0 2px 8px rgba(251,188,4,.4);font-weight:800}
+  .bar:not(.milestone):hover::before,.bar:not(.milestone):hover::after{content:'';position:absolute;top:50%;transform:translateY(-50%);width:2px;height:14px;background:rgba(255,255,255,.55);border-radius:2px;pointer-events:none}
+  .bar:not(.milestone):hover::before{left:4px}
+  .bar:not(.milestone):hover::after{right:4px}
+  .bar.dragging{cursor:grabbing;opacity:.92;transition:none;z-index:20!important;box-shadow:0 8px 20px rgba(0,0,0,.25);outline:2px solid var(--ink);outline-offset:1px}
+  .bar.dragging:hover{transform:translateY(-50%);height:32px}
+  .bar.dragging:hover::before,.bar.dragging:hover::after{display:none}
+  .bar.milestone{width:32px!important;height:32px;border-radius:50%;padding:0;background:#fff!important;color:var(--yellow)!important;border:2.5px solid var(--yellow);display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 0 4px var(--surface),0 2px 8px rgba(251,188,4,.4);font-weight:800;cursor:grab}
+  .bar.milestone.dragging{cursor:grabbing}
   .bar .dur{margin-left:8px;opacity:.85;font-weight:500}
+
+  .gantt-help{font-size:12px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px;padding:0 4px;flex-wrap:wrap}
+  .gantt-help svg{color:var(--blue);flex-shrink:0;width:14px;height:14px}
+  .gantt-help kbd{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:10px;font-family:'Inter',sans-serif;font-weight:600;color:var(--ink-2)}
 
   /* PHASE CARDS */
   .phases{padding:64px 0 24px}
@@ -436,6 +447,11 @@
       </div>
     </div>
     <div class="filters-row" id="chips"></div>
+
+    <div class="gantt-help">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>Arrasta uma <kbd>barra</kbd> para mover a fase · arrasta os <kbd>extremos</kbd> para ajustar início/fim · as datas actualizam automaticamente</span>
+    </div>
 
     <div class="gantt-wrap">
       <div class="gantt-head">
@@ -899,6 +915,113 @@ function renderChips(){
   wrap.innerHTML = all + cats;
 }
 
+/* DRAG INTERACTION on bars */
+const HANDLE_PX = 8;
+function isoOfDate(d){
+  const tz = d.getTimezoneOffset()*60000;
+  return new Date(d - tz).toISOString().slice(0,10);
+}
+function wireBarInteraction(bar, p, cat){
+  let mode = null;
+  let startX = 0, origStart, origEnd, dayWPx = 32, movedDays = 0;
+
+  function tipHtml(action){
+    const dur = computeDur(p);
+    return `
+      <div class="meta">${action || escapeHtml(cat.label)}</div>
+      <strong>${escapeHtml(p.name)}</strong>
+      ${fmt(p.start)} → ${fmt(p.end)}<br/>
+      ${dur} ${dur===1?'dia':'dias'}${p.note&&!action?` · <em>${escapeHtml(p.note)}</em>`:''}
+    `;
+  }
+
+  function setLivePos(){
+    const startIdx = dayIndex(p.start);
+    const endIdx = dayIndex(p.end);
+    bar.style.left = (startIdx / TOTAL_DAYS * 100) + '%';
+    if (!p.milestone) bar.style.width = ((endIdx - startIdx + 1) / TOTAL_DAYS * 100) + '%';
+  }
+
+  function onMove(e){
+    if (!mode) return;
+    e.preventDefault();
+    const dx = e.clientX - startX;
+    const days = Math.round(dx / dayWPx);
+    if (days !== movedDays){
+      movedDays = days;
+      const s = new Date(origStart);
+      const en = new Date(origEnd);
+      if (mode === 'move'){
+        s.setDate(s.getDate() + days);
+        en.setDate(en.getDate() + days);
+      } else if (mode === 'resize-start'){
+        s.setDate(s.getDate() + days);
+        if (s > en) s.setTime(en.getTime());
+      } else if (mode === 'resize-end'){
+        en.setDate(en.getDate() + days);
+        if (en < s) en.setTime(s.getTime());
+      }
+      p.start = isoOfDate(s);
+      p.end = isoOfDate(en);
+      setLivePos();
+    }
+    const action = mode === 'move' ? 'A mover' : (mode === 'resize-start' ? 'Ajustar início' : 'Ajustar fim');
+    showTip(e, tipHtml(action));
+  }
+
+  function onUp(e){
+    if (!mode) return;
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+    document.removeEventListener('pointercancel', onUp);
+    bar.classList.remove('dragging');
+    hideTip();
+    if (movedDays !== 0){
+      persist();
+      renderAll();
+    }
+    mode = null;
+  }
+
+  bar.addEventListener('pointerdown', e => {
+    if (e.button > 0) return;
+    if (p.milestone){
+      mode = 'move';
+    } else {
+      const r = bar.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      if (x < HANDLE_PX) mode = 'resize-start';
+      else if (x > r.width - HANDLE_PX) mode = 'resize-end';
+      else mode = 'move';
+    }
+    startX = e.clientX;
+    origStart = p.start;
+    origEnd = p.end;
+    movedDays = 0;
+    dayWPx = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--day-w')) || 32;
+    bar.classList.add('dragging');
+    try { bar.setPointerCapture(e.pointerId); } catch(_) {}
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+    document.addEventListener('pointercancel', onUp);
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+  bar.addEventListener('mousemove', e => {
+    if (mode) return;
+    if (!p.milestone){
+      const r = bar.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      bar.style.cursor = (x < HANDLE_PX || x > r.width - HANDLE_PX) ? 'ew-resize' : 'grab';
+    } else {
+      bar.style.cursor = 'grab';
+    }
+    showTip(e, tipHtml());
+  });
+  bar.addEventListener('mouseleave', () => { if (!mode) hideTip(); });
+}
+
 /* RENDER: GANTT */
 function renderGantt(){
   const cal = document.getElementById('cal-head');
@@ -971,14 +1094,8 @@ function renderGantt(){
       bar.style.background = cat.color;
       if (dur > 4) bar.innerHTML = `${escapeHtml(p.name)}<span class="dur"> · ${dur}d</span>`;
     }
-    bar.addEventListener('mousemove', e => showTip(e, `
-      <div class="meta">${escapeHtml(cat.label)}</div>
-      <strong>${escapeHtml(p.name)}</strong>
-      ${fmt(p.start)} → ${fmt(p.end)}<br/>
-      ${dur} ${dur===1?'dia':'dias'}${p.note?` · <em>${escapeHtml(p.note)}</em>`:''}
-    `));
-    bar.addEventListener('mouseleave', hideTip);
     track.appendChild(bar);
+    wireBarInteraction(bar, p, cat);
 
     if (todayIdx >= 0 && todayIdx < TOTAL_DAYS){
       const nl = document.createElement('div');
