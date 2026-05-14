@@ -115,6 +115,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .card-header{padding:10px 16px 8px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
 .card-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--c-text3);}
 .card-locname{color:var(--c-accent);font-weight:600;letter-spacing:.02em;}
+.card-extra-tag{background:rgba(180,140,40,.18);color:#b48c28;font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.08em;padding:2px 6px;border-radius:3px;margin-left:4px;font-weight:600;}
 .card-cat{padding:3px 11px;border-radius:50px;font-size:.7rem;font-weight:700;letter-spacing:.04em;}
 .card-status-btn{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:50px;border:none;cursor:pointer;font-family:'Inter Tight',sans-serif;font-size:.7rem;font-weight:700;transition:all .2s;}
 .card-status-btn.idle{background:var(--c-surface);color:var(--c-text3);border:1.5px solid var(--c-border);}
@@ -130,6 +131,9 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .photo-cell{position:relative;border-radius:9px;overflow:hidden;background:var(--c-surface);aspect-ratio:1/1;}
 .photo-cell img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;cursor:pointer;}
 .photo-cell.contain img{object-fit:contain;background:var(--c-bg);}
+.tut-num-badge{position:absolute;top:6px;left:6px;background:rgba(22,24,20,.78);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.08em;padding:3px 7px;border-radius:3px;pointer-events:none;z-index:2;font-weight:600;}
+.tut-num-badge.lg{font-size:.72rem;padding:4px 10px;}
+.tut-num-badge.sm{font-size:.5rem;padding:2px 5px;}
 .photo-cell-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--c-text3);font-size:.6rem;}
 .photo-cell-ph .icon{font-size:1.6rem;}
 .photo-cell-lbl{position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:linear-gradient(transparent,rgba(0,0,0,.7));font-size:.58rem;color:rgba(255,255,255,.85);pointer-events:none;z-index:1;}
@@ -150,6 +154,11 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 
 .card-fields{flex:1;overflow-y:auto;padding:0 12px calc(20px + var(--safe-bottom));display:flex;flex-direction:column;gap:5px;}
 .card-fields::-webkit-scrollbar{display:none;}
+.card-dup-btn{padding:10px 12px;background:transparent;border:1px dashed var(--c-border);color:var(--c-text2);font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;transition:all .15s;border-radius:var(--radius-sm);}
+.card-dup-btn:hover{border-color:var(--c-accent);color:var(--c-accent);border-style:solid;}
+.card-dup-btn.danger:hover{border-color:#C72A1C;color:#C72A1C;}
+.card-actions-row{display:flex;gap:8px;margin-top:14px;}
+.card-actions-row .card-dup-btn{flex:1;}
 .field-row{background:var(--c-surface);border-radius:var(--radius-sm);padding:8px 11px;display:flex;flex-direction:column;gap:2px;}
 .field-lbl{font-size:.6rem;color:var(--c-text3);font-weight:500;letter-spacing:.08em;text-transform:uppercase;}
 .field-sel{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'Inter Tight',sans-serif;font-size:.88rem;outline:none;cursor:pointer;-webkit-appearance:none;}
@@ -951,6 +960,7 @@ function outfitColor(n){const name=Array.isArray(n)?n[0]:n;const i=state.config.
 function photoOf(type,name){const item=(state.config[type]||[]).find(x=>x.name===name);return item?.photo||'';}
 function catColorIdx(cat){return state.config.cats.findIndex(([c])=>c===cat);}
 function tutorialOf(look){const cat=state.config.cats.find(([c])=>c===look.category);if(!cat||!cat[2]||!cat[2].length)return null;return cat[2][look.tutorialIdx||0]||cat[2][0]||null;}
+function tutBadge(tut,size){if(!tut||tut.num==null||isNaN(tut.num))return '';const cls=size==='lg'?' lg':size==='sm'?' sm':'';return `<span class="tut-num-badge${cls}">№${tut.num}</span>`;}
 function compressImage(file,maxW,quality){return new Promise(resolve=>{const reader=new FileReader();reader.onload=e=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxW/img.width);const w=Math.round(img.width*scale);const h=Math.round(img.height*scale);const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);resolve(canvas.toDataURL('image/jpeg',quality));};img.src=e.target.result;};reader.readAsDataURL(file);});}
 
 function normaliseOutfits(arr){return(arr||[]).map(o=>{if(typeof o==='string')return{name:o,photo:'',pieces:[]};if(!o.pieces)return{name:o.name,photo:o.photo||'',pieces:[]};return{name:o.name,photo:o.photo||'',pieces:o.pieces||[]};});}
@@ -960,7 +970,7 @@ function normaliseSimple(arr,defaults){if(arr&&arr.length>0)return arr.map(o=>ty
 function saveCache(d){try{const l={...d,config:{...d.config,outfits:d.config.outfits.map(o=>({...o,photo:'',pieces:(o.pieces||[]).map(p=>({...p,photo:''}))})),joias:(d.config.joias||[]).map(o=>({...o,photo:''})),sapatos:(d.config.sapatos||[]).map(o=>({...o,photo:''})),scarves:d.config.scarves.map(s=>({...s,photo:''})),models:d.config.models.map(m=>({...m,photo:''})),cats:d.config.cats.map(([n,c,t])=>[n,c,(t||[]).map(x=>({...x,photo:''}))])}};localStorage.setItem(CACHE_KEY,JSON.stringify(l));}catch(e){}}
 // normalise value to array (migrates old string-based data to array format)
 function toArr(v){if(Array.isArray(v))return v.filter(Boolean);if(v==null||v==='')return [];return [v];}
-function migrateLooks(looks){return (looks||[]).map(l=>({...l,outfit:toArr(l.outfit),scarf:toArr(l.scarf),joias:toArr(l.joias),locationId:l.locationId||''}));}
+function migrateLooks(looks){return (looks||[]).map(l=>({...l,outfit:toArr(l.outfit),scarf:toArr(l.scarf),joias:toArr(l.joias),locationId:l.locationId||'',extra:!!l.extra,parentNum:l.parentNum||null}));}
 
 function loadCache(){try{const c=localStorage.getItem(CACHE_KEY);if(c){const d=JSON.parse(c);if(d.config){state.config={...state.config,...d.config};state.config.outfits=normaliseOutfits(state.config.outfits);state.config.joias=normaliseSimple(state.config.joias,DEFAULT_JOIAS);state.config.sapatos=normaliseSimple(state.config.sapatos,DEFAULT_SAPATOS);}if(d.looks)state.looks=migrateLooks(d.looks);if(d.team)state.team=d.team;if(d.ui){const {currentIdx,filter,...restUi}=d.ui;state.ui={...state.ui,...restUi};}}}catch(e){}}
 
@@ -1192,10 +1202,11 @@ function buildCard(look){
   function tutPickBtn(){
     const ti=look.tutorialIdx||0;
     const tut=tutorials[ti];
-    const name=tut?.name||(tutorials.length?`Tutorial ${ti+1}`:'— sem tutoriais —');
+    const baseName=tut?.name||(tutorials.length?`Tutorial ${ti+1}`:'— sem tutoriais —');
+    const name=tut&&tut.num!=null&&!isNaN(tut.num)?`№${tut.num} · ${baseName}`:baseName;
     const photo=tut?.photo||'';
     const thumbHtml=photo
-      ?`<div class="field-pick-thumb contain"><img src="${photo}"></div>`
+      ?`<div class="field-pick-thumb contain" style="position:relative">${tut&&tut.num!=null&&!isNaN(tut.num)?`<span class="tut-num-badge sm">№${tut.num}</span>`:''}<img src="${photo}"></div>`
       :`<div class="field-pick-thumb"><span class="field-pick-thumb-icon">📋</span></div>`;
     return `<div class="field-row"><div class="field-lbl">Tutorial (${look.category})</div><button class="field-pick" onclick="openPicker(${look.num},'tutorial')"${tutorials.length?'':' disabled'}>${thumbHtml}<span class="field-pick-name">${esc(name)}</span><span class="field-pick-arrow">▾</span></button></div>`;
   }
@@ -1217,7 +1228,7 @@ function buildCard(look){
     outfitCellHtml=`<div class="outfit-mini"><div class="outfit-mini-track no-anim" id="omt-${look.num}" style="transform:translateX(-${curSlide*100}%)">${sHTML}</div><button class="outfit-mini-btn prev" onclick="slideOutfit(${look.num},-1,${slides.length})">‹</button><button class="outfit-mini-btn next" onclick="slideOutfit(${look.num},1,${slides.length})">›</button><div class="outfit-mini-dots" id="omDots-${look.num}">${dots}</div></div>`;
   }
 
-  function photoCell(photo,label,contain){if(!photo)return`<div class="photo-cell${contain?' contain':''}"><div class="photo-cell-ph"><span class="icon">${label==='Lenço'?'🧣':label==='Tutorial'?'📋':'📸'}</span><span>${label}</span></div></div>`;return`<div class="photo-cell${contain?' contain':''}" onclick="openLb('${photo}')"><img src="${photo}" alt="${label}"><div class="photo-cell-lbl">${label}</div></div>`;}
+  function photoCell(photo,label,contain,overlay){const ov=overlay||'';if(!photo)return`<div class="photo-cell${contain?' contain':''}"><div class="photo-cell-ph"><span class="icon">${label==='Lenço'?'🧣':label==='Tutorial'?'📋':'📸'}</span><span>${label}</span></div>${ov}</div>`;return`<div class="photo-cell${contain?' contain':''}" onclick="openLb('${photo}')"><img src="${photo}" alt="${label}"><div class="photo-cell-lbl">${label}</div>${ov}</div>`;}
 
   // multi-photo cell with mini carousel (for scarves)
   function multiCell(slidesArr,label,icon,contain,cur,slideFnName,galleryKey){
@@ -1239,14 +1250,14 @@ function buildCard(look){
   card.innerHTML=`
     <div class="card-color-bar" style="background:#${oColor}"></div>
     <div class="card-header">
-      <span class="card-num">Look #${look.num}${locName?` · <span class="card-locname">${esc(locName)}</span>`:''}</span>
+      <span class="card-num">Look #${look.num}${look.extra&&look.parentNum?` <span class="card-extra-tag">var. de #${look.parentNum}</span>`:''}${locName?` · <span class="card-locname">${esc(locName)}</span>`:''}</span>
       <span class="card-cat" style="background:${catColor}22;color:${catColor}">${look.category}</span>
       <button class="card-status-btn ${statusCls}" onclick="cycleStatus(${look.num})"><div class="status-dot"></div>${statusLbl}</button>
     </div>
     <div class="card-photo-grid">
       <div class="photo-cell">${outfitCellHtml}</div>
       ${multiCell(scarfSlides,'Lenço','🧣',false,curScarfSlide,'slideScarf','scarf:'+look.num)}
-      ${photoCell(tPhoto,tName,true)}
+      ${photoCell(tPhoto,tName,true,tutBadge(tut,'lg'))}
       ${photoCell(shootingPhoto,'Look final',false)}
     </div>
     <div class="card-fields">
@@ -1258,6 +1269,10 @@ function buildCard(look){
       ${tutPickBtn()}
       <div class="field-row"><div class="field-lbl">Local</div><select class="field-sel" onchange="updLookField(${look.num},'location',this.value)">${locOpts}</select></div>
       <div class="field-row"><div class="field-lbl">Notas</div><input class="field-inp" type="text" value="${esc(look.notes||'')}" placeholder="Adicionar nota…" onchange="updLookField(${look.num},'notes',this.value)"></div>
+      <div class="card-actions-row">
+        <button class="card-dup-btn" onclick="duplicateLook(${look.num})">⎘ Duplicar</button>
+        ${look.extra?`<button class="card-dup-btn danger" onclick="deleteLook(${look.num})">🗑 Apagar variação</button>`:''}
+      </div>
     </div>`;
   return card;
 }
@@ -1399,7 +1414,9 @@ function updateFeatured(){
 
 // ── LOOK UPDATES ──
 window.updLookField=function(num,field,val){const l=state.looks.find(x=>x.num===num);if(!l)return;l[field]=val;if(field==='location'&&l.locationId){const L=(state.config.locations||[]).find(x=>x.id===l.locationId);if(L&&val&&L.category!==val){l.locationId='';refreshCardLocHeader(num);}}scheduleSave();if(['outfit','joias','sapatos','scarf'].includes(field))rebuildOutfitCell(num);if(field==='tutorialIdx')rebuildTutorialCell(num);};
-function refreshCardLocHeader(num){const fl=filteredLooks();const idx=fl.findIndex(x=>x.num===num);if(idx<0)return;const cardEl=document.getElementById('carousel-track').children[idx];if(!cardEl)return;const numEl=cardEl.querySelector('.card-num');if(!numEl)return;const look=fl[idx];const locMatch=look.locationId?(state.config.locations||[]).find(L=>L.id===look.locationId):null;const locName=locMatch?locMatch.name:'';numEl.innerHTML=`Look #${look.num}${locName?` · <span class="card-locname">${esc(locName)}</span>`:''}`;}
+window.duplicateLook=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;const src=state.looks[idx];const parentNum=src.extra?src.parentNum:src.num;const maxNum=state.looks.reduce((m,l)=>Math.max(m,l.num),0);const newNum=Math.max(101,maxNum+1);const copy={category:src.category,outfit:toArr(src.outfit).slice(),scarf:toArr(src.scarf).slice(),joias:toArr(src.joias).slice(),sapatos:src.sapatos||'',model:'',location:src.location||'',locationId:src.locationId||'',tutorialIdx:src.tutorialIdx||0,status:'',shootingPhoto:'',notes:'',done:false,num:newNum,extra:true,parentNum};state.looks.splice(idx+1,0,copy);scheduleSave();const fl=filteredLooks();const newIdx=fl.findIndex(x=>x.num===newNum);if(newIdx>=0)state.ui.currentIdx=newIdx;renderFilters();buildCarousel();updateCounter();};
+window.deleteLook=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;const l=state.looks[idx];if(!l.extra){alert('Só é possível apagar looks duplicados. Os 100 originais não podem ser eliminados.');return;}const desc=`Look #${l.num} · variação de #${l.parentNum} · ${l.category}${l.model?' · '+l.model:''}`;if(!confirm(`Apagar esta variação?\n\n${desc}`))return;state.looks.splice(idx,1);scheduleSave();state.ui.currentIdx=Math.max(0,Math.min(idx,state.looks.length-1));renderFilters();buildCarousel();updateCounter();};
+function refreshCardLocHeader(num){const fl=filteredLooks();const idx=fl.findIndex(x=>x.num===num);if(idx<0)return;const cardEl=document.getElementById('carousel-track').children[idx];if(!cardEl)return;const numEl=cardEl.querySelector('.card-num');if(!numEl)return;const look=fl[idx];const locMatch=look.locationId?(state.config.locations||[]).find(L=>L.id===look.locationId):null;const locName=locMatch?locMatch.name:'';numEl.innerHTML=`Look #${look.num}${look.extra&&look.parentNum?` <span class="card-extra-tag">var. de #${look.parentNum}</span>`:''}${locName?` · <span class="card-locname">${esc(locName)}</span>`:''}`;}
 
 // reposition on resize (card width changes between mobile and desktop)
 (function(){let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{if(window.currentScreen!=='screen-looks')return;const track=document.getElementById('carousel-track');if(!track)return;const w=getCardWidth();track.classList.add('no-anim');track.style.transform=`translateX(-${state.ui.currentIdx*w}px)`;const fl=filteredLooks();renderVirtualCards(fl,state.ui.currentIdx);requestAnimationFrame(()=>track.classList.remove('no-anim'));},150);});})();
@@ -1457,7 +1474,7 @@ function buildA4Sheet(look){
     <div class="a4-header">
       <div class="a4-corners">
         <div class="a4-tutorial">
-          <div class="a4-corner-lbl">Tutorial</div>
+          <div class="a4-corner-lbl">Tutorial${tut&&tut.num!=null&&!isNaN(tut.num)?` №${tut.num}`:''}</div>
           <div class="a4-corner-photo contain">${tutPhoto?`<img src="${tutPhoto}">`:'<span style="color:#bbb;font-size:5mm">📋</span>'}</div>
           <div class="a4-corner-name">${esc(tut?.name||'—')}</div>
         </div>
@@ -1569,7 +1586,7 @@ window.renderGallery=function(){
   renderFilters();
   const v=state.ui.galleryView||'grid';const sort=document.getElementById('gallery-sort')?.value||'default';const useGroups=sort!=='default'&&sort!=='done';
   const scroll=document.getElementById('gallery-scroll');const origFl=filteredLooks();
-  function cellHtml(look){const i=origFl.indexOf(look);const slides=getOutfitSlides(look);const fp=slides[0]?.photo||'';const firstScarf=toArr(look.scarf)[0]||'';const sPhoto=photoOf('scarves',firstScarf);const tut=tutorialOf(look);const tPhoto=tut?.photo||'';const catColor=CAT_COLORS[catColorIdx(look.category)]||'#888';const status=look.status||'';const outfitLbl=toArr(look.outfit).join(' + ')||'—';function sq(photo,icon,contain){return photo?`<img class="gallery-cell-img" src="${photo}" style="object-fit:${contain?'contain':'cover'};${contain?'background:var(--c-bg)':''}" alt="">`:`<div class="gallery-cell-img-ph">${icon}</div>`;}return`<div class="gallery-cell${status==='done'?' done-cell':''}" onclick="goToLookFromGallery(${i})"><div class="gallery-cell-imgs">${sq(fp,'👗',false)}${sq(sPhoto,'🧣',false)}${sq(tPhoto,'📋',true)}</div><div class="gallery-cell-body"><div class="gallery-cell-num">#${look.num}</div><div class="gallery-cell-outfit">${esc(outfitLbl)}</div><div class="gallery-cell-meta">${esc(look.model)} · ${(look.location||'').replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div><span class="gallery-cell-cat" style="background:${catColor}22;color:${catColor}">${look.category}${tut?.name?' · '+tut.name:''}</span></div>${status?`<div class="gallery-status-dot ${status}"></div>`:''}</div>`;}
+  function cellHtml(look){const i=origFl.indexOf(look);const slides=getOutfitSlides(look);const fp=slides[0]?.photo||'';const firstScarf=toArr(look.scarf)[0]||'';const sPhoto=photoOf('scarves',firstScarf);const tut=tutorialOf(look);const tPhoto=tut?.photo||'';const catColor=CAT_COLORS[catColorIdx(look.category)]||'#888';const status=look.status||'';const outfitLbl=toArr(look.outfit).join(' + ')||'—';function sq(photo,icon,contain,badge){const ov=badge||'';if(!photo)return`<div class="gallery-cell-img-ph" style="position:relative">${icon}${ov}</div>`;return`<span style="position:relative;flex:1;min-width:0;height:100%;display:block;overflow:hidden"><img src="${photo}" style="width:100%;height:100%;object-fit:${contain?'contain':'cover'};${contain?'background:var(--c-bg)':''};display:block" alt="">${ov}</span>`;}return`<div class="gallery-cell${status==='done'?' done-cell':''}" onclick="goToLookFromGallery(${i})"><div class="gallery-cell-imgs">${sq(fp,'👗',false)}${sq(sPhoto,'🧣',false)}${sq(tPhoto,'📋',true,tutBadge(tut,'sm'))}</div><div class="gallery-cell-body"><div class="gallery-cell-num">#${look.num}</div><div class="gallery-cell-outfit">${esc(outfitLbl)}</div><div class="gallery-cell-meta">${esc(look.model)} · ${(look.location||'').replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div><span class="gallery-cell-cat" style="background:${catColor}22;color:${catColor}">${look.category}${tut?.name?' · '+tut.name:''}</span></div>${status?`<div class="gallery-status-dot ${status}"></div>`:''}</div>`;}
   function rowHtml(look){const i=origFl.indexOf(look);const slides=getOutfitSlides(look);const fp=slides[0]?.photo||'';const status=look.status||'';const outfitLbl=toArr(look.outfit).join(' + ')||'—';return`<div class="list-item${status==='done'?' done-item':''}" onclick="goToLookFromGallery(${i})"><div class="list-color-bar" style="background:#${outfitColor(look.outfit)}"></div><span class="list-num">${look.num}</span><div class="list-content"><div class="list-outfit">${esc(outfitLbl)}</div><div class="list-meta">${look.category} · ${esc(look.model)} · ${(look.location||'').replace('Portugal – ','PT ').replace('Cabo Verde – ','CV ')}</div></div>${fp?`<img class="list-thumb" src="${fp}" alt="">`:`<div class="list-thumb-ph">👗</div>`}<div class="list-status-dot ${status}"></div></div>`;}
   if(v==='sheets'){
     openSheetsOverlay();
@@ -1590,7 +1607,7 @@ function renderConfig(){
   document.getElementById('loc-cv').value=state.config.locs.cv;
   updateLocHint();
   // categories
-  document.getElementById('cat-inputs').innerHTML=state.config.cats.map(([cat,n,tutorials],i)=>{const tuts=tutorials||[];return`<div style="border-bottom:1px solid var(--c-border);padding-bottom:14px;margin-bottom:14px;"><div class="cat-row"><input class="cat-name-inp" type="text" value="${esc(cat)}" placeholder="Nome…" onchange="state.config.cats[${i}][0]=this.value;scheduleSave()"><div class="cat-count-wrap"><input class="cat-count-inp" type="number" min="0" value="${n}" onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint();scheduleSave()"><span class="cat-count-lbl">looks</span></div></div><div style="font-size:.62rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Tutoriais</div><div class="pieces-grid">${tuts.map((t,ti)=>`<div class="piece-cell">${t.photo?`<img class="piece-img contain" src="${t.photo}" onclick="openLb('${t.photo}')">`:`<div class="piece-img-ph" onclick="document.getElementById('ft-${i}-${ti}').click()"><span>📋</span><span>Adicionar</span></div>`}<input type="file" accept="image/*" id="ft-${i}-${ti}" style="display:none" onchange="handleTutorialPhoto(${i},${ti},this)"><input class="piece-name-inp" type="text" value="${esc(t.name||'')}" placeholder="Nome…" onchange="state.config.cats[${i}][2][${ti}].name=this.value;scheduleSave()"><div class="piece-actions"><span class="piece-act-btn" onclick="document.getElementById('ft-${i}-${ti}').click()">${t.photo?'🔄':'📋'}</span><span class="piece-act-btn del" onclick="removeTutorial(${i},${ti})">✕</span></div></div>`).join('')}</div><button class="mini-btn" style="width:100%;margin-top:8px;font-size:.75rem" onclick="addTutorial(${i})">+ Adicionar tutorial</button></div>`;}).join('');
+  document.getElementById('cat-inputs').innerHTML=state.config.cats.map(([cat,n,tutorials],i)=>{const tuts=tutorials||[];return`<div style="border-bottom:1px solid var(--c-border);padding-bottom:14px;margin-bottom:14px;"><div class="cat-row"><input class="cat-name-inp" type="text" value="${esc(cat)}" placeholder="Nome…" onchange="state.config.cats[${i}][0]=this.value;scheduleSave()"><div class="cat-count-wrap"><input class="cat-count-inp" type="number" min="0" value="${n}" onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint();scheduleSave()"><span class="cat-count-lbl">looks</span></div></div><div style="font-size:.62rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Tutoriais</div><div class="pieces-grid">${tuts.map((t,ti)=>`<div class="piece-cell">${t.photo?`<div style="position:relative">${t.num!=null&&!isNaN(t.num)?`<span class="tut-num-badge">№${t.num}</span>`:''}<img class="piece-img contain" src="${t.photo}" onclick="openLb('${t.photo}')"></div>`:`<div class="piece-img-ph" onclick="document.getElementById('ft-${i}-${ti}').click()"><span>📋</span><span>Adicionar</span></div>`}<input type="file" accept="image/*" id="ft-${i}-${ti}" style="display:none" onchange="handleTutorialPhoto(${i},${ti},this)"><input class="piece-name-inp" type="text" value="${esc(t.name||'')}" placeholder="Nome…" onchange="state.config.cats[${i}][2][${ti}].name=this.value;scheduleSave()"><div class="piece-actions"><span class="piece-act-btn" onclick="document.getElementById('ft-${i}-${ti}').click()">${t.photo?'🔄':'📋'}</span><span class="piece-act-btn del" onclick="removeTutorial(${i},${ti})">✕</span></div></div>`).join('')}</div><button class="mini-btn" style="width:100%;margin-top:8px;font-size:.75rem" onclick="addTutorial(${i})">+ Adicionar tutorial</button></div>`;}).join('');
   updateCatHint();
   renderOutfitInputs();
   renderSimpleItems('joias','joias-inputs','💍');
@@ -1664,10 +1681,10 @@ window.removeItemAt=function(type,cid,i,icon){if(!state.config[type]||!state.con
 
 window.addTutorial=function(ci){if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2].push({name:'',photo:''});renderConfig();};
 window.removeTutorial=function(ci,ti){state.config.cats[ci][2].splice(ti,1);scheduleSave();renderConfig();};
-window.handleTutorialPhoto=async function(ci,ti,input){if(!input.files[0])return;const c=await compressImage(input.files[0],600,0.7);if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2][ti].photo=c;scheduleSave();renderConfig();buildCarousel();};
+window.handleTutorialPhoto=async function(ci,ti,input){if(!input.files[0])return;const f=input.files[0];const m=(f.name||'').match(/\d+/);const tutNum=m?parseInt(m[0],10):null;const c=await compressImage(f,600,0.7);if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2][ti].photo=c;if(tutNum!==null&&!isNaN(tutNum))state.config.cats[ci][2][ti].num=tutNum;scheduleSave();renderConfig();buildCarousel();};
 window.updateLocHint=function(){const s=parseInt(document.getElementById('loc-studio').value)||0;const p=parseInt(document.getElementById('loc-pt').value)||0;const c=parseInt(document.getElementById('loc-cv').value)||0;const h=document.getElementById('loc-hint');h.innerHTML=`Total: <strong>${s+p+c}</strong> / 100`;h.className='cfg-hint'+((s+p+c)!==100?' err':'');};
 window.updateCatHint=function(){const t=state.config.cats.reduce((s,[,n])=>s+n,0);const h=document.getElementById('cat-hint');h.innerHTML=`Total: <strong>${t}</strong> / 100`;h.className='cfg-hint'+(t!==100?' err':'');};
-window.regenerateFromCats=function(){const ct=state.config.cats.reduce((s,[,n])=>s+n,0);if(ct!==100){alert(`Total de categorias: ${ct}. Deve ser 100 para gerar os looks.`);return;}if(state.looks&&state.looks.length&&!confirm('Vai gerar uma nova lista de looks vazia. As atribuições actuais (roupa, modelo, local, lenço, jóias, sapatos, fotos de shooting) serão perdidas. Continuar?'))return;state.looks=genLooksEmpty();state.ui.currentIdx=0;state.ui.filter='';scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');};
+window.regenerateFromCats=function(){const ct=state.config.cats.reduce((s,[,n])=>s+n,0);if(ct!==100){alert(`Total de categorias: ${ct}. Deve ser 100 para gerar os looks.`);return;}const extras=(state.looks||[]).filter(l=>l.extra).length;if(state.looks&&state.looks.length&&!confirm(`Vai gerar uma nova lista de looks vazia. As atribuições actuais (roupa, modelo, local, lenço, jóias, sapatos, fotos de shooting) serão perdidas${extras?` e as ${extras} variação${extras!==1?'ões':''} extra também serão removida${extras!==1?'s':''}`:''}. Continuar?`))return;state.looks=genLooksEmpty();state.ui.currentIdx=0;state.ui.filter='';scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');};
 
 // ─── SHOOTING MODULE ───
 const SH_CAT_LABELS={'Portugal – Estúdio':'PT · Estúdio','Portugal – Exterior':'PT · Exterior','Cabo Verde – Exterior':'CV · Exterior'};
@@ -1719,7 +1736,7 @@ window.renderDashboard=function(){const el=document.getElementById('dashboard-sc
   el.querySelectorAll('.db-alert').forEach((node,i)=>{node.addEventListener('click',()=>alerts[i].go());});
 };
 function renderDbLook(l){const tut=tutorialOf(l);const tPhoto=tut?.photo||'';const st=statusLabel(l.status);const stLbl=l.status==='done'?'✓ Pronto':l.status==='progress'?'Em curso':'Por fazer';const locMatch=l.locationId?(state.config.locations||[]).find(L=>L.id===l.locationId):null;const locName=locMatch?locMatch.name:'';return `<div class="db-look" onclick="window.openLookModal(${l.num})">
-  <div class="db-look-photo">${tPhoto?`<img src="${tPhoto}" alt="">`:`<div class="db-look-photo-ph">📋</div>`}<span class="db-look-idx">№${String(l.num).padStart(2,'0')}</span><span class="db-look-status ${st.cls}">${stLbl}</span></div>
+  <div class="db-look-photo">${tPhoto?`<img src="${tPhoto}" alt="">`:`<div class="db-look-photo-ph">📋</div>`}<span class="db-look-idx">№${String(l.num).padStart(2,'0')}</span><span class="db-look-status ${st.cls}">${stLbl}</span>${tutBadge(tut,'lg').replace('class="tut-num-badge lg"','class="tut-num-badge lg" style="top:auto;bottom:10px;left:10px"')}</div>
   <div class="db-look-body">
     <div class="db-look-cat">${esc(l.category)}</div>
     <div class="db-look-mod">${esc(l.model||'sem modelo')}</div>
@@ -1808,7 +1825,7 @@ function renderShootingLookItem(l){
   const mPhoto=photoOf('models',l.model);
   const tut=tutorialOf(l);
   const tPhoto=tut?.photo||'';
-  const photo=(p,icon,lbl,contain)=>`<div class="sh-look-ph${contain?' contain':''}">${p?`<img src="${p}" alt="" onclick="event.stopPropagation();openLb('${p}')">`:`<div class="sh-look-ph-empty">${icon}</div>`}<span class="sh-look-ph-lbl">${lbl}</span></div>`;
+  const photo=(p,icon,lbl,contain,extra)=>`<div class="sh-look-ph${contain?' contain':''}">${p?`<img src="${p}" alt="" onclick="event.stopPropagation();openLb('${p}')">`:`<div class="sh-look-ph-empty">${icon}</div>`}<span class="sh-look-ph-lbl">${lbl}</span>${extra||''}</div>`;
   return `<div class="sh-look-card">
     <div class="sh-look-card-top" onclick="goToLookFromShooting(${l.num})">
       <div><span class="sh-look-num-big">№${String(l.num).padStart(2,'0')}</span></div>
@@ -1819,7 +1836,7 @@ function renderShootingLookItem(l){
       ${photo(oPhoto,'👗','Roupa',false)}
       ${photo(sPhoto,'🧣','Lenço',false)}
       ${photo(mPhoto,'👤','Modelo',false)}
-      ${photo(tPhoto,'📋','Tutorial',true)}
+      ${photo(tPhoto,'📋','Tutorial',true,tutBadge(tut))}
     </div>
     <div class="sh-look-info">
       <div class="sh-look-info-row"><span class="k">Roupa</span><span class="v">${esc(oName)}</span></div>
@@ -1851,7 +1868,7 @@ window.closeLocationModal=function(){const ovl=document.getElementById('loc-moda
 window.saveLocationFromModal=function(id){const name=document.getElementById('lm-name').value.trim();if(!name){alert('Nome é obrigatório.');return;}const modelsArr=window.__lmModels?Array.from(window.__lmModels):[];const data={name,city:document.getElementById('lm-city').value.trim(),category:document.getElementById('lm-cat').value,date:document.getElementById('lm-date').value,timeStart:document.getElementById('lm-ts').value,timeEnd:document.getElementById('lm-te').value,notes:document.getElementById('lm-notes').value.trim(),models:modelsArr};if(!state.config.locations)state.config.locations=[];if(id){const L=state.config.locations.find(x=>x.id===id);if(L){const oldCat=L.category;Object.assign(L,data);if(oldCat!==data.category){state.looks.forEach(l=>{if(l.locationId===id)l.location=data.category;});}}}else{const newId='loc-'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);state.config.locations.push({id:newId,photoUrl:'',...data});}scheduleSave();closeLocationModal();renderShooting();buildCarousel();};
 
 // Look picker (add looks to a location)
-window.openLookPicker=function(locId){const L=(state.config.locations||[]).find(x=>x.id===locId);if(!L)return;const roster=(L.models||[]);const candidates=state.looks.filter(l=>{if(l.locationId)return false;if(l.location&&l.location!==L.category)return false;if(roster.length&&l.model&&!roster.includes(l.model))return false;return true;});const assignedHere=looksForLocation(locId);const itemsHtml=candidates.length?candidates.map(l=>{const oName=toArr(l.outfit)[0]||'—';const oPhoto=photoOf('outfits',oName);const firstScarf=toArr(l.scarf)[0]||'';const sPhoto=photoOf('scarves',firstScarf);const mPhoto=photoOf('models',l.model);const tut=tutorialOf(l);const tPhoto=tut?.photo||'';const thumb=(p,icon,contain)=>`<div class="sh-picker-thumb${contain?' contain':''}">${p?`<img src="${p}" alt="">`:`<div class="sh-picker-thumb-ph">${icon}</div>`}</div>`;return `<div class="sh-picker-item" onclick="assignLookToLocation(${l.num},'${locId}')"><div class="sh-picker-num">№${String(l.num).padStart(2,'0')}</div><div class="sh-picker-thumbs">${thumb(oPhoto,'👗',false)}${thumb(sPhoto,'🧣',false)}${thumb(mPhoto,'👤',false)}${thumb(tPhoto,'📋',true)}</div><div class="sh-picker-info"><div class="sh-picker-out">${esc(oName)} · ${esc(l.model||'sem modelo')}</div><div class="sh-picker-meta">${esc(l.category)}</div></div></div>`;}).join(''):`<div class="sh-empty" style="padding:30px 10px"><div style="font-family:'Inter Tight',sans-serif;font-size:.9rem;color:var(--c-text2)">Sem looks disponíveis</div><div style="margin-top:6px;font-size:.72rem">Categoria "${esc(L.category)}"${roster.length?` · elenco: ${roster.map(esc).join(', ')}`:''} · ainda não atribuídos.</div></div>`;const filterNote=roster.length?`<div class="pin-sub" style="margin-top:-4px;color:var(--c-text3);font-size:.7rem">A mostrar apenas looks com modelos do elenco: ${roster.map(esc).join(', ')} (ou sem modelo definido)</div>`:'';const html=`<div class="pin-card" style="max-width:480px;padding:20px"><div class="pin-title">Adicionar look · ${esc(L.name)}</div><div class="pin-sub">${candidates.length} disponível${candidates.length!==1?'eis':''} · ${assignedHere.length} já atribuído${assignedHere.length!==1?'s':''}</div>${filterNote}<div class="sh-picker-list">${itemsHtml}</div><div class="pin-actions" style="margin-top:14px"><button class="pin-btn" onclick="closeLocationModal()">Fechar</button></div></div>`;const ovl=document.getElementById('loc-modal-ovl');ovl.innerHTML=html;ovl.classList.add('open');};
+window.openLookPicker=function(locId){const L=(state.config.locations||[]).find(x=>x.id===locId);if(!L)return;const roster=(L.models||[]);const candidates=state.looks.filter(l=>{if(l.locationId)return false;if(l.location&&l.location!==L.category)return false;if(roster.length&&l.model&&!roster.includes(l.model))return false;return true;});const assignedHere=looksForLocation(locId);const itemsHtml=candidates.length?candidates.map(l=>{const oName=toArr(l.outfit)[0]||'—';const oPhoto=photoOf('outfits',oName);const firstScarf=toArr(l.scarf)[0]||'';const sPhoto=photoOf('scarves',firstScarf);const mPhoto=photoOf('models',l.model);const tut=tutorialOf(l);const tPhoto=tut?.photo||'';const thumb=(p,icon,contain,extra)=>`<div class="sh-picker-thumb${contain?' contain':''}">${p?`<img src="${p}" alt="">`:`<div class="sh-picker-thumb-ph">${icon}</div>`}${extra||''}</div>`;return `<div class="sh-picker-item" onclick="assignLookToLocation(${l.num},'${locId}')"><div class="sh-picker-num">№${String(l.num).padStart(2,'0')}</div><div class="sh-picker-thumbs">${thumb(oPhoto,'👗',false)}${thumb(sPhoto,'🧣',false)}${thumb(mPhoto,'👤',false)}${thumb(tPhoto,'📋',true,tutBadge(tut,'sm'))}</div><div class="sh-picker-info"><div class="sh-picker-out">${esc(oName)} · ${esc(l.model||'sem modelo')}</div><div class="sh-picker-meta">${esc(l.category)}</div></div></div>`;}).join(''):`<div class="sh-empty" style="padding:30px 10px"><div style="font-family:'Inter Tight',sans-serif;font-size:.9rem;color:var(--c-text2)">Sem looks disponíveis</div><div style="margin-top:6px;font-size:.72rem">Categoria "${esc(L.category)}"${roster.length?` · elenco: ${roster.map(esc).join(', ')}`:''} · ainda não atribuídos.</div></div>`;const filterNote=roster.length?`<div class="pin-sub" style="margin-top:-4px;color:var(--c-text3);font-size:.7rem">A mostrar apenas looks com modelos do elenco: ${roster.map(esc).join(', ')} (ou sem modelo definido)</div>`:'';const html=`<div class="pin-card" style="max-width:480px;padding:20px"><div class="pin-title">Adicionar look · ${esc(L.name)}</div><div class="pin-sub">${candidates.length} disponível${candidates.length!==1?'eis':''} · ${assignedHere.length} já atribuído${assignedHere.length!==1?'s':''}</div>${filterNote}<div class="sh-picker-list">${itemsHtml}</div><div class="pin-actions" style="margin-top:14px"><button class="pin-btn" onclick="closeLocationModal()">Fechar</button></div></div>`;const ovl=document.getElementById('loc-modal-ovl');ovl.innerHTML=html;ovl.classList.add('open');};
 window.assignLookToLocation=function(num,locId){const l=state.looks.find(x=>x.num===num);const L=(state.config.locations||[]).find(x=>x.id===locId);if(!l||!L)return;l.locationId=locId;if(L.category)l.location=L.category;scheduleSave();buildCarousel();if(shView.mode==='detail'&&shView.id===locId)renderShootingDetail(locId);openLookPicker(locId);};
 
 // ── EQUIPA ──
