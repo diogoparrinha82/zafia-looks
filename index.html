@@ -617,20 +617,27 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .db-scroller::-webkit-scrollbar{height:5px;}
 .db-scroller::-webkit-scrollbar-thumb{background:var(--c-border);border-radius:3px;}
 /* Look mini card */
-.db-look{flex:0 0 168px;scroll-snap-align:start;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:transform .15s;}
-.db-look:hover{transform:translateY(-2px);}
-.db-look-idx{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.14em;color:var(--c-text3);display:flex;align-items:center;justify-content:space-between;}
-.db-look-idx .status{font-size:.55rem;padding:2px 7px;border-radius:50px;}
-.db-look-idx .status.done{background:rgba(90,102,72,.15);color:var(--c-accent);}
-.db-look-idx .status.progress{background:rgba(180,140,40,.15);color:#b48c28;}
-.db-look-idx .status.todo{color:var(--c-text3);}
-.db-look-photo{aspect-ratio:3/4;background:var(--c-surface);overflow:hidden;position:relative;}
-.db-look-photo img{width:100%;height:100%;object-fit:cover;}
-.db-look-photo-ph{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.6rem;color:var(--c-text3);}
-.db-look-cat{position:absolute;bottom:6px;left:6px;background:rgba(22,24,20,.7);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;padding:2px 6px;}
-.db-look-meta{display:flex;flex-direction:column;gap:1px;}
-.db-look-out{font-family:'Inter Tight',sans-serif;font-size:.82rem;color:var(--c-text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.db-look-mod{font-size:.7rem;color:var(--c-text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.db-look{flex:0 0 320px;scroll-snap-align:start;display:flex;flex-direction:column;gap:0;cursor:pointer;border:1px solid var(--c-border);background:var(--c-card);transition:transform .15s,border-color .15s;}
+.db-look:hover{transform:translateY(-2px);border-color:var(--c-text2);}
+.db-look-photo{aspect-ratio:4/5;background:#0a0a1a;overflow:hidden;position:relative;}
+.db-look-photo img{width:100%;height:100%;object-fit:contain;}
+.db-look-photo-ph{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:2.4rem;color:var(--c-text3);background:var(--c-surface);}
+.db-look-idx{position:absolute;top:10px;left:10px;background:rgba(22,24,20,.7);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;padding:3px 8px;}
+.db-look-status{position:absolute;top:10px;right:10px;font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;font-weight:600;}
+.db-look-status.done{background:rgba(90,102,72,.92);color:#fff;}
+.db-look-status.progress{background:rgba(180,140,40,.92);color:#fff;}
+.db-look-status.todo{background:rgba(22,24,20,.55);color:#fff;}
+.db-look-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px;}
+.db-look-cat{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text3);}
+.db-look-mod{font-family:'Inter Tight',sans-serif;font-size:.95rem;color:var(--c-text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.db-look-loc{font-size:.7rem;color:var(--c-accent);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* Scarf mini card */
+.db-scarf{flex:0 0 140px;scroll-snap-align:start;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:transform .15s;}
+.db-scarf:hover{transform:translateY(-2px);}
+.db-scarf-photo{aspect-ratio:1/1;background:var(--c-surface);border:1px solid var(--c-border);overflow:hidden;position:relative;}
+.db-scarf-photo img{width:100%;height:100%;object-fit:cover;}
+.db-scarf-photo-ph{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.6rem;color:var(--c-text3);}
+.db-scarf-name{font-family:'Inter Tight',sans-serif;font-size:.78rem;color:var(--c-text);font-weight:500;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 /* Location mini card */
 .db-loc{flex:0 0 240px;scroll-snap-align:start;display:flex;flex-direction:column;gap:10px;cursor:pointer;border:1px solid var(--c-border);background:var(--c-card);transition:transform .15s,border-color .15s;}
 .db-loc:hover{transform:translateY(-2px);border-color:var(--c-text2);}
@@ -1703,16 +1710,21 @@ window.renderDashboard=function(){const el=document.getElementById('dashboard-sc
   <div class="db-scroller">${featured.map(l=>renderDbLook(l)).join('')}</div>`:`<div class="db-empty-line">Ainda não há looks. Configura categorias e gera a lista em "Configuração".</div>`}
   ${locs.length?`<div class="db-sec"><div class="db-sec-head"><div class="db-sec-title">Locações <span class="count">${upcoming.length} próxima${upcoming.length!==1?'s':''} de ${locs.length}</span></div><button class="db-sec-more" onclick="switchTab('shooting')">Ver Shooting →</button></div></div>
   <div class="db-scroller">${locs.sort((a,b)=>{const ad=a.date||'9999',bd=b.date||'9999';return ad.localeCompare(bd);}).map(L=>renderDbLoc(L)).join('')}</div>`:`<div class="db-empty-line">Sem locações ainda. Vai a Shooting para começar a planear.</div>`}
+  ${(state.config.scarves||[]).length?`<div class="db-sec"><div class="db-sec-head"><div class="db-sec-title">Lenços <span class="count">${(state.config.scarves||[]).length}</span></div><button class="db-sec-more" onclick="switchTab('config')">Configurar →</button></div></div>
+  <div class="db-scroller">${(state.config.scarves||[]).map(s=>`<div class="db-scarf" onclick="switchTab('config')"><div class="db-scarf-photo">${s.photo?`<img src="${s.photo}" alt="">`:`<div class="db-scarf-photo-ph">🧣</div>`}</div><div class="db-scarf-name">${esc(s.name||'Sem nome')}</div></div>`).join('')}</div>`:''}
   ${alerts.length?`<div class="db-sec"><div class="db-sec-head"><div class="db-sec-title">⚠ Lacunas e alertas <span class="count">${alerts.length}</span></div></div></div>
   <div class="db-alerts">${alerts.map((a,i)=>`<div class="db-alert" data-alert="${i}"><div class="db-alert-icon">${a.icon}</div><div class="db-alert-body"><div class="db-alert-title">${esc(a.title)}</div><div class="db-alert-sub">${esc(a.sub)}</div></div><div class="db-alert-count">${a.n}</div></div>`).join('')}</div>`:''}
   <div style="padding:24px;border-top:1px solid var(--c-border);text-align:center"><div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.18em;color:var(--c-text3);text-transform:uppercase">Art of Scarves · Book Claudya Moreira · Penguin Random House</div></div>`;
   // Bind alert click handlers (can't inline arrow functions easily)
   el.querySelectorAll('.db-alert').forEach((node,i)=>{node.addEventListener('click',()=>alerts[i].go());});
 };
-function renderDbLook(l){const outfitSlides=getOutfitSlides(l);const oPhoto=outfitSlides[0]?.photo||'';const oName=toArr(l.outfit)[0]||'—';const st=statusLabel(l.status);return `<div class="db-look" onclick="window.openLookModal(${l.num})">
-  <div class="db-look-idx"><span>№${String(l.num).padStart(2,'0')}</span><span class="status ${st.cls}">${l.status==='done'?'✓ '+st.lbl:st.lbl}</span></div>
-  <div class="db-look-photo">${oPhoto?`<img src="${oPhoto}" alt="">`:`<div class="db-look-photo-ph">👗</div>`}<span class="db-look-cat">${esc(l.category)}</span></div>
-  <div class="db-look-meta"><div class="db-look-out">${esc(oName)}</div><div class="db-look-mod">${esc(l.model||'sem modelo')}</div></div>
+function renderDbLook(l){const tut=tutorialOf(l);const tPhoto=tut?.photo||'';const st=statusLabel(l.status);const stLbl=l.status==='done'?'✓ Pronto':l.status==='progress'?'Em curso':'Por fazer';const locMatch=l.locationId?(state.config.locations||[]).find(L=>L.id===l.locationId):null;const locName=locMatch?locMatch.name:'';return `<div class="db-look" onclick="window.openLookModal(${l.num})">
+  <div class="db-look-photo">${tPhoto?`<img src="${tPhoto}" alt="">`:`<div class="db-look-photo-ph">📋</div>`}<span class="db-look-idx">№${String(l.num).padStart(2,'0')}</span><span class="db-look-status ${st.cls}">${stLbl}</span></div>
+  <div class="db-look-body">
+    <div class="db-look-cat">${esc(l.category)}</div>
+    <div class="db-look-mod">${esc(l.model||'sem modelo')}</div>
+    ${locName?`<div class="db-look-loc">📍 ${esc(locName)}</div>`:''}
+  </div>
 </div>`;}
 function renderDbLoc(L){const ct=looksForLocation(L.id).length;const dd=daysFromToday(L.date);const dateLabel=L.date?fmtDateLabel(L.date):'sem data';return `<div class="db-loc" onclick="openLocationDetail('${L.id}');switchTab('shooting')">
   <div class="db-loc-photo">${L.photoUrl?`<img src="${L.photoUrl}" alt="">`:`<div class="db-loc-photo-ph">📍</div>`}<span class="db-loc-tag">${esc(L.category||'—')}</span>${L.date?`<span class="db-loc-date">${esc(dateLabel)}</span>`:''}</div>
