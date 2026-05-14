@@ -368,6 +368,70 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 
 /* EQUIPA */
 #screen-equipa{background:var(--c-bg);}
+#screen-shooting{background:var(--c-bg);}
+.sh-list{padding:14px 16px 80px;display:flex;flex-direction:column;gap:14px;}
+.sh-add-btn{background:var(--c-card);border:1.5px dashed var(--c-border);border-radius:10px;padding:18px;color:var(--c-text2);font-size:.85rem;cursor:pointer;text-align:center;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;}
+.sh-add-btn:hover{border-color:var(--c-accent);color:var(--c-accent);}
+.sh-card{background:var(--c-card);border:1px solid var(--c-border);border-radius:10px;overflow:hidden;cursor:pointer;transition:transform .15s;}
+.sh-card:active{transform:scale(.98);}
+.sh-card-photo{position:relative;width:100%;aspect-ratio:16/9;background:var(--c-surface);overflow:hidden;}
+.sh-card-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+.sh-card-photo-ph{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:2rem;color:var(--c-text3);}
+.sh-card-tag{position:absolute;top:10px;left:10px;background:rgba(22,24,20,.7);color:#fff;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:4px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;}
+.sh-card-body{padding:14px 16px;}
+.sh-card-row1{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:4px;}
+.sh-card-name{font-family:'Inter Tight',sans-serif;font-weight:600;font-size:1rem;color:var(--c-text);}
+.sh-card-date{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--c-accent);letter-spacing:.05em;}
+.sh-card-city{font-size:.78rem;color:var(--c-text2);margin-bottom:10px;}
+.sh-card-meta{display:flex;gap:14px;font-size:.7rem;color:var(--c-text3);padding-top:10px;border-top:1px solid var(--c-border);}
+.sh-card-meta strong{color:var(--c-text);font-weight:500;margin-left:4px;}
+.sh-card-actions{display:flex;gap:6px;padding:0 16px 14px;}
+.sh-card-act{flex:1;padding:8px;border:1px solid var(--c-border);background:var(--c-surface);border-radius:6px;color:var(--c-text2);font-size:.72rem;cursor:pointer;font-family:'Inter',sans-serif;}
+.sh-card-act.danger{color:#C72A1C;border-color:rgba(199,42,28,.3);}
+.sh-empty{padding:40px 20px;text-align:center;color:var(--c-text3);}
+.sh-empty-icon{font-size:2.5rem;margin-bottom:10px;}
+.sh-detail-hero{padding:16px;background:var(--c-card);border-bottom:1px solid var(--c-border);}
+.sh-detail-hero-img{width:100%;aspect-ratio:16/9;background:var(--c-surface);border-radius:8px;overflow:hidden;margin-bottom:14px;position:relative;}
+.sh-detail-hero-img img{width:100%;height:100%;object-fit:cover;}
+.sh-detail-hero-ph{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:2.5rem;color:var(--c-text3);}
+.sh-detail-upload{position:absolute;bottom:8px;right:8px;background:rgba(22,24,20,.8);color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:.7rem;cursor:pointer;font-family:'Inter',sans-serif;}
+.sh-detail-name{font-family:'Inter Tight',sans-serif;font-weight:600;font-size:1.3rem;color:var(--c-text);margin-bottom:3px;}
+.sh-detail-city{font-size:.85rem;color:var(--c-text2);margin-bottom:14px;}
+.sh-detail-facts{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.sh-fact{background:var(--c-surface);border:1px solid var(--c-border);border-radius:8px;padding:10px 12px;}
+.sh-fact-k{font-size:.6rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px;font-family:'JetBrains Mono',monospace;}
+.sh-fact-v{font-size:.85rem;color:var(--c-text);font-weight:500;}
+.sh-detail-notes{margin-top:14px;padding-top:14px;border-top:1px solid var(--c-border);font-size:.8rem;color:var(--c-text2);line-height:1.5;}
+.sh-detail-notes-lbl{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.1em;margin-right:8px;}
+.sh-looks-head{padding:18px 16px 10px;display:flex;align-items:baseline;justify-content:space-between;}
+.sh-looks-head h2{font-family:'Inter Tight',sans-serif;font-weight:600;font-size:1.05rem;color:var(--c-text);}
+.sh-looks-head .sh-add-look{font-size:.72rem;color:var(--c-accent);background:none;border:1px solid var(--c-accent);padding:6px 12px;border-radius:6px;cursor:pointer;}
+.sh-look-grid{padding:0 16px 80px;display:grid;grid-template-columns:1fr;gap:10px;}
+.sh-look-item{background:var(--c-card);border:1px solid var(--c-border);border-radius:8px;padding:10px;display:flex;gap:10px;align-items:center;cursor:pointer;}
+.sh-look-num{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--c-accent);font-weight:600;min-width:32px;}
+.sh-look-thumbs{display:flex;gap:4px;flex-shrink:0;}
+.sh-look-thumb{width:44px;height:44px;border-radius:5px;overflow:hidden;background:var(--c-surface);}
+.sh-look-thumb img{width:100%;height:100%;object-fit:cover;}
+.sh-look-thumb-ph{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1rem;color:var(--c-text3);}
+.sh-look-info{flex:1;min-width:0;}
+.sh-look-cat{font-size:.7rem;color:var(--c-text3);}
+.sh-look-out{font-size:.82rem;color:var(--c-text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sh-look-meta{font-size:.7rem;color:var(--c-text2);}
+.sh-look-rm{background:none;border:none;color:#C72A1C;font-size:1rem;padding:6px 8px;cursor:pointer;}
+.sh-back{background:none;border:none;color:var(--c-text2);font-size:.78rem;padding:14px 16px 6px;cursor:pointer;font-family:'Inter',sans-serif;}
+.sh-picker-list{max-height:60vh;overflow-y:auto;}
+.sh-picker-item{padding:10px 14px;border-bottom:1px solid var(--c-border);display:flex;gap:10px;align-items:center;cursor:pointer;}
+.sh-picker-item:hover{background:var(--c-surface);}
+.sh-picker-item.assigned{opacity:.4;pointer-events:none;}
+.sh-picker-num{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--c-accent);min-width:26px;}
+.sh-picker-info{flex:1;min-width:0;}
+.sh-picker-out{font-size:.82rem;color:var(--c-text);}
+.sh-picker-meta{font-size:.68rem;color:var(--c-text3);}
+.sh-modal-form label{display:block;font-size:.7rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.08em;margin:10px 0 4px;font-family:'JetBrains Mono',monospace;}
+.sh-modal-form input,.sh-modal-form select,.sh-modal-form textarea{width:100%;padding:10px;border:1px solid var(--c-border);border-radius:6px;background:var(--c-surface);color:var(--c-text);font-size:.88rem;font-family:'Inter',sans-serif;box-sizing:border-box;}
+.sh-modal-form textarea{resize:vertical;min-height:60px;}
+.sh-modal-row{display:flex;gap:8px;}
+.sh-modal-row label{flex:1;}
 .grand-total-strip{background:var(--c-accent);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
 .gt-label{font-size:.7rem;color:rgba(255,255,255,.7);font-weight:600;letter-spacing:.08em;text-transform:uppercase;}
 .gt-amount{font-family:'JetBrains Mono',monospace;font-size:1.4rem;color:var(--c-bg);font-weight:500;}
@@ -558,6 +622,11 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
   </div>
 </div>
 
+<div class="screen hidden" id="screen-shooting">
+  <div class="nav-bar"><button class="menu-btn" onclick="openDrawer()" aria-label="Menu"><span></span><span></span><span></span></button><div><div class="nav-title" id="sh-nav-title">Shooting</div></div><button class="nav-btn" id="sh-nav-add" onclick="openLocationModal()" aria-label="Adicionar locação">＋</button></div>
+  <div class="scroll-area" id="shooting-scroll"></div>
+</div>
+
 <div class="screen hidden" id="screen-equipa">
   <div class="nav-bar"><button class="menu-btn" onclick="openDrawer()" aria-label="Menu"><span></span><span></span><span></span></button><div><div class="nav-title">Equipa & Custos</div></div><button class="nav-btn" onclick="openPipeline()" aria-label="Abrir Pipeline" title="Pipeline">⚡</button></div>
   <div class="grand-total-strip">
@@ -582,6 +651,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
     <button class="drawer-item on" id="drw-looks" onclick="switchTab('looks');closeDrawer()">Looks <span class="drawer-item-num" id="drw-counter">0/0</span></button>
     <button class="drawer-item" id="drw-gallery" onclick="switchTab('gallery');closeDrawer()">Galeria</button>
     <button class="drawer-item" id="drw-config" onclick="switchTab('config');closeDrawer()">Configuração</button>
+    <button class="drawer-item" id="drw-shooting" onclick="switchTab('shooting');closeDrawer()">Shooting</button>
     <button class="drawer-item" id="drw-equipa" onclick="switchTab('equipa');closeDrawer()">Equipa & Custos</button>
   </nav>
   <div class="drawer-foot">
@@ -595,6 +665,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
     <button class="tab-item on" id="tab-looks"></button>
     <button class="tab-item" id="tab-gallery"></button>
     <button class="tab-item" id="tab-config"></button>
+    <button class="tab-item" id="tab-shooting"></button>
     <button class="tab-item" id="tab-equipa"></button>
   </div>
 </div>
@@ -669,6 +740,7 @@ window.state={
     sapatos:DEFAULT_SAPATOS.map(n=>({name:n,photo:''})),
     scarves:DEFAULT_SCARVES.map(n=>({name:n,photo:''})),
     models:DEFAULT_MODELS.map(n=>({name:n,photo:''})),
+    locations:[],
     theme:{...DEFAULT_THEME}
   },
   looks:[],team:[],ui:{currentIdx:0,filter:'',galleryView:'grid'}
@@ -701,7 +773,7 @@ function normaliseSimple(arr,defaults){if(arr&&arr.length>0)return arr.map(o=>ty
 function saveCache(d){try{const l={...d,config:{...d.config,outfits:d.config.outfits.map(o=>({...o,photo:'',pieces:(o.pieces||[]).map(p=>({...p,photo:''}))})),joias:(d.config.joias||[]).map(o=>({...o,photo:''})),sapatos:(d.config.sapatos||[]).map(o=>({...o,photo:''})),scarves:d.config.scarves.map(s=>({...s,photo:''})),models:d.config.models.map(m=>({...m,photo:''})),cats:d.config.cats.map(([n,c,t])=>[n,c,(t||[]).map(x=>({...x,photo:''}))])}};localStorage.setItem(CACHE_KEY,JSON.stringify(l));}catch(e){}}
 // normalise value to array (migrates old string-based data to array format)
 function toArr(v){if(Array.isArray(v))return v.filter(Boolean);if(v==null||v==='')return [];return [v];}
-function migrateLooks(looks){return (looks||[]).map(l=>({...l,outfit:toArr(l.outfit),scarf:toArr(l.scarf),joias:toArr(l.joias)}));}
+function migrateLooks(looks){return (looks||[]).map(l=>({...l,outfit:toArr(l.outfit),scarf:toArr(l.scarf),joias:toArr(l.joias),locationId:l.locationId||''}));}
 
 function loadCache(){try{const c=localStorage.getItem(CACHE_KEY);if(c){const d=JSON.parse(c);if(d.config){state.config={...state.config,...d.config};state.config.outfits=normaliseOutfits(state.config.outfits);state.config.joias=normaliseSimple(state.config.joias,DEFAULT_JOIAS);state.config.sapatos=normaliseSimple(state.config.sapatos,DEFAULT_SAPATOS);}if(d.looks)state.looks=migrateLooks(d.looks);if(d.team)state.team=d.team;if(d.ui){const {currentIdx,filter,...restUi}=d.ui;state.ui={...state.ui,...restUi};}}}catch(e){}}
 
@@ -744,6 +816,7 @@ async function doSave(){
       saveChunked('sapatos',state.config.sapatos||[]),
       saveChunked('scarves',state.config.scarves),
       saveChunked('models',state.config.models),
+      saveChunked('locations',state.config.locations||[]),
       saveChunked('looks',state.looks),
       setDoc(base('team'),{items:state.team,ui:state.ui})
     ]);
@@ -764,7 +837,7 @@ async function loadChunked(base,prefix){
 async function loadFromFirestore(){
   try{
     const base=n=>doc(db,'shared','data','docs',n);
-    const [cfgSnap,teamSnap,outfits,joias,sapatos,scarves,models,looks]=await Promise.all([
+    const [cfgSnap,teamSnap,outfits,joias,sapatos,scarves,models,locations,looks]=await Promise.all([
       getDoc(base('config')),
       getDoc(base('team')),
       loadChunked(base,'outfits'),
@@ -772,6 +845,7 @@ async function loadFromFirestore(){
       loadChunked(base,'sapatos'),
       loadChunked(base,'scarves'),
       loadChunked(base,'models'),
+      loadChunked(base,'locations'),
       loadChunked(base,'looks')
     ]);
     if(!cfgSnap.exists()&&looks===null){state.looks=genLooks();state.team=defaultTeam();doSave();}
@@ -783,6 +857,7 @@ async function loadFromFirestore(){
       if(sapatos!==null)state.config.sapatos=normaliseSimple(sapatos,DEFAULT_SAPATOS);
       if(scarves!==null)state.config.scarves=scarves;
       if(models!==null)state.config.models=models;
+      if(locations!==null)state.config.locations=locations;
       if(looks!==null)state.looks=migrateLooks(looks);
       if(teamSnap.exists()){state.team=teamSnap.data().items||[];if(teamSnap.data().ui){const {currentIdx,filter,...restUi}=teamSnap.data().ui;state.ui={...state.ui,...restUi};}}
     }
@@ -837,7 +912,7 @@ function genLooksEmpty(){
 function defaultTeam(){return[{id:1,name:'',role:'Fotógrafo Principal',location:'PT Est+Ext+CV',phone:'',email:'',notes:'',photo:'',viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true}];}
 
 // ── SCREENS ──
-window.switchTab=function(tab){if(tab==='equipa'&&!state.ui.equipaUnlocked){promptPIN(()=>{state.ui.equipaUnlocked=true;switchTab('equipa');});return;}const map={looks:'screen-looks',gallery:'screen-gallery',config:'screen-config',equipa:'screen-equipa'};document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById(map[tab]).classList.remove('hidden');document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('on'));const el=document.getElementById('tab-'+tab);if(el)el.classList.add('on');document.querySelectorAll('.drawer-item').forEach(d=>d.classList.remove('on'));const di=document.getElementById('drw-'+tab);if(di)di.classList.add('on');window.currentScreen=map[tab];if(tab==='gallery')renderGallery();if(tab==='config')renderConfig();if(tab==='equipa')renderTeam();};
+window.switchTab=function(tab){if(tab==='equipa'&&!state.ui.equipaUnlocked){promptPIN(()=>{state.ui.equipaUnlocked=true;switchTab('equipa');});return;}const map={looks:'screen-looks',gallery:'screen-gallery',config:'screen-config',shooting:'screen-shooting',equipa:'screen-equipa'};document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById(map[tab]).classList.remove('hidden');document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('on'));const el=document.getElementById('tab-'+tab);if(el)el.classList.add('on');document.querySelectorAll('.drawer-item').forEach(d=>d.classList.remove('on'));const di=document.getElementById('drw-'+tab);if(di)di.classList.add('on');window.currentScreen=map[tab];if(tab==='gallery')renderGallery();if(tab==='config')renderConfig();if(tab==='shooting')renderShooting();if(tab==='equipa')renderTeam();};
 window.toggleCS=function(id){document.getElementById(id).classList.toggle('open');};
 
 // sub-tabs inside Roupas & Peças
@@ -941,6 +1016,8 @@ function buildCard(look){
   const statusCls=status==='done'?'done':status==='shooting'?'shooting':'idle';
   const statusLbl=status==='done'?'Feito':status==='shooting'?'Shooting':'Pronto';
   const locOpts=`<option value=""${!look.location?' selected':''}>—</option>`+["Portugal – Estúdio","Portugal – Exterior","Cabo Verde – Exterior"].map(l=>`<option${l===look.location?' selected':''}>${l}</option>`).join('');
+  const matchingLocs=(state.config.locations||[]).filter(L=>!look.location||L.category===look.location);
+  const locIdOpts=`<option value="">— Qualquer locação —</option>`+matchingLocs.map(L=>`<option value="${L.id}"${L.id===look.locationId?' selected':''}>${esc(L.name)}${L.city?' · '+esc(L.city):''}</option>`).join('');
 
   // outfit cell html
   LB_GALLERIES['outfit:'+look.num]=slides;
@@ -993,6 +1070,7 @@ function buildCard(look){
       ${pickBtn('model','Modelo',look.model,'models',false,'👤')}
       ${tutPickBtn()}
       <div class="field-row"><div class="field-lbl">Local</div><select class="field-sel" onchange="updLookField(${look.num},'location',this.value)">${locOpts}</select></div>
+      <div class="field-row"><div class="field-lbl">Locação</div><select class="field-sel" onchange="updLookField(${look.num},'locationId',this.value)">${locIdOpts}</select></div>
       <div class="field-row"><div class="field-lbl">Notas</div><input class="field-inp" type="text" value="${esc(look.notes||'')}" placeholder="Adicionar nota…" onchange="updLookField(${look.num},'notes',this.value)"></div>
     </div>`;
   return card;
@@ -1132,7 +1210,8 @@ function updateFeatured(){
 (function(){let sx=0,sy=0,drag=false,moved=false,vpW=0;const UI='select,input,textarea,button,label,.outfit-mini-btn';function isUI(el){return!!el.closest(UI);}function getW(){return getCardWidth();}function onStart(x,y,target){if(isUI(target))return;sx=x;sy=y;drag=true;moved=false;vpW=getW();document.getElementById('carousel-track').classList.add('no-anim');}function onMove(x,y){if(!drag)return;const dx=x-sx,dy=y-sy;if(!moved&&Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){drag=false;return;}if(Math.abs(dx)>4)moved=true;document.getElementById('carousel-track').style.transform=`translateX(${-(state.ui.currentIdx*vpW-dx)}px)`;}function onEnd(x){if(!drag)return;drag=false;const track=document.getElementById('carousel-track');track.classList.remove('no-anim');const dx=x-sx,fl=filteredLooks(),thr=vpW*0.2;if(moved&&dx<-thr&&state.ui.currentIdx<fl.length-1)window.navTo(state.ui.currentIdx+1);else if(moved&&dx>thr&&state.ui.currentIdx>0)window.navTo(state.ui.currentIdx-1);else window.navTo(state.ui.currentIdx);}const vp=document.getElementById('carousel-vp');vp.addEventListener('mousedown',e=>{if(e.button!==0)return;if(!isUI(e.target))e.preventDefault();onStart(e.clientX,e.clientY,e.target);});window.addEventListener('mousemove',e=>{if(drag)onMove(e.clientX,e.clientY);});window.addEventListener('mouseup',e=>onEnd(e.clientX));vp.addEventListener('touchstart',e=>onStart(e.touches[0].clientX,e.touches[0].clientY,e.target),{passive:true});vp.addEventListener('touchmove',e=>{if(drag)onMove(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});vp.addEventListener('touchend',e=>onEnd(e.changedTouches[0].clientX));window.addEventListener('keydown',e=>{if(window.currentScreen!=='screen-looks')return;if(e.key==='ArrowRight'||e.key==='ArrowDown')window.navTo(state.ui.currentIdx+1);if(e.key==='ArrowLeft'||e.key==='ArrowUp')window.navTo(state.ui.currentIdx-1);});})();
 
 // ── LOOK UPDATES ──
-window.updLookField=function(num,field,val){const l=state.looks.find(x=>x.num===num);if(!l)return;l[field]=val;scheduleSave();if(['outfit','joias','sapatos','scarf'].includes(field))rebuildOutfitCell(num);if(field==='tutorialIdx')rebuildTutorialCell(num);};
+window.updLookField=function(num,field,val){const l=state.looks.find(x=>x.num===num);if(!l)return;l[field]=val;if(field==='location'&&l.locationId){const L=(state.config.locations||[]).find(x=>x.id===l.locationId);if(L&&val&&L.category!==val){l.locationId='';rebuildLocationCell(num);}}if(field==='locationId'&&val){const L=(state.config.locations||[]).find(x=>x.id===val);if(L&&L.category&&L.category!==l.location){l.location=L.category;rebuildLocationCell(num);}}scheduleSave();if(['outfit','joias','sapatos','scarf'].includes(field))rebuildOutfitCell(num);if(field==='tutorialIdx')rebuildTutorialCell(num);};
+function rebuildLocationCell(num){const fl=filteredLooks();const idx=fl.findIndex(x=>x.num===num);if(idx<0)return;const cardEl=document.getElementById('carousel-track').children[idx];if(!cardEl)return;const look=fl[idx];const sels=cardEl.querySelectorAll('.card-fields select.field-sel');if(sels.length<2)return;const localSel=sels[sels.length-2],locIdSel=sels[sels.length-1];const locOpts=`<option value=""${!look.location?' selected':''}>—</option>`+["Portugal – Estúdio","Portugal – Exterior","Cabo Verde – Exterior"].map(l=>`<option${l===look.location?' selected':''}>${l}</option>`).join('');const matchingLocs=(state.config.locations||[]).filter(L=>!look.location||L.category===look.location);const locIdOpts=`<option value="">— Qualquer locação —</option>`+matchingLocs.map(L=>`<option value="${L.id}"${L.id===look.locationId?' selected':''}>${esc(L.name)}${L.city?' · '+esc(L.city):''}</option>`).join('');localSel.innerHTML=locOpts;locIdSel.innerHTML=locIdOpts;}
 
 // reposition on resize (card width changes between mobile and desktop)
 (function(){let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{if(window.currentScreen!=='screen-looks')return;const track=document.getElementById('carousel-track');if(!track)return;const w=getCardWidth();track.classList.add('no-anim');track.style.transform=`translateX(-${state.ui.currentIdx*w}px)`;const fl=filteredLooks();renderVirtualCards(fl,state.ui.currentIdx);requestAnimationFrame(()=>track.classList.remove('no-anim'));},150);});})();
@@ -1401,6 +1480,47 @@ window.handleTutorialPhoto=async function(ci,ti,input){if(!input.files[0])return
 window.updateLocHint=function(){const s=parseInt(document.getElementById('loc-studio').value)||0;const p=parseInt(document.getElementById('loc-pt').value)||0;const c=parseInt(document.getElementById('loc-cv').value)||0;const h=document.getElementById('loc-hint');h.innerHTML=`Total: <strong>${s+p+c}</strong> / 100`;h.className='cfg-hint'+((s+p+c)!==100?' err':'');};
 window.updateCatHint=function(){const t=state.config.cats.reduce((s,[,n])=>s+n,0);const h=document.getElementById('cat-hint');h.innerHTML=`Total: <strong>${t}</strong> / 100`;h.className='cfg-hint'+(t!==100?' err':'');};
 window.regenerateFromCats=function(){const ct=state.config.cats.reduce((s,[,n])=>s+n,0);if(ct!==100){alert(`Total de categorias: ${ct}. Deve ser 100 para gerar os looks.`);return;}if(state.looks&&state.looks.length&&!confirm('Vai gerar uma nova lista de looks vazia. As atribuições actuais (roupa, modelo, local, lenço, jóias, sapatos, fotos de shooting) serão perdidas. Continuar?'))return;state.looks=genLooksEmpty();state.ui.currentIdx=0;state.ui.filter='';scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');};
+
+// ─── SHOOTING MODULE ───
+const SH_CAT_LABELS={'Portugal – Estúdio':'PT · Estúdio','Portugal – Exterior':'PT · Exterior','Cabo Verde – Exterior':'CV · Exterior'};
+let shView={mode:'dashboard',id:null};
+function fmtDateLabel(iso){if(!iso)return '—';const M=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];const p=iso.split('-');if(p.length!==3)return iso;return `${p[2]} ${M[parseInt(p[1],10)-1]||''} ${p[0]}`;}
+function fmtTimeLabel(s,e){if(s&&e)return `${s} – ${e}`;return s||e||'—';}
+function looksForLocation(locId){return state.looks.filter(l=>l.locationId===locId);}
+window.renderShooting=function(){if(shView.mode==='dashboard')return renderShootingDashboard();if(shView.mode==='detail')return renderShootingDetail(shView.id);};
+function renderShootingDashboard(){document.getElementById('sh-nav-title').textContent='Shooting';const addBtn=document.getElementById('sh-nav-add');addBtn.textContent='＋';addBtn.onclick=()=>openLocationModal();const el=document.getElementById('shooting-scroll');const locs=(state.config.locations||[]).slice().sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999'));if(!locs.length){el.innerHTML=`<div class="sh-list"><div class="sh-empty"><div class="sh-empty-icon">📍</div><div>Sem locações ainda</div><div style="margin-top:6px;font-size:.75rem">Adiciona uma locação para começar a planear os dias de shooting.</div></div><button class="sh-add-btn" onclick="openLocationModal()">＋ Adicionar locação</button></div>`;return;}el.innerHTML=`<div class="sh-list">${locs.map(L=>renderLocCard(L)).join('')}<button class="sh-add-btn" onclick="openLocationModal()">＋ Adicionar locação</button></div>`;}
+function renderLocCard(L){const ct=looksForLocation(L.id).length;const catLbl=SH_CAT_LABELS[L.category]||L.category||'—';return `<div class="sh-card" onclick="openLocationDetail('${L.id}')"><div class="sh-card-photo">${L.photoUrl?`<img src="${L.photoUrl}" alt="">`:`<div class="sh-card-photo-ph">📍</div>`}<span class="sh-card-tag">${esc(catLbl)}</span></div><div class="sh-card-body"><div class="sh-card-row1"><div class="sh-card-name">${esc(L.name)}</div><div class="sh-card-date">${esc(fmtDateLabel(L.date))}</div></div><div class="sh-card-city">${esc(L.city||'—')}</div><div class="sh-card-meta"><span>Hora<strong>${esc(fmtTimeLabel(L.timeStart,L.timeEnd))}</strong></span><span>Looks<strong>${ct}</strong></span></div></div><div class="sh-card-actions"><button class="sh-card-act" onclick="event.stopPropagation();openLocationModal('${L.id}')">Editar</button><button class="sh-card-act danger" onclick="event.stopPropagation();removeLocation('${L.id}')">Remover</button></div></div>`;}
+window.openLocationDetail=function(id){shView={mode:'detail',id};renderShooting();};
+function renderShootingDetail(id){const L=(state.config.locations||[]).find(x=>x.id===id);if(!L){shView={mode:'dashboard',id:null};return renderShootingDashboard();}document.getElementById('sh-nav-title').textContent=L.name||'Locação';const addBtn=document.getElementById('sh-nav-add');addBtn.textContent='＋';addBtn.onclick=()=>openLookPicker(id);const el=document.getElementById('shooting-scroll');const assignedLooks=looksForLocation(id);const lookFileInputId=`sh-hero-file-${id}`;el.innerHTML=`<button class="sh-back" onclick="backToShooting()">← Voltar para locações</button>
+<div class="sh-detail-hero">
+  <div class="sh-detail-hero-img">${L.photoUrl?`<img src="${L.photoUrl}" alt="">`:`<div class="sh-detail-hero-ph">📍</div>`}<input type="file" id="${lookFileInputId}" accept="image/*" style="display:none" onchange="uploadLocationHero('${id}',this)"><button class="sh-detail-upload" onclick="document.getElementById('${lookFileInputId}').click()">📷 ${L.photoUrl?'Trocar':'Upload'}</button></div>
+  <div class="sh-detail-name">${esc(L.name)}</div>
+  <div class="sh-detail-city">${esc(L.city||'—')} · ${esc(SH_CAT_LABELS[L.category]||L.category||'—')}</div>
+  <div class="sh-detail-facts">
+    <div class="sh-fact"><div class="sh-fact-k">📅 Data</div><div class="sh-fact-v">${esc(fmtDateLabel(L.date))}</div></div>
+    <div class="sh-fact"><div class="sh-fact-k">🕐 Janela</div><div class="sh-fact-v">${esc(fmtTimeLabel(L.timeStart,L.timeEnd))}</div></div>
+    <div class="sh-fact"><div class="sh-fact-k">👤 Modelos</div><div class="sh-fact-v">${(L.models||[]).length||'—'}</div></div>
+    <div class="sh-fact"><div class="sh-fact-k">📸 Looks</div><div class="sh-fact-v">${assignedLooks.length}</div></div>
+  </div>
+  ${L.notes?`<div class="sh-detail-notes"><span class="sh-detail-notes-lbl">Notas</span>${esc(L.notes)}</div>`:''}
+</div>
+<div class="sh-looks-head"><h2>Looks programados</h2><button class="sh-add-look" onclick="openLookPicker('${id}')">＋ Adicionar look</button></div>
+<div class="sh-look-grid">${assignedLooks.length?assignedLooks.map(l=>renderShootingLookItem(l)).join(''):`<div class="sh-empty" style="padding:30px 10px"><div>Sem looks atribuídos a esta locação</div><div style="margin-top:4px;font-size:.7rem">Toca em "Adicionar look" para começar.</div></div>`}</div>`;}
+function renderShootingLookItem(l){const oName=toArr(l.outfit)[0]||'';const oPhoto=photoOf('outfits',oName);const mPhoto=photoOf('models',l.model);return `<div class="sh-look-item" onclick="goToLookFromShooting(${l.num})"><div class="sh-look-num">#${l.num}</div><div class="sh-look-thumbs"><div class="sh-look-thumb">${oPhoto?`<img src="${oPhoto}" alt="">`:`<div class="sh-look-thumb-ph">👗</div>`}</div><div class="sh-look-thumb">${mPhoto?`<img src="${mPhoto}" alt="">`:`<div class="sh-look-thumb-ph">👤</div>`}</div></div><div class="sh-look-info"><div class="sh-look-cat">${esc(l.category)}</div><div class="sh-look-out">${esc(oName||'—')}</div><div class="sh-look-meta">${esc(l.model||'—')}</div></div><button class="sh-look-rm" onclick="event.stopPropagation();unassignLook(${l.num})" title="Remover da locação">✕</button></div>`;}
+window.backToShooting=function(){shView={mode:'dashboard',id:null};renderShooting();};
+window.goToLookFromShooting=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;state.ui.currentIdx=idx;state.ui.filter='';switchTab('looks');buildCarousel();};
+window.unassignLook=function(num){const l=state.looks.find(x=>x.num===num);if(!l)return;l.locationId='';scheduleSave();renderShooting();};
+window.uploadLocationHero=async function(id,input){if(!input.files[0])return;const c=await compressImage(input.files[0],1200,0.7);const L=(state.config.locations||[]).find(x=>x.id===id);if(!L)return;L.photoUrl=c;scheduleSave();renderShooting();};
+window.removeLocation=function(id){const L=(state.config.locations||[]).find(x=>x.id===id);if(!L)return;const assigned=looksForLocation(id).length;const msg=assigned?`Remover "${L.name}"? ${assigned} look${assigned!==1?'s':''} ficarão sem locação específica (categoria mantém-se).`:`Remover "${L.name}"?`;if(!confirm(msg))return;state.looks.forEach(l=>{if(l.locationId===id)l.locationId='';});state.config.locations=state.config.locations.filter(x=>x.id!==id);scheduleSave();if(shView.id===id){shView={mode:'dashboard',id:null};}renderShooting();};
+
+// Location modal (add/edit)
+window.openLocationModal=function(id){const L=id?(state.config.locations||[]).find(x=>x.id===id):null;const isEdit=!!L;const f={id:L?.id||'',name:L?.name||'',city:L?.city||'',category:L?.category||'Portugal – Exterior',date:L?.date||'',timeStart:L?.timeStart||'',timeEnd:L?.timeEnd||'',notes:L?.notes||'',models:(L?.models||[]).join(', ')};const html=`<div class="pin-card" style="max-width:380px"><div class="pin-title">${isEdit?'Editar locação':'Nova locação'}</div><div class="sh-modal-form"><label>Nome</label><input type="text" id="lm-name" value="${esc(f.name)}" placeholder="Casa Modernista"><label>Cidade / Bairro</label><input type="text" id="lm-city" value="${esc(f.city)}" placeholder="Lisboa · Alfama"><label>Categoria</label><select id="lm-cat"><option${f.category==='Portugal – Estúdio'?' selected':''}>Portugal – Estúdio</option><option${f.category==='Portugal – Exterior'?' selected':''}>Portugal – Exterior</option><option${f.category==='Cabo Verde – Exterior'?' selected':''}>Cabo Verde – Exterior</option></select><label>Data</label><input type="date" id="lm-date" value="${esc(f.date)}"><div class="sh-modal-row"><label>Início<input type="time" id="lm-ts" value="${esc(f.timeStart)}"></label><label>Fim<input type="time" id="lm-te" value="${esc(f.timeEnd)}"></label></div><label>Modelos <span style="text-transform:none;letter-spacing:0;color:var(--c-text3)">(separados por vírgula)</span></label><input type="text" id="lm-models" value="${esc(f.models)}" placeholder="Joana, Carla"><label>Notas</label><textarea id="lm-notes" placeholder="Observações…">${esc(f.notes)}</textarea></div><div class="pin-actions"><button class="pin-btn" onclick="closeLocationModal()">Cancelar</button><button class="pin-btn primary" onclick="saveLocationFromModal('${f.id}')">${isEdit?'Guardar':'Adicionar'}</button></div></div>`;const ovl=document.getElementById('loc-modal-ovl');ovl.innerHTML=html;ovl.classList.add('open');};
+window.closeLocationModal=function(){const ovl=document.getElementById('loc-modal-ovl');ovl.classList.remove('open');ovl.innerHTML='';};
+window.saveLocationFromModal=function(id){const name=document.getElementById('lm-name').value.trim();if(!name){alert('Nome é obrigatório.');return;}const data={name,city:document.getElementById('lm-city').value.trim(),category:document.getElementById('lm-cat').value,date:document.getElementById('lm-date').value,timeStart:document.getElementById('lm-ts').value,timeEnd:document.getElementById('lm-te').value,notes:document.getElementById('lm-notes').value.trim(),models:document.getElementById('lm-models').value.split(',').map(s=>s.trim()).filter(Boolean)};if(!state.config.locations)state.config.locations=[];if(id){const L=state.config.locations.find(x=>x.id===id);if(L){const oldCat=L.category;Object.assign(L,data);if(oldCat!==data.category){state.looks.forEach(l=>{if(l.locationId===id)l.location=data.category;});}}}else{const newId='loc-'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);state.config.locations.push({id:newId,photoUrl:'',...data});}scheduleSave();closeLocationModal();renderShooting();};
+
+// Look picker (add looks to a location)
+window.openLookPicker=function(locId){const L=(state.config.locations||[]).find(x=>x.id===locId);if(!L)return;const candidates=state.looks.filter(l=>!l.locationId&&(!l.location||l.location===L.category));const assignedHere=looksForLocation(locId);const itemsHtml=candidates.length?candidates.map(l=>{const oName=toArr(l.outfit)[0]||'—';return `<div class="sh-picker-item" onclick="assignLookToLocation(${l.num},'${locId}')"><div class="sh-picker-num">#${l.num}</div><div class="sh-picker-info"><div class="sh-picker-out">${esc(oName)} · ${esc(l.model||'sem modelo')}</div><div class="sh-picker-meta">${esc(l.category)}</div></div></div>`;}).join(''):`<div class="sh-empty" style="padding:30px 10px"><div>Sem looks disponíveis</div><div style="margin-top:4px;font-size:.7rem">Os looks têm de ter categoria "${esc(L.category)}" e ainda não estar atribuídos a outra locação.</div></div>`;const html=`<div class="pin-card" style="max-width:400px;padding:18px"><div class="pin-title">Adicionar look a "${esc(L.name)}"</div><div class="pin-sub">${candidates.length} look${candidates.length!==1?'s':''} disponível${candidates.length!==1?'eis':''} · ${assignedHere.length} já atribuído${assignedHere.length!==1?'s':''}</div><div class="sh-picker-list">${itemsHtml}</div><div class="pin-actions" style="margin-top:14px"><button class="pin-btn" onclick="closeLocationModal()">Fechar</button></div></div>`;const ovl=document.getElementById('loc-modal-ovl');ovl.innerHTML=html;ovl.classList.add('open');};
+window.assignLookToLocation=function(num,locId){const l=state.looks.find(x=>x.num===num);const L=(state.config.locations||[]).find(x=>x.id===locId);if(!l||!L)return;l.locationId=locId;if(L.category)l.location=L.category;scheduleSave();openLookPicker(locId);};
 
 // ── EQUIPA ──
 function renderTeam(){renderGrandTotal();document.getElementById('team-cards').innerHTML=state.team.map(m=>renderMemberCard(m)).join('');}
@@ -1690,6 +1810,7 @@ window.promptPIN=function(onSuccess){pinPending=onSuccess;const inp=document.get
 window.cancelPIN=function(){pinPending=null;document.getElementById('pin-ovl').classList.remove('open');};
 window.submitPIN=function(){const inp=document.getElementById('pin-input');const v=(inp.value||'').trim();if(v===PIN_CODE){const cb=pinPending;pinPending=null;document.getElementById('pin-ovl').classList.remove('open');if(cb)cb();}else{inp.classList.add('err');document.getElementById('pin-err').textContent='PIN incorrecto';setTimeout(()=>inp.classList.remove('err'),400);inp.value='';inp.focus();}};
 document.addEventListener('keydown',e=>{if(!document.getElementById('pin-ovl').classList.contains('open'))return;if(e.key==='Escape')cancelPIN();if(e.key==='Enter')submitPIN();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('loc-modal-ovl').classList.contains('open'))closeLocationModal();});
 </script>
 
 <div class="pipe-ovl" id="pipe-ovl">
@@ -1714,5 +1835,7 @@ document.addEventListener('keydown',e=>{if(!document.getElementById('pin-ovl').c
     </div>
   </div>
 </div>
+
+<div class="pin-ovl" id="loc-modal-ovl"></div>
 </body>
 </html>
