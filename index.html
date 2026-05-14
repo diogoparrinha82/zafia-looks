@@ -440,13 +440,14 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .sh-detail-fact:nth-child(odd){padding-right:16px;border-right:1px solid var(--c-border);}
 .sh-detail-fact:nth-child(even){padding-left:16px;}
 .sh-detail-fact:nth-last-child(-n+2){border-bottom:none;}
-.sh-detail-fact--full{grid-column:1/-1;border-right:none!important;padding-left:0!important;padding-right:0!important;border-bottom:none!important;}
-.sh-detail-models{margin-top:16px;padding-top:14px;border-top:1px solid var(--c-border);}
-.sh-detail-models-lbl{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-text3);display:flex;align-items:center;gap:6px;margin-bottom:8px;}
+.sh-detail-models{margin-top:18px;padding-top:14px;border-top:1px solid var(--c-border);}
+.sh-detail-models-lbl{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-text3);display:flex;align-items:center;gap:6px;margin-bottom:12px;}
+.sh-detail-notes-edit{margin-top:18px;padding-top:14px;border-top:1px solid var(--c-border);}
+.sh-detail-notes-lbl{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-text3);display:flex;align-items:center;gap:6px;margin-bottom:8px;}
+.sh-detail-notes-inp{width:100%;padding:10px 12px;border:1px solid var(--c-border);background:var(--c-surface);color:var(--c-text);font-size:.85rem;font-family:'Inter',sans-serif;line-height:1.5;resize:vertical;min-height:64px;box-sizing:border-box;border-radius:3px;}
+.sh-detail-notes-inp:focus{outline:none;border-color:var(--c-accent);}
 .sh-detail-fact .k{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-text3);display:flex;align-items:center;gap:6px;}
 .sh-detail-fact .v{font-family:'Inter Tight',sans-serif;font-weight:500;font-size:.95rem;color:var(--c-text);}
-.sh-detail-notes{font-size:.85rem;color:var(--c-text2);border-top:1px solid var(--c-border);padding-top:16px;line-height:1.5;}
-.sh-detail-notes-lbl{font-family:'JetBrains Mono',monospace;font-style:normal;font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--c-text3);margin-right:10px;}
 /* Looks within detail (card-style, four photos + info + inline notes) */
 .sh-looks-head{padding:24px 24px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--c-border);}
 .sh-looks-head h2{font-family:'Inter Tight',sans-serif;font-weight:600;font-size:1.1rem;color:var(--c-text);}
@@ -509,10 +510,10 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .sh-model-chip.on .ph{background:rgba(255,255,255,.25);color:#fff;}
 .sh-model-empty{font-size:.72rem;color:var(--c-text3);font-style:italic;padding:6px 0;}
 /* Model photo strip in detail */
-.sh-models-strip{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
-.sh-model-thumb{display:inline-flex;align-items:center;gap:6px;background:var(--c-surface);border:1px solid var(--c-border);padding:3px 10px 3px 3px;border-radius:999px;font-size:.72rem;color:var(--c-text);}
-.sh-model-thumb img{width:24px;height:24px;border-radius:50%;object-fit:cover;}
-.sh-model-thumb .ph{width:24px;height:24px;border-radius:50%;background:var(--c-border);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--c-text3);}
+.sh-models-strip{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.sh-model-thumb{display:inline-flex;align-items:center;gap:10px;background:var(--c-surface);border:1px solid var(--c-border);padding:5px 14px 5px 5px;border-radius:999px;font-size:.82rem;color:var(--c-text);font-family:'Inter Tight',sans-serif;font-weight:500;}
+.sh-model-thumb img{width:40px;height:40px;border-radius:50%;object-fit:cover;cursor:pointer;}
+.sh-model-thumb .ph{width:40px;height:40px;border-radius:50%;background:var(--c-border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--c-text3);}
 .grand-total-strip{background:var(--c-accent);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
 .gt-label{font-size:.7rem;color:rgba(255,255,255,.7);font-weight:600;letter-spacing:.08em;text-transform:uppercase;}
 .gt-amount{font-family:'JetBrains Mono',monospace;font-size:1.4rem;color:var(--c-bg);font-weight:500;}
@@ -1625,10 +1626,12 @@ function renderShootingDetail(id){const L=(state.config.locations||[]).find(x=>x
     <div class="sh-detail-factgrid">
       <div class="sh-detail-fact"><span class="k">📅 Data</span><span class="v">${esc(fmtDateLong(L.date))}</span></div>
       <div class="sh-detail-fact"><span class="k">🕐 Janela</span><span class="v">${esc(fmtTimeLabel(L.timeStart,L.timeEnd))}</span></div>
-      <div class="sh-detail-fact sh-detail-fact--full"><span class="k">📸 Looks</span><span class="v">${assignedLooks.length}</span></div>
     </div>
     ${(L.models||[]).length?`<div class="sh-detail-models"><span class="sh-detail-models-lbl">👤 Modelos no set</span><div class="sh-models-strip">${L.models.map(name=>{const m=(state.config.models||[]).find(x=>x.name===name);const ph=m?.photo||'';return `<div class="sh-model-thumb">${ph?`<img src="${ph}" alt="" onclick="openLb('${ph}')">`:`<div class="ph">👤</div>`}<span>${esc(name)}</span></div>`;}).join('')}</div></div>`:''}
-    ${L.notes?`<div class="sh-detail-notes"><span class="sh-detail-notes-lbl">Notas da produção</span>${esc(L.notes)}</div>`:''}
+    <div class="sh-detail-notes-edit">
+      <label class="sh-detail-notes-lbl">📝 Notas da produção</label>
+      <textarea class="sh-detail-notes-inp" placeholder="Catering, acessórios a levar, contactos no local, observações…" oninput="updLocationNotes('${id}',this.value)">${esc(L.notes||'')}</textarea>
+    </div>
   </div>
 </div>
 <div class="sh-looks-head">
@@ -1676,6 +1679,7 @@ window.backToShooting=function(){shView={mode:'dashboard',id:null};renderShootin
 window.goToLookFromShooting=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;state.ui.currentIdx=idx;state.ui.filter='';switchTab('looks');buildCarousel();};
 window.unassignLook=function(num){const l=state.looks.find(x=>x.num===num);if(!l)return;l.locationId='';scheduleSave();renderShooting();buildCarousel();};
 window.uploadLocationHero=async function(id,input){if(!input.files[0])return;const c=await compressImage(input.files[0],1200,0.7);const L=(state.config.locations||[]).find(x=>x.id===id);if(!L)return;L.photoUrl=c;scheduleSave();renderShooting();};
+window.updLocationNotes=function(id,val){const L=(state.config.locations||[]).find(x=>x.id===id);if(!L)return;L.notes=val;scheduleSave();};
 window.removeLocation=function(id){const L=(state.config.locations||[]).find(x=>x.id===id);if(!L)return;const assigned=looksForLocation(id).length;const msg=assigned?`Remover "${L.name}"? ${assigned} look${assigned!==1?'s':''} ficarão sem locação específica (categoria mantém-se).`:`Remover "${L.name}"?`;if(!confirm(msg))return;state.looks.forEach(l=>{if(l.locationId===id)l.locationId='';});state.config.locations=state.config.locations.filter(x=>x.id!==id);scheduleSave();if(shView.id===id){shView={mode:'dashboard',id:null};}renderShooting();buildCarousel();};
 
 // Location modal (add/edit)
