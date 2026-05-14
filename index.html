@@ -440,33 +440,44 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .sh-detail-fact:nth-child(odd){padding-right:16px;border-right:1px solid var(--c-border);}
 .sh-detail-fact:nth-child(even){padding-left:16px;}
 .sh-detail-fact:nth-last-child(-n+2){border-bottom:none;}
+.sh-detail-fact--full{grid-column:1/-1;border-right:none!important;padding-left:0!important;padding-right:0!important;border-bottom:none!important;}
+.sh-detail-models{margin-top:16px;padding-top:14px;border-top:1px solid var(--c-border);}
+.sh-detail-models-lbl{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-text3);display:flex;align-items:center;gap:6px;margin-bottom:8px;}
 .sh-detail-fact .k{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-text3);display:flex;align-items:center;gap:6px;}
 .sh-detail-fact .v{font-family:'Inter Tight',sans-serif;font-weight:500;font-size:.95rem;color:var(--c-text);}
 .sh-detail-notes{font-size:.85rem;color:var(--c-text2);border-top:1px solid var(--c-border);padding-top:16px;line-height:1.5;}
 .sh-detail-notes-lbl{font-family:'JetBrains Mono',monospace;font-style:normal;font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--c-text3);margin-right:10px;}
-/* Looks within detail */
+/* Looks within detail (card-style, four photos + info + inline notes) */
 .sh-looks-head{padding:24px 24px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--c-border);}
 .sh-looks-head h2{font-family:'Inter Tight',sans-serif;font-weight:600;font-size:1.1rem;color:var(--c-text);}
 .sh-looks-head .r{display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text3);}
 .sh-looks-head .add-btn{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-accent);background:none;border:1px solid var(--c-accent);padding:7px 12px;cursor:pointer;}
 .sh-looks-head .add-btn:hover{background:var(--c-accent);color:#fff;}
 .sh-look-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0;padding:0 24px 24px;}
-@media (max-width:680px){.sh-look-grid{grid-template-columns:1fr;}}
-.sh-look-item{padding:16px 20px;border-bottom:1px solid var(--c-border);border-right:1px solid var(--c-border);display:flex;gap:14px;align-items:center;cursor:pointer;transition:background .15s;}
-.sh-look-item:nth-child(2n){border-right:none;}
-@media (max-width:680px){.sh-look-item{border-right:none!important;}}
-.sh-look-item:hover{background:var(--c-surface);}
-.sh-look-num{font-family:'JetBrains Mono',monospace;font-size:.95rem;color:var(--c-accent);font-weight:600;min-width:34px;letter-spacing:.04em;}
-.sh-look-thumbs{display:flex;gap:6px;flex-shrink:0;}
-.sh-look-thumb{width:52px;height:64px;overflow:hidden;background:var(--c-surface);}
-.sh-look-thumb img{width:100%;height:100%;object-fit:cover;}
-.sh-look-thumb-ph{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.1rem;color:var(--c-text3);}
-.sh-look-info{flex:1;min-width:0;}
-.sh-look-cat{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--c-text3);letter-spacing:.14em;text-transform:uppercase;}
-.sh-look-out{font-family:'Inter Tight',sans-serif;font-size:.92rem;color:var(--c-text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;}
-.sh-look-meta{font-size:.75rem;color:var(--c-text2);margin-top:2px;}
-.sh-look-rm{background:none;border:none;color:#C72A1C;font-size:1rem;padding:6px 8px;cursor:pointer;opacity:.4;transition:opacity .15s;}
-.sh-look-item:hover .sh-look-rm{opacity:1;}
+@media (max-width:780px){.sh-look-grid{grid-template-columns:1fr;}}
+.sh-look-card{display:flex;flex-direction:column;border-right:1px solid var(--c-border);border-bottom:1px solid var(--c-border);padding:18px;gap:14px;background:var(--c-card);transition:background .15s;}
+.sh-look-card:nth-child(2n){border-right:none;}
+@media (max-width:780px){.sh-look-card{border-right:none!important;}}
+.sh-look-card-top{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;}
+.sh-look-card-top:hover .sh-look-num-big{color:var(--c-text);}
+.sh-look-num-big{font-family:'JetBrains Mono',monospace;font-size:1.2rem;color:var(--c-accent);font-weight:600;letter-spacing:.04em;transition:color .15s;}
+.sh-look-cat-pill{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text3);}
+.sh-look-rm-btn{background:none;border:none;color:#C72A1C;font-size:.95rem;padding:4px 8px;cursor:pointer;opacity:.5;transition:opacity .15s;}
+.sh-look-card:hover .sh-look-rm-btn{opacity:1;}
+.sh-look-photos{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.sh-look-ph{aspect-ratio:3/4;background:var(--c-surface);overflow:hidden;position:relative;}
+.sh-look-ph img{width:100%;height:100%;object-fit:cover;display:block;}
+.sh-look-ph.contain img{object-fit:contain;background:#0a0a1a;}
+.sh-look-ph-empty{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.4rem;color:var(--c-text3);}
+.sh-look-ph-lbl{position:absolute;bottom:4px;left:4px;font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:rgba(22,24,20,.65);padding:2px 5px;}
+.sh-look-info{display:flex;flex-direction:column;gap:6px;}
+.sh-look-info-row{display:grid;grid-template-columns:62px 1fr;gap:8px;align-items:baseline;font-size:.78rem;}
+.sh-look-info-row .k{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text3);}
+.sh-look-info-row .v{color:var(--c-text);font-family:'Inter Tight',sans-serif;}
+.sh-look-notes{margin-top:4px;}
+.sh-look-notes-lbl{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text3);display:block;margin-bottom:4px;}
+.sh-look-notes-inp{width:100%;padding:8px 10px;border:1px solid var(--c-border);background:var(--c-surface);color:var(--c-text);font-size:.78rem;font-family:'Inter',sans-serif;resize:vertical;min-height:50px;box-sizing:border-box;border-radius:3px;}
+.sh-look-notes-inp:focus{outline:none;border-color:var(--c-accent);}
 .sh-foot{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:20px 24px;gap:18px;border-top:1px solid var(--c-border);}
 .sh-foot .l,.sh-foot .r{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-text3);}
 .sh-foot .r{text-align:right;}
@@ -489,6 +500,19 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .sh-modal-form textarea{resize:vertical;min-height:60px;}
 .sh-modal-row{display:flex;gap:8px;}
 .sh-modal-row label{flex:1;}
+.sh-model-picker{display:flex;flex-wrap:wrap;gap:6px;padding:8px 0 4px;}
+.sh-model-chip{display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 5px;border:1px solid var(--c-border);background:var(--c-surface);color:var(--c-text2);font-size:.78rem;font-family:'Inter',sans-serif;cursor:pointer;border-radius:999px;transition:all .15s;line-height:1;}
+.sh-model-chip:hover{border-color:var(--c-text);color:var(--c-text);}
+.sh-model-chip.on{background:var(--c-accent);border-color:var(--c-accent);color:#fff;}
+.sh-model-chip img{width:22px;height:22px;border-radius:50%;object-fit:cover;flex-shrink:0;}
+.sh-model-chip .ph{width:22px;height:22px;border-radius:50%;background:var(--c-border);display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0;color:var(--c-text3);}
+.sh-model-chip.on .ph{background:rgba(255,255,255,.25);color:#fff;}
+.sh-model-empty{font-size:.72rem;color:var(--c-text3);font-style:italic;padding:6px 0;}
+/* Model photo strip in detail */
+.sh-models-strip{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.sh-model-thumb{display:inline-flex;align-items:center;gap:6px;background:var(--c-surface);border:1px solid var(--c-border);padding:3px 10px 3px 3px;border-radius:999px;font-size:.72rem;color:var(--c-text);}
+.sh-model-thumb img{width:24px;height:24px;border-radius:50%;object-fit:cover;}
+.sh-model-thumb .ph{width:24px;height:24px;border-radius:50%;background:var(--c-border);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--c-text3);}
 .grand-total-strip{background:var(--c-accent);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
 .gt-label{font-size:.7rem;color:rgba(255,255,255,.7);font-weight:600;letter-spacing:.08em;text-transform:uppercase;}
 .gt-amount{font-family:'JetBrains Mono',monospace;font-size:1.4rem;color:var(--c-bg);font-weight:500;}
@@ -1601,9 +1625,9 @@ function renderShootingDetail(id){const L=(state.config.locations||[]).find(x=>x
     <div class="sh-detail-factgrid">
       <div class="sh-detail-fact"><span class="k">📅 Data</span><span class="v">${esc(fmtDateLong(L.date))}</span></div>
       <div class="sh-detail-fact"><span class="k">🕐 Janela</span><span class="v">${esc(fmtTimeLabel(L.timeStart,L.timeEnd))}</span></div>
-      <div class="sh-detail-fact"><span class="k">👤 Modelos</span><span class="v">${(L.models||[]).length||'—'}</span></div>
-      <div class="sh-detail-fact"><span class="k">📸 Looks</span><span class="v">${assignedLooks.length}</span></div>
+      <div class="sh-detail-fact sh-detail-fact--full"><span class="k">📸 Looks</span><span class="v">${assignedLooks.length}</span></div>
     </div>
+    ${(L.models||[]).length?`<div class="sh-detail-models"><span class="sh-detail-models-lbl">👤 Modelos no set</span><div class="sh-models-strip">${L.models.map(name=>{const m=(state.config.models||[]).find(x=>x.name===name);const ph=m?.photo||'';return `<div class="sh-model-thumb">${ph?`<img src="${ph}" alt="" onclick="openLb('${ph}')">`:`<div class="ph">👤</div>`}<span>${esc(name)}</span></div>`;}).join('')}</div></div>`:''}
     ${L.notes?`<div class="sh-detail-notes"><span class="sh-detail-notes-lbl">Notas da produção</span>${esc(L.notes)}</div>`:''}
   </div>
 </div>
@@ -1613,19 +1637,41 @@ function renderShootingDetail(id){const L=(state.config.locations||[]).find(x=>x
 </div>
 <div class="sh-look-grid">${assignedLooks.length?assignedLooks.map(l=>renderShootingLookItem(l)).join(''):`<div class="sh-empty" style="padding:40px 10px;grid-column:1/-1"><div style="font-family:'Inter Tight',sans-serif;font-size:.95rem;color:var(--c-text2)">Sem looks atribuídos a esta locação</div><div style="margin-top:6px;font-size:.75rem">Toca em "＋ Novo look" para começar.</div></div>`}</div>
 <div class="sh-foot"><div class="l">Lookbook · Editorial Interno</div><div class="c">— fim da locação —</div><div class="r">${esc(fmtDateLong(L.date))} · ${esc(fmtTimeLabel(L.timeStart,L.timeEnd))}</div></div>`;}
-function renderShootingLookItem(l){const oName=toArr(l.outfit)[0]||'';const oPhoto=photoOf('outfits',oName);const mPhoto=photoOf('models',l.model);return `<div class="sh-look-item" onclick="goToLookFromShooting(${l.num})">
-  <div class="sh-look-num">№${String(l.num).padStart(2,'0')}</div>
-  <div class="sh-look-thumbs">
-    <div class="sh-look-thumb">${oPhoto?`<img src="${oPhoto}" alt="">`:`<div class="sh-look-thumb-ph">👗</div>`}</div>
-    <div class="sh-look-thumb">${mPhoto?`<img src="${mPhoto}" alt="">`:`<div class="sh-look-thumb-ph">👤</div>`}</div>
-  </div>
-  <div class="sh-look-info">
-    <div class="sh-look-cat">${esc(l.category)}</div>
-    <div class="sh-look-out">${esc(oName||'—')}</div>
-    <div class="sh-look-meta">${esc(l.model||'—')}</div>
-  </div>
-  <button class="sh-look-rm" onclick="event.stopPropagation();unassignLook(${l.num})" title="Remover da locação">✕</button>
-</div>`;}
+function renderShootingLookItem(l){
+  const outfitSlides=getOutfitSlides(l);
+  const oPhoto=outfitSlides[0]?.photo||'';
+  const oName=toArr(l.outfit).join(' + ')||'—';
+  const firstScarf=toArr(l.scarf)[0]||'';
+  const sPhoto=photoOf('scarves',firstScarf);
+  const mPhoto=photoOf('models',l.model);
+  const tut=tutorialOf(l);
+  const tPhoto=tut?.photo||'';
+  const photo=(p,icon,lbl,contain)=>`<div class="sh-look-ph${contain?' contain':''}">${p?`<img src="${p}" alt="" onclick="event.stopPropagation();openLb('${p}')">`:`<div class="sh-look-ph-empty">${icon}</div>`}<span class="sh-look-ph-lbl">${lbl}</span></div>`;
+  return `<div class="sh-look-card">
+    <div class="sh-look-card-top" onclick="goToLookFromShooting(${l.num})">
+      <div><span class="sh-look-num-big">№${String(l.num).padStart(2,'0')}</span></div>
+      <span class="sh-look-cat-pill">${esc(l.category)}</span>
+      <button class="sh-look-rm-btn" onclick="event.stopPropagation();unassignLook(${l.num})" title="Remover da locação">✕</button>
+    </div>
+    <div class="sh-look-photos">
+      ${photo(oPhoto,'👗','Roupa',false)}
+      ${photo(sPhoto,'🧣','Lenço',false)}
+      ${photo(mPhoto,'👤','Modelo',false)}
+      ${photo(tPhoto,'📋','Tutorial',true)}
+    </div>
+    <div class="sh-look-info">
+      <div class="sh-look-info-row"><span class="k">Roupa</span><span class="v">${esc(oName)}</span></div>
+      <div class="sh-look-info-row"><span class="k">Lenço</span><span class="v">${esc(toArr(l.scarf).join(', ')||'—')}</span></div>
+      <div class="sh-look-info-row"><span class="k">Modelo</span><span class="v">${esc(l.model||'—')}</span></div>
+      ${tut?.name?`<div class="sh-look-info-row"><span class="k">Tutorial</span><span class="v">${esc(tut.name)}</span></div>`:''}
+    </div>
+    <div class="sh-look-notes">
+      <label class="sh-look-notes-lbl">Notas</label>
+      <textarea class="sh-look-notes-inp" placeholder="Penteado, makeup, observações…" oninput="updLookNotesFromShooting(${l.num},this.value)">${esc(l.notes||'')}</textarea>
+    </div>
+  </div>`;
+}
+window.updLookNotesFromShooting=function(num,val){const l=state.looks.find(x=>x.num===num);if(!l)return;l.notes=val;scheduleSave();const fl=filteredLooks();const idx=fl.findIndex(x=>x.num===num);if(idx>=0){const cardEl=document.getElementById('carousel-track').children[idx];if(cardEl){const noteInp=cardEl.querySelector(`input[onchange*="'notes'"]`);if(noteInp&&document.activeElement!==noteInp)noteInp.value=val;}}};
 window.backToShooting=function(){shView={mode:'dashboard',id:null};renderShooting();};
 window.goToLookFromShooting=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;state.ui.currentIdx=idx;state.ui.filter='';switchTab('looks');buildCarousel();};
 window.unassignLook=function(num){const l=state.looks.find(x=>x.num===num);if(!l)return;l.locationId='';scheduleSave();renderShooting();buildCarousel();};
@@ -1633,13 +1679,14 @@ window.uploadLocationHero=async function(id,input){if(!input.files[0])return;con
 window.removeLocation=function(id){const L=(state.config.locations||[]).find(x=>x.id===id);if(!L)return;const assigned=looksForLocation(id).length;const msg=assigned?`Remover "${L.name}"? ${assigned} look${assigned!==1?'s':''} ficarão sem locação específica (categoria mantém-se).`:`Remover "${L.name}"?`;if(!confirm(msg))return;state.looks.forEach(l=>{if(l.locationId===id)l.locationId='';});state.config.locations=state.config.locations.filter(x=>x.id!==id);scheduleSave();if(shView.id===id){shView={mode:'dashboard',id:null};}renderShooting();buildCarousel();};
 
 // Location modal (add/edit)
-window.openLocationModal=function(id){const L=id?(state.config.locations||[]).find(x=>x.id===id):null;const isEdit=!!L;const f={id:L?.id||'',name:L?.name||'',city:L?.city||'',category:L?.category||'Portugal – Exterior',date:L?.date||'',timeStart:L?.timeStart||'',timeEnd:L?.timeEnd||'',notes:L?.notes||'',models:(L?.models||[]).join(', ')};const html=`<div class="pin-card" style="max-width:420px"><div class="pin-title">${isEdit?'Editar locação':'Nova locação'}</div><div class="sh-modal-form"><label>Nome</label><input type="text" id="lm-name" value="${esc(f.name)}" placeholder="Casa Modernista"><label>Cidade / Bairro</label><input type="text" id="lm-city" value="${esc(f.city)}" placeholder="Lisboa · Alfama"><label>Categoria</label><select id="lm-cat"><option${f.category==='Portugal – Estúdio'?' selected':''}>Portugal – Estúdio</option><option${f.category==='Portugal – Exterior'?' selected':''}>Portugal – Exterior</option><option${f.category==='Cabo Verde – Exterior'?' selected':''}>Cabo Verde – Exterior</option></select><label>Data</label><input type="date" id="lm-date" value="${esc(f.date)}"><div class="sh-modal-row"><label>Início<input type="time" id="lm-ts" value="${esc(f.timeStart)}"></label><label>Fim<input type="time" id="lm-te" value="${esc(f.timeEnd)}"></label></div><label>Modelos <span style="text-transform:none;letter-spacing:0;color:var(--c-text3)">(separados por vírgula)</span></label><input type="text" id="lm-models" value="${esc(f.models)}" placeholder="Joana, Carla"><label>Notas</label><textarea id="lm-notes" placeholder="Observações…">${esc(f.notes)}</textarea></div><div class="pin-actions"><button class="pin-btn" onclick="closeLocationModal()">Cancelar</button><button class="pin-btn primary" onclick="saveLocationFromModal('${f.id}')">${isEdit?'Guardar':'Adicionar'}</button></div></div>`;const ovl=document.getElementById('loc-modal-ovl');ovl.innerHTML=html;ovl.classList.add('open');};
-window.closeLocationModal=function(){const ovl=document.getElementById('loc-modal-ovl');ovl.classList.remove('open');ovl.innerHTML='';};
-window.saveLocationFromModal=function(id){const name=document.getElementById('lm-name').value.trim();if(!name){alert('Nome é obrigatório.');return;}const data={name,city:document.getElementById('lm-city').value.trim(),category:document.getElementById('lm-cat').value,date:document.getElementById('lm-date').value,timeStart:document.getElementById('lm-ts').value,timeEnd:document.getElementById('lm-te').value,notes:document.getElementById('lm-notes').value.trim(),models:document.getElementById('lm-models').value.split(',').map(s=>s.trim()).filter(Boolean)};if(!state.config.locations)state.config.locations=[];if(id){const L=state.config.locations.find(x=>x.id===id);if(L){const oldCat=L.category;Object.assign(L,data);if(oldCat!==data.category){state.looks.forEach(l=>{if(l.locationId===id)l.location=data.category;});}}}else{const newId='loc-'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);state.config.locations.push({id:newId,photoUrl:'',...data});}scheduleSave();closeLocationModal();renderShooting();buildCarousel();};
+window.openLocationModal=function(id){const L=id?(state.config.locations||[]).find(x=>x.id===id):null;const isEdit=!!L;const f={id:L?.id||'',name:L?.name||'',city:L?.city||'',category:L?.category||'Portugal – Exterior',date:L?.date||'',timeStart:L?.timeStart||'',timeEnd:L?.timeEnd||'',notes:L?.notes||'',models:(L?.models||[]).slice()};window.__lmModels=new Set(f.models);const allModels=state.config.models||[];const chipsHtml=allModels.length?`<div class="sh-model-picker" id="lm-model-picker">${allModels.map(m=>{const on=window.__lmModels.has(m.name);return `<button type="button" class="sh-model-chip${on?' on':''}" data-name="${esc(m.name)}" onclick="toggleLmModel(this)">${m.photo?`<img src="${m.photo}" alt="">`:`<div class="ph">👤</div>`}<span>${esc(m.name)}</span></button>`;}).join('')}</div>`:`<div class="sh-model-empty">Nenhum modelo configurado. Adiciona modelos em Configuração primeiro.</div>`;const html=`<div class="pin-card" style="max-width:460px"><div class="pin-title">${isEdit?'Editar locação':'Nova locação'}</div><div class="sh-modal-form"><label>Nome</label><input type="text" id="lm-name" value="${esc(f.name)}" placeholder="Casa Modernista"><label>Cidade / Bairro</label><input type="text" id="lm-city" value="${esc(f.city)}" placeholder="Lisboa · Alfama"><label>Categoria</label><select id="lm-cat"><option${f.category==='Portugal – Estúdio'?' selected':''}>Portugal – Estúdio</option><option${f.category==='Portugal – Exterior'?' selected':''}>Portugal – Exterior</option><option${f.category==='Cabo Verde – Exterior'?' selected':''}>Cabo Verde – Exterior</option></select><label>Data</label><input type="date" id="lm-date" value="${esc(f.date)}"><div class="sh-modal-row"><label>Início<input type="time" id="lm-ts" value="${esc(f.timeStart)}"></label><label>Fim<input type="time" id="lm-te" value="${esc(f.timeEnd)}"></label></div><label>Modelos</label>${chipsHtml}<label>Notas</label><textarea id="lm-notes" placeholder="Observações…">${esc(f.notes)}</textarea></div><div class="pin-actions"><button class="pin-btn" onclick="closeLocationModal()">Cancelar</button><button class="pin-btn primary" onclick="saveLocationFromModal('${f.id}')">${isEdit?'Guardar':'Adicionar'}</button></div></div>`;const ovl=document.getElementById('loc-modal-ovl');ovl.innerHTML=html;ovl.classList.add('open');};
+window.toggleLmModel=function(btn){const name=btn.dataset.name;if(window.__lmModels.has(name)){window.__lmModels.delete(name);btn.classList.remove('on');}else{window.__lmModels.add(name);btn.classList.add('on');}};
+window.closeLocationModal=function(){const ovl=document.getElementById('loc-modal-ovl');ovl.classList.remove('open');ovl.innerHTML='';window.__lmModels=null;};
+window.saveLocationFromModal=function(id){const name=document.getElementById('lm-name').value.trim();if(!name){alert('Nome é obrigatório.');return;}const modelsArr=window.__lmModels?Array.from(window.__lmModels):[];const data={name,city:document.getElementById('lm-city').value.trim(),category:document.getElementById('lm-cat').value,date:document.getElementById('lm-date').value,timeStart:document.getElementById('lm-ts').value,timeEnd:document.getElementById('lm-te').value,notes:document.getElementById('lm-notes').value.trim(),models:modelsArr};if(!state.config.locations)state.config.locations=[];if(id){const L=state.config.locations.find(x=>x.id===id);if(L){const oldCat=L.category;Object.assign(L,data);if(oldCat!==data.category){state.looks.forEach(l=>{if(l.locationId===id)l.location=data.category;});}}}else{const newId='loc-'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);state.config.locations.push({id:newId,photoUrl:'',...data});}scheduleSave();closeLocationModal();renderShooting();buildCarousel();};
 
 // Look picker (add looks to a location)
 window.openLookPicker=function(locId){const L=(state.config.locations||[]).find(x=>x.id===locId);if(!L)return;const candidates=state.looks.filter(l=>!l.locationId&&(!l.location||l.location===L.category));const assignedHere=looksForLocation(locId);const itemsHtml=candidates.length?candidates.map(l=>{const oName=toArr(l.outfit)[0]||'—';const oPhoto=photoOf('outfits',oName);const mPhoto=photoOf('models',l.model);return `<div class="sh-picker-item" onclick="assignLookToLocation(${l.num},'${locId}')"><div class="sh-picker-num">№${String(l.num).padStart(2,'0')}</div><div class="sh-picker-thumbs"><div class="sh-picker-thumb">${oPhoto?`<img src="${oPhoto}" alt="">`:`<div class="sh-picker-thumb-ph">👗</div>`}</div><div class="sh-picker-thumb">${mPhoto?`<img src="${mPhoto}" alt="">`:`<div class="sh-picker-thumb-ph">👤</div>`}</div></div><div class="sh-picker-info"><div class="sh-picker-out">${esc(oName)} · ${esc(l.model||'sem modelo')}</div><div class="sh-picker-meta">${esc(l.category)}</div></div></div>`;}).join(''):`<div class="sh-empty" style="padding:30px 10px"><div style="font-family:'Inter Tight',sans-serif;font-size:.9rem;color:var(--c-text2)">Sem looks disponíveis</div><div style="margin-top:6px;font-size:.72rem">Categoria "${esc(L.category)}" · ainda não atribuídos.</div></div>`;const html=`<div class="pin-card" style="max-width:480px;padding:20px"><div class="pin-title">Adicionar look · ${esc(L.name)}</div><div class="pin-sub">${candidates.length} disponível${candidates.length!==1?'eis':''} · ${assignedHere.length} já atribuído${assignedHere.length!==1?'s':''}</div><div class="sh-picker-list">${itemsHtml}</div><div class="pin-actions" style="margin-top:14px"><button class="pin-btn" onclick="closeLocationModal()">Fechar</button></div></div>`;const ovl=document.getElementById('loc-modal-ovl');ovl.innerHTML=html;ovl.classList.add('open');};
-window.assignLookToLocation=function(num,locId){const l=state.looks.find(x=>x.num===num);const L=(state.config.locations||[]).find(x=>x.id===locId);if(!l||!L)return;l.locationId=locId;if(L.category)l.location=L.category;scheduleSave();buildCarousel();openLookPicker(locId);};
+window.assignLookToLocation=function(num,locId){const l=state.looks.find(x=>x.num===num);const L=(state.config.locations||[]).find(x=>x.id===locId);if(!l||!L)return;l.locationId=locId;if(L.category)l.location=L.category;scheduleSave();buildCarousel();if(shView.mode==='detail'&&shView.id===locId)renderShootingDetail(locId);openLookPicker(locId);};
 
 // ── EQUIPA ──
 function renderTeam(){renderGrandTotal();document.getElementById('team-cards').innerHTML=state.team.map(m=>renderMemberCard(m)).join('');}
