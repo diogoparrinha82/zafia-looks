@@ -456,6 +456,9 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .look-modal-shell #screen-looks .looks-header{display:none;}
 .look-modal-shell #screen-looks .filter-strip{display:none;}
 .look-modal-shell #screen-looks .looks-progress{margin-top:56px;}
+/* Inside the modal, force single-card viewport even in desktop */
+.look-modal-shell #screen-looks .look-card{min-width:100%!important;width:100%!important;border-right:none!important;opacity:1!important;transform:none!important;cursor:default!important;}
+.look-modal-shell #screen-looks .look-card.is-featured::after{display:none;}
 @media (max-width:640px){.look-modal-ovl{padding:max(28px,calc(var(--safe-top)+16px)) 8px 16px;}.look-modal-shell{max-height:calc(100vh - 44px);border-radius:8px;}}
 .sh-detail-fact .k{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-text3);display:flex;align-items:center;gap:6px;}
 .sh-detail-fact .v{font-family:'Inter Tight',sans-serif;font-weight:500;font-size:.95rem;color:var(--c-text);}
@@ -1178,6 +1181,8 @@ window.slideOutfit=function(num,dir,total){const cur=outfitSlideIdx[num]||0;cons
 function getCardWidth(){
   const vp=document.getElementById('carousel-vp');
   const vpw=vp.offsetWidth;
+  // inside look modal: always 1 card per viewport
+  if(vp.closest('.look-modal-shell')) return vpw;
   // desktop: 3 cards visible, each 1/3 of viewport
   if(window.innerWidth>=900) return vpw/3;
   return vpw;
