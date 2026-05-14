@@ -446,6 +446,16 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .sh-detail-notes-lbl{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-text3);display:flex;align-items:center;gap:6px;margin-bottom:8px;}
 .sh-detail-notes-inp{width:100%;padding:10px 12px;border:1px solid var(--c-border);background:var(--c-surface);color:var(--c-text);font-size:.85rem;font-family:'Inter',sans-serif;line-height:1.5;resize:vertical;min-height:64px;box-sizing:border-box;border-radius:3px;}
 .sh-detail-notes-inp:focus{outline:none;border-color:var(--c-accent);}
+/* Look modal — reuses screen-looks DOM inside an overlay */
+.look-modal-ovl{position:fixed;inset:0;background:rgba(22,24,20,.7);z-index:220;display:none;flex-direction:column;}
+.look-modal-ovl.open{display:flex;}
+.look-modal-shell{flex:1;background:var(--c-bg);display:flex;flex-direction:column;position:relative;overflow:hidden;}
+.look-modal-close{position:absolute;top:calc(var(--safe-top)+10px);right:10px;width:36px;height:36px;background:var(--c-card);border:1px solid var(--c-border);color:var(--c-text);font-size:1.1rem;cursor:pointer;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:30;line-height:1;}
+.look-modal-close:hover{background:var(--c-accent);color:#fff;border-color:var(--c-accent);}
+.look-modal-shell #screen-looks{flex:1;display:flex;flex-direction:column;height:100%;}
+.look-modal-shell #screen-looks .looks-header{display:none;}
+.look-modal-shell #screen-looks .filter-strip{display:none;}
+.look-modal-shell #screen-looks .looks-progress{margin-top:calc(var(--safe-top)+56px);}
 .sh-detail-fact .k{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-text3);display:flex;align-items:center;gap:6px;}
 .sh-detail-fact .v{font-family:'Inter Tight',sans-serif;font-weight:500;font-size:.95rem;color:var(--c-text);}
 /* Looks within detail (card-style, four photos + info + inline notes) */
@@ -1678,7 +1688,10 @@ function renderShootingLookItem(l){
 }
 window.updLookNotesFromShooting=function(num,val){const l=state.looks.find(x=>x.num===num);if(!l)return;l.notes=val;scheduleSave();const fl=filteredLooks();const idx=fl.findIndex(x=>x.num===num);if(idx>=0){const cardEl=document.getElementById('carousel-track').children[idx];if(cardEl){const noteInp=cardEl.querySelector(`input[onchange*="'notes'"]`);if(noteInp&&document.activeElement!==noteInp)noteInp.value=val;}}};
 window.backToShooting=function(){shView={mode:'dashboard',id:null};renderShooting();};
-window.goToLookFromShooting=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;state.ui.currentIdx=idx;state.ui.filter='';switchTab('looks');buildCarousel();};
+window.goToLookFromShooting=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;openLookModal(num);};
+window.openLookModal=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;const screen=document.getElementById('screen-looks');if(!screen)return;const shell=document.getElementById('look-modal-shell');if(screen.parentElement===shell)return;window.__lookModalReturn={parent:screen.parentElement,next:screen.nextSibling};window.__lookModalWasHidden=screen.classList.contains('hidden');window.__lookModalPrevFilter=state.ui.filter;window.__lookModalPrevIdx=state.ui.currentIdx;shell.appendChild(screen);screen.classList.remove('hidden');state.ui.filter='';state.ui.currentIdx=idx;window.currentScreen='screen-looks';document.body.style.overflow='hidden';document.getElementById('look-modal-ovl').classList.add('open');renderFilters();buildCarousel();updateCounter();};
+window.closeLookModal=function(){const ovl=document.getElementById('look-modal-ovl');if(!ovl.classList.contains('open'))return;const screen=document.getElementById('screen-looks');const ret=window.__lookModalReturn;if(ret&&ret.parent){if(ret.next&&ret.next.parentElement===ret.parent)ret.parent.insertBefore(screen,ret.next);else ret.parent.appendChild(screen);}if(window.__lookModalWasHidden)screen.classList.add('hidden');if(window.__lookModalPrevFilter!==undefined)state.ui.filter=window.__lookModalPrevFilter;if(window.__lookModalPrevIdx!==undefined)state.ui.currentIdx=window.__lookModalPrevIdx;ovl.classList.remove('open');document.body.style.overflow='';window.__lookModalReturn=null;window.__lookModalWasHidden=null;window.__lookModalPrevFilter=undefined;window.__lookModalPrevIdx=undefined;window.currentScreen=document.querySelector('.screen:not(.hidden)')?.id||'screen-shooting';if(!screen.classList.contains('hidden')){renderFilters();buildCarousel();}};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('look-modal-ovl').classList.contains('open'))closeLookModal();});
 window.unassignLook=function(num){const l=state.looks.find(x=>x.num===num);if(!l)return;l.locationId='';scheduleSave();renderShooting();buildCarousel();};
 window.uploadLocationHero=async function(id,input){if(!input.files[0])return;const c=await compressImage(input.files[0],1200,0.7);const L=(state.config.locations||[]).find(x=>x.id===id);if(!L)return;L.photoUrl=c;scheduleSave();renderShooting();};
 window.updLocationNotes=function(id,val){const L=(state.config.locations||[]).find(x=>x.id===id);if(!L)return;L.notes=val;scheduleSave();};
@@ -2009,5 +2022,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElement
 </div>
 
 <div class="pin-ovl" id="loc-modal-ovl"></div>
+
+<div class="look-modal-ovl" id="look-modal-ovl">
+  <div class="look-modal-shell" id="look-modal-shell">
+    <button class="look-modal-close" onclick="closeLookModal()" aria-label="Fechar">✕</button>
+  </div>
+</div>
 </body>
 </html>
