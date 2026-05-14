@@ -459,6 +459,10 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 /* Inside the modal, force single-card viewport even in desktop */
 .look-modal-shell #screen-looks .look-card{min-width:100%!important;width:100%!important;border-right:none!important;opacity:1!important;transform:none!important;cursor:default!important;}
 .look-modal-shell #screen-looks .look-card.is-featured::after{display:none;}
+.look-modal-shell #screen-looks .photo-cell{aspect-ratio:auto;}
+.look-modal-shell #screen-looks .card-photo-grid{max-height:42vh;}
+.look-modal-shell #screen-looks .card-photo-grid .photo-cell{height:calc(21vh - 9px);}
+.look-modal-shell #screen-looks .card-fields{min-height:0;}
 @media (max-width:640px){.look-modal-ovl{padding:max(28px,calc(var(--safe-top)+16px)) 8px 16px;}.look-modal-shell{max-height:calc(100vh - 44px);border-radius:8px;}}
 .sh-detail-fact .k{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-text3);display:flex;align-items:center;gap:6px;}
 .sh-detail-fact .v{font-family:'Inter Tight',sans-serif;font-weight:500;font-size:.95rem;color:var(--c-text);}
