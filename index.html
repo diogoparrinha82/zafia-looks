@@ -1707,7 +1707,7 @@ window.renderDashboard=function(){const el=document.getElementById('dashboard-sc
     <div class="db-hero-l">
       <div class="db-hello">Centro de produção · ${esc(fmtDateLabel(today))} ${new Date().getFullYear()}</div>
       <div class="db-title">Olá.</div>
-      <div class="db-subtitle">${all.length?`${all.length} looks na produção · ${pct}% concluídos`:'Configura categorias para começar.'}</div>
+      <div class="db-subtitle">${all.length?`${all.length} looks na produção · ${Math.round(done/all.length*100)}% concluídos`:'Configura categorias para começar.'}</div>
     </div>
     <div class="db-shortcuts">
       <button class="db-chip primary" onclick="switchTab('looks')">📸 Looks</button>
