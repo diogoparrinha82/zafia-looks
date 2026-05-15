@@ -10,7 +10,9 @@
 <title>Art of Scarves</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@1,500&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cg fill='%23161814'%3E%3Crect x='10.5' y='8' width='1' height='44'/%3E%3Crect x='13' y='8' width='1.8' height='44'/%3E%3Crect x='16.3' y='8' width='2.8' height='44'/%3E%3Crect x='20.6' y='8' width='4' height='44'/%3E%3Crect x='26.1' y='8' width='5.8' height='44'/%3E%3Crect x='33.4' y='8' width='8.2' height='44'/%3E%3Crect x='43.1' y='8' width='11.5' height='44'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cg fill='%23161814'%3E%3Crect x='10.5' y='8' width='1' height='44'/%3E%3Crect x='13' y='8' width='1.8' height='44'/%3E%3Crect x='16.3' y='8' width='2.8' height='44'/%3E%3Crect x='20.6' y='8' width='4' height='44'/%3E%3Crect x='26.1' y='8' width='5.8' height='44'/%3E%3Crect x='33.4' y='8' width='8.2' height='44'/%3E%3Crect x='43.1' y='8' width='11.5' height='44'/%3E%3C/g%3E%3C/svg%3E">
 <style>
 :root{--c-bg:#FFFFFF;--c-surface:#FAFAF6;--c-card:#F4F1EA;--c-accent:#5A6648;--c-accent2:#C9CFB8;--c-text:#161814;--c-text2:rgba(22,24,20,.62);--c-text3:rgba(22,24,20,.38);--c-border:#E5E2DA;--c-done:#5A6648;--radius:2px;--radius-sm:2px;--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -18,7 +20,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 
 #screen-login{position:fixed;inset:0;background:var(--c-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:200;padding:40px;}
 #screen-login.hidden{display:none;}
-.login-logo{font-family:'Inter Tight',sans-serif;font-size:2.2rem;color:var(--c-text);font-weight:300;letter-spacing:-0.02em;text-align:center;line-height:1;} .login-logo::before{content:'';display:block;width:32px;height:1px;background:var(--c-accent);margin:0 auto 16px;}
 .login-sub{font-size:.82rem;color:var(--c-text3);text-align:center;line-height:1.6;max-width:280px;}
 .login-input-wrap{display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px;}
 .login-inp{width:100%;padding:14px 16px;border:1.5px solid var(--c-border);border-radius:var(--radius-sm);background:var(--c-surface);color:var(--c-text);font-family:'Inter Tight',sans-serif;font-size:1rem;outline:none;text-align:center;letter-spacing:.15em;}
@@ -36,6 +37,10 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;}
 .screen.hidden{display:none;}
 .nav-bar{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--safe-top)+12px) 16px 12px;background:var(--c-bg);border-bottom:1px solid var(--c-border);flex-shrink:0;z-index:10;}
+.nav-bar.centered{justify-content:initial;gap:8px;}
+.nav-bar.centered>.nav-side{flex:1;min-width:36px;display:flex;align-items:center;}
+.nav-bar.centered>.nav-side.right{justify-content:flex-end;}
+.nav-bar.centered>.nav-center{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:4px;}
 .nav-title{font-family:'Inter Tight',sans-serif;font-size:1.05rem;font-weight:600;color:var(--c-text);letter-spacing:-.015em;}
 .nav-sub{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--c-text3);letter-spacing:.18em;text-transform:uppercase;}
 .nav-btn{height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--c-border);background:transparent;color:var(--c-text2);font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;}
@@ -57,7 +62,10 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 
 /* LOOKS */
 #screen-looks{background:var(--c-bg);}
-.looks-header{padding:calc(var(--safe-top)+12px) 16px 10px;background:var(--c-bg);flex-shrink:0;display:flex;align-items:center;gap:12px;}
+.looks-header{padding:calc(var(--safe-top)+12px) 16px 10px;background:var(--c-bg);flex-shrink:0;display:flex;align-items:center;gap:8px;}
+.looks-header>.nav-side{flex:1;min-width:36px;display:flex;align-items:center;}
+.looks-header>.nav-side.right{justify-content:flex-end;}
+.looks-header>.nav-center{flex:0 0 auto;display:flex;align-items:center;}
 .menu-btn{width:36px;height:36px;border-radius:50%;border:none;background:transparent;color:var(--c-text);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;flex-shrink:0;}
 .menu-btn span{display:block;width:18px;height:1.5px;background:var(--c-text);border-radius:2px;}
 .menu-btn:active{background:var(--c-surface);}
@@ -588,7 +596,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 #loading{position:fixed;inset:0;background:var(--c-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:150;}
 #loading.hidden{display:none;}
-.loading-logo{font-family:'Inter Tight',sans-serif;font-size:2rem;color:var(--c-accent);}
 .loading-spinner{width:32px;height:32px;border:3px solid var(--c-border);border-top-color:var(--c-accent);border-radius:50%;animation:spin .8s linear infinite;}
 .loading-txt{font-size:.78rem;color:var(--c-text3);}
 /* DASHBOARD */
@@ -668,16 +675,25 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .db-empty-line{padding:30px 24px;font-size:.78rem;color:var(--c-text3);font-style:italic;text-align:center;}
 /* end DASHBOARD */
 @keyframes spin{to{transform:rotate(360deg);}}
+/* AOS LOGO */
+.aos-mark{display:inline-block;color:currentColor;flex-shrink:0;line-height:0;}
+.aos-mark svg{display:block;}
+.aos-wordmark{display:inline-flex;align-items:baseline;line-height:.9;white-space:nowrap;color:currentColor;}
+.aos-wordmark .aos-ser{font-family:'Playfair Display',Georgia,serif;font-style:italic;font-weight:500;letter-spacing:-.01em;}
+.aos-wordmark .aos-gap{display:inline-block;width:.25em;}
+.aos-wordmark .aos-san{font-family:'Helvetica Neue','Inter Tight',Arial,sans-serif;font-weight:800;letter-spacing:-.03em;}
+.aos-stacked{display:inline-flex;flex-direction:column;align-items:center;gap:8px;color:currentColor;}
+.aos-inline{display:inline-flex;align-items:center;gap:8px;color:currentColor;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-<div id="loading"><div class="loading-logo">Art of Scarves</div><div class="loading-spinner"></div><div class="loading-txt">A carregar…</div></div>
+<div id="loading"><span style="color:var(--c-text)"><span class="aos-stacked"><span class="aos-mark"><svg viewBox="0 0 60 60" width="56" height="56" aria-hidden="true"><g fill="currentColor"><rect x="10.5" y="8" width="1" height="44"/><rect x="13" y="8" width="1.8" height="44"/><rect x="16.3" y="8" width="2.8" height="44"/><rect x="20.6" y="8" width="4" height="44"/><rect x="26.1" y="8" width="5.8" height="44"/><rect x="33.4" y="8" width="8.2" height="44"/><rect x="43.1" y="8" width="11.5" height="44"/></g></svg></span><span class="aos-wordmark" style="font-size:22px"><span class="aos-ser">Art of</span><span class="aos-gap"></span><span class="aos-san">Scarves</span></span></span></span><div class="loading-spinner"></div><div class="loading-txt">A carregar…</div></div>
 
 <div id="screen-login" class="hidden">
-  <div class="login-logo">Art of Scarves<br><span style="font-size:1rem;color:var(--c-text2);font-weight:400;letter-spacing:.02em">Book da Claudya</span></div>
+  <div style="color:var(--c-text);text-align:center;margin-bottom:8px"><span class="aos-stacked"><span class="aos-mark"><svg viewBox="0 0 60 60" width="64" height="64" aria-hidden="true"><g fill="currentColor"><rect x="10.5" y="8" width="1" height="44"/><rect x="13" y="8" width="1.8" height="44"/><rect x="16.3" y="8" width="2.8" height="44"/><rect x="20.6" y="8" width="4" height="44"/><rect x="26.1" y="8" width="5.8" height="44"/><rect x="33.4" y="8" width="8.2" height="44"/><rect x="43.1" y="8" width="11.5" height="44"/></g></svg></span><span class="aos-wordmark" style="font-size:26px;margin-top:4px"><span class="aos-ser">Art of</span><span class="aos-gap"></span><span class="aos-san">Scarves</span></span></span><div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.2em;color:var(--c-text3);text-transform:uppercase;margin-top:10px">Book da Claudya · Centro de Produção</div></div>
   <div class="login-sub">Introduz a senha de acesso.</div>
   <div class="login-input-wrap">
     <input class="login-inp" type="password" id="login-pwd" placeholder="Senha" onkeydown="if(event.key==='Enter')doLogin()">
@@ -687,15 +703,22 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 </div>
 
 <div class="screen hidden" id="screen-dashboard">
-  <div class="nav-bar"><button class="menu-btn" onclick="openDrawer()" aria-label="Menu"><span></span><span></span><span></span></button><div><div class="nav-title">Art of Scarves</div><div class="nav-sub" style="font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.18em;color:var(--c-text3);text-transform:uppercase;margin-top:2px">Centro de Produção</div></div><div style="width:36px"></div></div>
+  <div class="nav-bar centered">
+    <div class="nav-side"><button class="menu-btn" onclick="openDrawer()" aria-label="Menu"><span></span><span></span><span></span></button></div>
+    <div class="nav-center">
+      <span class="aos-inline" style="color:var(--c-text)"><span class="aos-mark"><svg viewBox="0 0 60 60" width="22" height="22" aria-hidden="true"><g fill="currentColor"><rect x="10.5" y="8" width="1" height="44"/><rect x="13" y="8" width="1.8" height="44"/><rect x="16.3" y="8" width="2.8" height="44"/><rect x="20.6" y="8" width="4" height="44"/><rect x="26.1" y="8" width="5.8" height="44"/><rect x="33.4" y="8" width="8.2" height="44"/><rect x="43.1" y="8" width="11.5" height="44"/></g></svg></span><span class="aos-wordmark" style="font-size:16px"><span class="aos-ser">Art of</span><span class="aos-gap"></span><span class="aos-san">Scarves</span></span></span>
+      <div class="nav-sub" style="font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.18em;color:var(--c-text3);text-transform:uppercase">Centro de Produção</div>
+    </div>
+    <div class="nav-side right"></div>
+  </div>
   <div class="scroll-area" id="dashboard-scroll"></div>
 </div>
 
 <div class="screen hidden" id="screen-looks">
   <div class="looks-header">
-    <button class="menu-btn" onclick="openDrawer()" aria-label="Menu"><span></span><span></span><span></span></button>
-    <div class="looks-title" style="flex:1">Art of Scarves</div>
-    <span class="looks-counter" id="looks-counter">0/0</span>
+    <div class="nav-side"><button class="menu-btn" onclick="openDrawer()" aria-label="Menu"><span></span><span></span><span></span></button></div>
+    <div class="nav-center"><span class="aos-inline" style="color:var(--c-text)"><span class="aos-mark"><svg viewBox="0 0 60 60" width="20" height="20" aria-hidden="true"><g fill="currentColor"><rect x="10.5" y="8" width="1" height="44"/><rect x="13" y="8" width="1.8" height="44"/><rect x="16.3" y="8" width="2.8" height="44"/><rect x="20.6" y="8" width="4" height="44"/><rect x="26.1" y="8" width="5.8" height="44"/><rect x="33.4" y="8" width="8.2" height="44"/><rect x="43.1" y="8" width="11.5" height="44"/></g></svg></span><span class="aos-wordmark" style="font-size:15px"><span class="aos-ser">Art of</span><span class="aos-gap"></span><span class="aos-san">Scarves</span></span></span></div>
+    <div class="nav-side right"><span class="looks-counter" id="looks-counter">0/0</span></div>
   </div>
   <div class="looks-progress"><div class="looks-progress-fill" id="looks-progress-fill" style="width:0%"></div></div>
   <div class="filter-strip" id="filter-strip"></div>
@@ -1692,6 +1715,10 @@ function fmtDateLong(iso){if(!iso)return '—';const M=['JAN','FEV','MAR','ABR',
 function fmtTimeLabel(s,e){if(s&&e)return `${s} – ${e}`;return s||e||'—';}
 function looksForLocation(locId){return state.looks.filter(l=>l.locationId===locId);}
 function todayISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function aosMarkSvg(size){const s=size||24;return `<span class="aos-mark"><svg viewBox="0 0 60 60" width="${s}" height="${s}" aria-hidden="true"><g fill="currentColor"><rect x="10.5" y="8" width="1" height="44"/><rect x="13" y="8" width="1.8" height="44"/><rect x="16.3" y="8" width="2.8" height="44"/><rect x="20.6" y="8" width="4" height="44"/><rect x="26.1" y="8" width="5.8" height="44"/><rect x="33.4" y="8" width="8.2" height="44"/><rect x="43.1" y="8" width="11.5" height="44"/></g></svg></span>`;}
+function aosWordmark(sizePx){const fs=sizePx||18;return `<span class="aos-wordmark" style="font-size:${fs}px"><span class="aos-ser">Art of</span><span class="aos-gap"></span><span class="aos-san">Scarves</span></span>`;}
+function aosLogoStacked(markSize,wordSize){return `<span class="aos-stacked">${aosMarkSvg(markSize||40)}${aosWordmark(wordSize||16)}</span>`;}
+function aosLogoInline(markSize,wordSize){return `<span class="aos-inline">${aosMarkSvg(markSize||22)}${aosWordmark(wordSize||16)}</span>`;}
 // ─── DASHBOARD ───
 function statusLabel(s){if(s==='done')return{cls:'done',lbl:'Pronto'};if(s==='progress')return{cls:'progress',lbl:'Em curso'};return{cls:'todo',lbl:'Por fazer'};}
 function daysFromToday(iso){if(!iso)return null;const t=new Date(todayISO());const d=new Date(iso);if(isNaN(d))return null;return Math.round((d-t)/86400000);}
@@ -1729,7 +1756,7 @@ window.renderDashboard=function(){const el=document.getElementById('dashboard-sc
   <div class="db-scroller">${(state.config.scarves||[]).map(s=>`<div class="db-scarf" onclick="${s.photo?`openLb('${s.photo}','${esc(s.name||'Lenço').replace(/'/g,'')}')`:`switchTab('config')`}"><div class="db-scarf-photo">${s.photo?`<img src="${s.photo}" alt="">`:`<div class="db-scarf-photo-ph">🧣</div>`}</div><div class="db-scarf-name">${esc(s.name||'Sem nome')}</div></div>`).join('')}</div>`:''}
   ${alerts.length?`<div class="db-sec"><div class="db-sec-head"><div class="db-sec-title">⚠ Lacunas e alertas <span class="count">${alerts.length}</span></div></div></div>
   <div class="db-alerts">${alerts.map((a,i)=>`<div class="db-alert" data-alert="${i}"><div class="db-alert-icon">${a.icon}</div><div class="db-alert-body"><div class="db-alert-title">${esc(a.title)}</div><div class="db-alert-sub">${esc(a.sub)}</div></div><div class="db-alert-count">${a.n}</div></div>`).join('')}</div>`:''}
-  <div style="padding:24px;border-top:1px solid var(--c-border);text-align:center"><div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.18em;color:var(--c-text3);text-transform:uppercase">Art of Scarves · Book Claudya Moreira · Penguin Random House</div></div>`;
+  <div style="padding:40px 24px 32px;border-top:1px solid var(--c-border);text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px"><span style="color:var(--c-text)">${aosLogoStacked(32,13)}</span><div style="font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:.18em;color:var(--c-text3);text-transform:uppercase">Book Claudya Moreira · Penguin Random House</div></div>`;
   // Bind alert click handlers (can't inline arrow functions easily)
   el.querySelectorAll('.db-alert').forEach((node,i)=>{node.addEventListener('click',()=>alerts[i].go());});
 };
@@ -1813,7 +1840,7 @@ function renderShootingDetail(id){const L=(state.config.locations||[]).find(x=>x
   <div class="r"><span>${assignedLooks.length} look${assignedLooks.length!==1?'s':''} programado${assignedLooks.length!==1?'s':''}</span><button class="add-btn" onclick="openLookPicker('${id}')">＋ Novo look</button></div>
 </div>
 <div class="sh-look-grid">${assignedLooks.length?assignedLooks.map(l=>renderShootingLookItem(l)).join(''):`<div class="sh-empty" style="padding:40px 10px;grid-column:1/-1"><div style="font-family:'Inter Tight',sans-serif;font-size:.95rem;color:var(--c-text2)">Sem looks atribuídos a esta locação</div><div style="margin-top:6px;font-size:.75rem">Toca em "＋ Novo look" para começar.</div></div>`}</div>
-<div class="sh-foot"><div class="l">Lookbook · Editorial Interno</div><div class="c">— fim da locação —</div><div class="r">${esc(fmtDateLong(L.date))} · ${esc(fmtTimeLabel(L.timeStart,L.timeEnd))}</div></div>`;}
+<div class="sh-foot"><div class="l">Lookbook · Editorial Interno</div><div class="c"><span class="aos-inline" style="color:var(--c-text2)"><span class="aos-mark"><svg viewBox="0 0 60 60" width="18" height="18" aria-hidden="true"><g fill="currentColor"><rect x="10.5" y="8" width="1" height="44"/><rect x="13" y="8" width="1.8" height="44"/><rect x="16.3" y="8" width="2.8" height="44"/><rect x="20.6" y="8" width="4" height="44"/><rect x="26.1" y="8" width="5.8" height="44"/><rect x="33.4" y="8" width="8.2" height="44"/><rect x="43.1" y="8" width="11.5" height="44"/></g></svg></span><span class="aos-wordmark" style="font-size:13px"><span class="aos-ser">Art of</span><span class="aos-gap"></span><span class="aos-san">Scarves</span></span></span></div><div class="r">${esc(fmtDateLong(L.date))} · ${esc(fmtTimeLabel(L.timeStart,L.timeEnd))}</div></div>`;}
 function renderShootingLookItem(l){
   const outfitSlides=getOutfitSlides(l);
   const oPhoto=outfitSlides[0]?.photo||'';
