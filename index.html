@@ -96,7 +96,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .drawer{position:fixed;top:0;left:0;bottom:0;width:78%;max-width:320px;background:var(--c-bg);z-index:91;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:0 0 0 1px var(--c-border);}
 .drawer.open{transform:translateX(0);}
 .drawer-hdr{padding:calc(var(--safe-top)+18px) 22px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--c-border);}
-.drawer-brand{font-family:'Inter Tight',sans-serif;font-size:1.05rem;font-weight:500;color:var(--c-text);letter-spacing:-0.01em;}
 .drawer-close{background:none;border:none;font-size:1.4rem;color:var(--c-text2);cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;}
 .drawer-nav{flex:1;display:flex;flex-direction:column;padding:14px 0;}
 .drawer-item{padding:16px 22px;font-family:'Inter Tight',sans-serif;font-size:.95rem;font-weight:500;color:var(--c-text);background:none;border:none;cursor:pointer;text-align:left;letter-spacing:-.005em;display:flex;align-items:center;justify-content:space-between;position:relative;}
@@ -859,7 +858,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 <div class="drawer-scrim" id="drawer-scrim" onclick="closeDrawer()"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-hdr">
-    <div class="drawer-brand">Photoshoot Book</div>
+    <span class="aos-inline" style="color:var(--c-text)"><span class="aos-mark"><svg viewBox="0 0 60 60" width="22" height="22" aria-hidden="true"><g fill="currentColor"><rect x="10.5" y="8" width="1" height="44"/><rect x="13" y="8" width="1.8" height="44"/><rect x="16.3" y="8" width="2.8" height="44"/><rect x="20.6" y="8" width="4" height="44"/><rect x="26.1" y="8" width="5.8" height="44"/><rect x="33.4" y="8" width="8.2" height="44"/><rect x="43.1" y="8" width="11.5" height="44"/></g></svg></span><span class="aos-wordmark" style="font-size:16px"><span class="aos-ser">Art of</span><span class="aos-gap"></span><span class="aos-san">Scarves</span></span></span>
     <button class="drawer-close" onclick="closeDrawer()" aria-label="Fechar">×</button>
   </div>
   <nav class="drawer-nav">
