@@ -2220,25 +2220,27 @@ function getPresenceTabId(){
 async function sendHeartbeat(){
   try{
     const tabId=getPresenceTabId();
-    await setDoc(doc(db,'shared','data','presence',tabId),{ts:Date.now()});
-  }catch(e){/* network/firestore down — silent */}
+    await setDoc(doc(db,'shared','data','docs','presence_'+tabId),{ts:Date.now(),_kind:'presence'});
+  }catch(e){console.warn('Heartbeat failed:',e);}
 }
 window.fetchPresenceCount=async function(){
   try{
-    const ref=collection(db,'shared','data','presence');
+    const ref=collection(db,'shared','data','docs');
     const snap=await getDocs(ref);
     const now=Date.now();
     let online=0;
     const staleDocs=[];
     snap.forEach(d=>{
-      const ts=d.data().ts||0;
+      const data=d.data();
+      if(data._kind!=='presence')return; // skip non-presence docs
+      const ts=data.ts||0;
       if(now-ts<PRESENCE_TTL)online++;
       else if(now-ts>10*PRESENCE_TTL)staleDocs.push(d); // 10 min old = junk
     });
     // Best-effort cleanup of stale records (>10min)
     if(staleDocs.length){Promise.all(staleDocs.map(d=>deleteDoc(d.ref))).catch(()=>{});}
     return online;
-  }catch(e){return null;}
+  }catch(e){console.warn('Presence read failed:',e);return null;}
 };
 let presenceHbInterval=null;
 function startPresence(){
@@ -2248,7 +2250,7 @@ function startPresence(){
   // Best-effort cleanup when tab is closed
   window.addEventListener('pagehide',()=>{
     const tabId=getPresenceTabId();
-    try{deleteDoc(doc(db,'shared','data','presence',tabId));}catch(e){}
+    try{deleteDoc(doc(db,'shared','data','docs','presence_'+tabId));}catch(e){}
   });
 }
 
