@@ -1930,7 +1930,7 @@ async function renderSessionsReport(){
   if(!el)return;
   el.innerHTML=`<div class="sr-head"><div class="sr-title">Sessões da app</div></div><div class="sr-loading">A carregar registos…</div>`;
   const list=await (window.fetchSessions?window.fetchSessions():Promise.resolve([]));
-  if(!list||!list.length){el.innerHTML=`<div class="sr-head"><div class="sr-title">Sessões da app <span class="count">0</span></div></div><div class="sr-loading">Ainda não há sessões registadas.</div>`;return;}
+  if(!list||!list.length){el.innerHTML=`<div class="sr-head"><div class="sr-title">Sessões da app <span class="count">0</span></div><button class="db-chip" style="font-size:.55rem" onclick="renderSessionsReport()">🔄 Recarregar</button></div><div class="sr-loading" style="padding:24px 20px;text-align:left;font-family:'Inter Tight',sans-serif;font-size:.8rem;color:var(--c-text2);text-transform:none;letter-spacing:0;line-height:1.55">Ainda não há sessões registadas.<br><br><span style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text3)">Possíveis causas</span><br>• A primeira sessão é a que estás a iniciar agora — fecha e reabre a app para confirmar registo.<br>• A geo-API (ipapi.co) pode estar bloqueada pela rede.<br>• Verifica a consola do navegador (F12) para detalhes.</div>`;return;}
   // metrics
   const now=Date.now();
   const day=24*60*60*1000;
@@ -2235,6 +2235,7 @@ window.renderSimpleItems=renderSimpleItems;
 window.renderOutfitInputs=renderOutfitInputs;
 window.applyTheme=applyTheme;
 window.renderColorGrid=renderColorGrid;
+window.renderSessionsReport=renderSessionsReport;
 
 // ── SESSION TRACKING ──
 window.recordSession=async function(){
@@ -2243,15 +2244,26 @@ window.recordSession=async function(){
     sessionStorage.setItem('aos_session_logged','1');
     const dev=detectDevice();
     let geo={city:'Desconhecida',region:'',country:'',ip:''};
+    // Try ipapi.co first
     try{
       const r=await fetch('https://ipapi.co/json/',{cache:'no-store'});
       if(r.ok){
         const j=await r.json();
-        geo={city:j.city||'Desconhecida',region:j.region||'',country:j.country_name||'',ip:j.ip||''};
+        if(j.city)geo={city:j.city,region:j.region||'',country:j.country_name||'',ip:j.ip||''};
       }
-    }catch(e){/* geo failed, continue with empty */}
+    }catch(e){/* try fallback */}
+    // Fallback to freeipapi.com (no auth, no limits)
+    if(geo.city==='Desconhecida'){
+      try{
+        const r=await fetch('https://freeipapi.com/api/json',{cache:'no-store'});
+        if(r.ok){
+          const j=await r.json();
+          if(j.cityName&&j.cityName!=='-')geo={city:j.cityName,region:j.regionName||'',country:j.countryName||'',ip:j.ipAddress||''};
+        }
+      }catch(e){/* both failed */}
+    }
     const session={ts:Date.now(),date:new Date().toISOString(),city:geo.city,region:geo.region,country:geo.country,ip:geo.ip,deviceType:dev.type,browser:dev.browser,os:dev.os};
-    const ref=collection(db,'shared','sessions','log');
+    const ref=collection(db,'shared','data','sessions');
     await addDoc(ref,session);
     // Trim: keep only most recent 200
     try{
@@ -2263,11 +2275,15 @@ window.recordSession=async function(){
         await Promise.all(toDelete.map(d=>deleteDoc(d.ref)));
       }
     }catch(e){/* trim failed, not critical */}
+    // Trigger UI refresh if Equipa is currently open
+    if(window.currentScreen==='screen-equipa'){
+      try{renderSessionsReport();}catch(e){}
+    }
   }catch(e){console.warn('Session log failed:',e);}
 };
 window.fetchSessions=async function(){
   try{
-    const ref=collection(db,'shared','sessions','log');
+    const ref=collection(db,'shared','data','sessions');
     const snap=await getDocs(query(ref,orderBy('ts','desc')));
     const list=[];
     snap.forEach(d=>list.push(d.data()));
