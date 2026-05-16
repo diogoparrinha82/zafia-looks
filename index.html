@@ -348,8 +348,13 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .piece-img.contain{object-fit:contain;background:#0a0a1a;}
 .piece-img-ph{width:100%;aspect-ratio:1;border-radius:8px;border:2px dashed var(--c-border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--c-text3);font-size:.65rem;cursor:pointer;background:var(--c-surface);}
 .piece-img-ph span{font-size:1.4rem;}
-.piece-name-inp{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'Inter Tight',sans-serif;font-size:.78rem;outline:none;padding:3px 0;border-bottom:1px solid transparent;text-align:center;transition:border-color .2s;}
-.piece-name-inp:focus{border-bottom-color:var(--c-accent);}
+.piece-name-inp{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'Inter Tight',sans-serif;font-size:.78rem;outline:none;padding:3px 18px 3px 0;border-bottom:1px dashed var(--c-border);text-align:center;transition:border-color .2s;}
+.piece-name-inp:focus{border-bottom-color:var(--c-accent);border-bottom-style:solid;}
+.piece-name-inp:hover:not(:focus){border-bottom-color:var(--c-text3);}
+.piece-name-wrap{position:relative;display:block;}
+.piece-name-wrap::after{content:'✎';position:absolute;right:2px;top:50%;transform:translateY(-50%);font-size:.7rem;color:var(--c-text3);pointer-events:none;opacity:.55;transition:opacity .15s;}
+.piece-name-wrap:hover::after{opacity:1;color:var(--c-accent);}
+.piece-name-wrap:focus-within::after{opacity:0;}
 .piece-actions{display:flex;justify-content:center;gap:5px;}
 .piece-act-btn{font-size:.65rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px;background:transparent;}
 .piece-act-btn.del{color:#C72A1C;border-color:rgba(255,107,107,.3);}
@@ -370,8 +375,13 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .photo-row{display:flex;flex-direction:column;gap:6px;padding:8px 0;}
 .photo-mini{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;cursor:pointer;display:block;}
 .photo-mini-ph{width:100%;aspect-ratio:1;border-radius:10px;border:2px dashed var(--c-border);display:flex;align-items:center;justify-content:center;font-size:2rem;cursor:pointer;color:var(--c-text3);background:var(--c-surface);}
-.photo-name-inp{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'Inter Tight',sans-serif;font-size:.82rem;outline:none;padding:4px 0;border-bottom:1px solid transparent;text-align:center;transition:border-color .2s;}
-.photo-name-inp:focus{border-bottom-color:var(--c-accent);}
+.photo-name-inp{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'Inter Tight',sans-serif;font-size:.82rem;outline:none;padding:4px 18px 4px 0;border-bottom:1px dashed var(--c-border);text-align:center;transition:border-color .2s;}
+.photo-name-inp:focus{border-bottom-color:var(--c-accent);border-bottom-style:solid;}
+.photo-name-inp:hover:not(:focus){border-bottom-color:var(--c-text3);}
+.photo-name-wrap{position:relative;display:block;flex:1;min-width:0;}
+.photo-name-wrap::after{content:'✎';position:absolute;right:2px;top:50%;transform:translateY(-50%);font-size:.72rem;color:var(--c-text3);pointer-events:none;opacity:.55;transition:opacity .15s;}
+.photo-name-wrap:hover::after{opacity:1;color:var(--c-accent);}
+.photo-name-wrap:focus-within::after{opacity:0;}
 .photo-row-actions{display:flex;justify-content:center;gap:6px;}
 
 /* tutorial grid */
@@ -1962,7 +1972,7 @@ function renderConfig(){
   const bs=document.getElementById('backup-status');
   if(bs){const days=daysSinceLastBackup();bs.textContent=days===null?'Nunca foi feito backup':days===0?'Último backup hoje':days===1?'Último backup ontem':`Último backup há ${days} dias`;}
   // categories
-  document.getElementById('cat-inputs').innerHTML=state.config.cats.map(([cat,n,tutorials],i)=>{const tuts=tutorials||[];return`<div style="border-bottom:1px solid var(--c-border);padding-bottom:14px;margin-bottom:14px;"><div class="cat-row"><input class="cat-name-inp" type="text" value="${esc(cat)}" placeholder="Nome…" onchange="state.config.cats[${i}][0]=this.value;scheduleSave()"><div class="cat-count-wrap"><input class="cat-count-inp" type="number" min="0" value="${n}" onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint();scheduleSave()"><span class="cat-count-lbl">looks</span></div></div><div style="font-size:.62rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Tutoriais</div><div class="pieces-grid">${tuts.map((t,ti)=>`<div class="piece-cell">${t.photo?`<div style="position:relative">${t.num!=null&&!isNaN(t.num)?`<span class="tut-num-badge">№${t.num}</span>`:''}<img class="piece-img contain" src="${t.photo}" onclick="openLb('${t.photo}')"></div>`:`<div class="piece-img-ph" onclick="document.getElementById('ft-${i}-${ti}').click()"><span>📋</span><span>Adicionar</span></div>`}<input type="file" accept="image/*" id="ft-${i}-${ti}" style="display:none" onchange="handleTutorialPhoto(${i},${ti},this)"><input class="piece-name-inp" type="text" value="${esc(t.name||'')}" placeholder="Nome…" onchange="state.config.cats[${i}][2][${ti}].name=this.value;scheduleSave()"><div class="piece-actions"><span class="piece-act-btn" onclick="document.getElementById('ft-${i}-${ti}').click()">${t.photo?'🔄':'📋'}</span><span class="piece-act-btn del" onclick="removeTutorial(${i},${ti})">✕</span></div></div>`).join('')}</div><button class="mini-btn" style="width:100%;margin-top:8px;font-size:.75rem" onclick="addTutorial(${i})">+ Adicionar tutorial</button></div>`;}).join('');
+  document.getElementById('cat-inputs').innerHTML=state.config.cats.map(([cat,n,tutorials],i)=>{const tuts=tutorials||[];return`<div style="border-bottom:1px solid var(--c-border);padding-bottom:14px;margin-bottom:14px;"><div class="cat-row"><input class="cat-name-inp" type="text" value="${esc(cat)}" placeholder="Nome…" onchange="state.config.cats[${i}][0]=this.value;scheduleSave()"><div class="cat-count-wrap"><input class="cat-count-inp" type="number" min="0" value="${n}" onchange="state.config.cats[${i}][1]=parseInt(this.value)||0;updateCatHint();scheduleSave()"><span class="cat-count-lbl">looks</span></div></div><div style="font-size:.62rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Tutoriais</div><div class="pieces-grid">${tuts.map((t,ti)=>`<div class="piece-cell">${t.photo?`<div style="position:relative">${t.num!=null&&!isNaN(t.num)?`<span class="tut-num-badge">№${t.num}</span>`:''}<img class="piece-img contain" src="${t.photo}" onclick="openLb('${t.photo}')"></div>`:`<div class="piece-img-ph" onclick="document.getElementById('ft-${i}-${ti}').click()"><span>📋</span><span>Adicionar</span></div>`}<input type="file" accept="image/*" id="ft-${i}-${ti}" style="display:none" onchange="handleTutorialPhoto(${i},${ti},this)"><label class="piece-name-wrap"><input class="piece-name-inp" type="text" value="${esc(t.name||'')}" placeholder="Nome…" onchange="state.config.cats[${i}][2][${ti}].name=this.value;scheduleSave()"></label><div class="piece-actions"><span class="piece-act-btn" onclick="document.getElementById('ft-${i}-${ti}').click()">${t.photo?'🔄':'📋'}</span><span class="piece-act-btn del" onclick="removeTutorial(${i},${ti})">✕</span></div></div>`).join('')}</div><button class="mini-btn" style="width:100%;margin-top:8px;font-size:.75rem" onclick="addTutorial(${i})">+ Adicionar tutorial</button></div>`;}).join('');
   updateCatHint();
   renderOutfitInputs();
   renderSimpleItems('joias','joias-inputs','💍');
@@ -1989,8 +1999,8 @@ function renderOutfitInputs(){
           ?`<img class="piece-img" src="${item.photo}" onclick="openLb('${item.photo}')">`
           :`<div class="piece-img-ph" onclick="document.getElementById('${inputId}').click()"><span>👗</span><span>${item.isMain?'Principal':'Peça'}</span></div>`}
         <input type="file" accept="image/*" id="${inputId}" style="display:none" onchange="${onchange}">
-        <input class="piece-name-inp" type="text" value="${esc(item.isMain?outfit.name:item.name||'')}" placeholder="${item.isMain?'Nome da roupa…':'Nome da peça…'}"
-          onchange="${item.isMain?`state.config.outfits[${oi}].name=this.value;scheduleSave();renderOutfitInputs()`:`state.config.outfits[${oi}].pieces[${item.idx}].name=this.value;scheduleSave()`}">
+        <label class="piece-name-wrap"><input class="piece-name-inp" type="text" value="${esc(item.isMain?outfit.name:item.name||'')}" placeholder="${item.isMain?'Nome da roupa…':'Nome da peça…'}"
+          onchange="${item.isMain?`state.config.outfits[${oi}].name=this.value;scheduleSave();renderOutfitInputs()`:`state.config.outfits[${oi}].pieces[${item.idx}].name=this.value;scheduleSave()`}"></label>
         <div class="piece-actions">
           <span class="piece-act-btn" onclick="document.getElementById('${inputId}').click()">${item.photo?'🔄':'📷'}</span>
           ${item.photo||!item.isMain?`<span class="piece-act-btn del" onclick="${onRemove}">✕</span>`:''}
@@ -2027,7 +2037,7 @@ window.removeOutfitAt=function(oi){if(!state.config.outfits||!state.config.outfi
 // Simple items (joias, sapatos, scarves, models)
 function renderSimpleItems(type,cid,icon){
   const el=document.getElementById(cid);if(!el)return;
-  el.innerHTML=`<div class="photo-grid">${(state.config[type]||[]).map((item,i)=>`<div class="photo-row">${item.photo?`<img class="photo-mini" src="${item.photo}" onclick="openLb('${item.photo}')">`:`<div class="photo-mini-ph" onclick="document.getElementById('f-${type}-${i}').click()">${icon||'📷'}</div>`}<input type="file" accept="image/*" id="f-${type}-${i}" style="display:none" onchange="handleSimplePhoto('${type}','${cid}',${i},this)"><input class="photo-name-inp" type="text" value="${esc(item.name)}" placeholder="Nome…" onchange="state.config['${type}'][${i}].name=this.value;scheduleSave()"><div class="photo-row-actions"><span style="font-size:.7rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px" onclick="document.getElementById('f-${type}-${i}').click()" title="${item.photo?'Trocar foto':'Adicionar foto'}">${item.photo?'🔄':'📷'}</span><span style="font-size:.7rem;color:#C72A1C;cursor:pointer;padding:2px 6px;border:1px solid rgba(199,42,28,.3);border-radius:4px" onclick="removeItemAt('${type}','${cid}',${i},'${icon||''}')" title="Eliminar">🗑</span></div></div>`).join('')}</div>`;
+  el.innerHTML=`<div class="photo-grid">${(state.config[type]||[]).map((item,i)=>`<div class="photo-row">${item.photo?`<img class="photo-mini" src="${item.photo}" onclick="openLb('${item.photo}')">`:`<div class="photo-mini-ph" onclick="document.getElementById('f-${type}-${i}').click()">${icon||'📷'}</div>`}<input type="file" accept="image/*" id="f-${type}-${i}" style="display:none" onchange="handleSimplePhoto('${type}','${cid}',${i},this)"><label class="photo-name-wrap"><input class="photo-name-inp" type="text" value="${esc(item.name)}" placeholder="Nome…" onchange="state.config['${type}'][${i}].name=this.value;scheduleSave()"></label><div class="photo-row-actions"><span style="font-size:.7rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px" onclick="document.getElementById('f-${type}-${i}').click()" title="${item.photo?'Trocar foto':'Adicionar foto'}">${item.photo?'🔄':'📷'}</span><span style="font-size:.7rem;color:#C72A1C;cursor:pointer;padding:2px 6px;border:1px solid rgba(199,42,28,.3);border-radius:4px" onclick="removeItemAt('${type}','${cid}',${i},'${icon||''}')" title="Eliminar">🗑</span></div></div>`).join('')}</div>`;
 }
 window.handleSimplePhoto=async function(type,cid,i,input){if(!input.files[0])return;const c=await compressImage(input.files[0],400,0.6);state.config[type][i].photo=c;scheduleSave();renderSimpleItems(type,cid);buildCarousel();};
 window.addItem=function(type,cid){if(!state.config[type])state.config[type]=[];state.config[type].push({name:'',photo:''});renderSimpleItems(type,cid);};
