@@ -786,6 +786,37 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .cmp-col-rm{margin:6px 14px 14px;background:transparent;border:1px dashed var(--c-border);color:var(--c-text2);padding:7px;font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;}
 .cmp-col-rm:hover{border-color:#C72A1C;color:#C72A1C;}
 @media (max-width:640px){.compare-grid{grid-template-columns:1fr;}.compare-body{padding:12px;}}
+/* HOW-TO FAB & OVERLAY */
+.howto-fab{position:fixed;bottom:calc(var(--safe-bottom) + 80px);right:18px;background:var(--c-text);color:var(--c-card);border:none;border-radius:999px;padding:11px 17px 11px 14px;display:flex;align-items:center;gap:9px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.22);z-index:160;font-family:'Inter Tight',sans-serif;font-size:.84rem;font-weight:500;letter-spacing:-.005em;transition:transform .15s,box-shadow .15s;}
+.howto-fab:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.28);}
+.howto-fab:active{transform:translateY(0);}
+.howto-fab-icon{width:24px;height:24px;border-radius:50%;background:var(--c-accent);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.88rem;line-height:1;}
+.howto-fab-label{white-space:nowrap;}
+.howto-fab.pulse{animation:howtoFabPulse 2.2s ease-in-out infinite;}
+.howto-fab-dismiss{display:none;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.15);color:var(--c-card);font-size:.62rem;align-items:center;justify-content:center;margin-left:2px;margin-right:-4px;line-height:1;cursor:pointer;transition:background .15s,color .15s;}
+.howto-fab.pulse .howto-fab-dismiss{display:inline-flex;}
+.howto-fab-dismiss:hover{background:rgba(255,255,255,.3);color:#fff;}
+@keyframes howtoFabPulse{0%,100%{box-shadow:0 8px 24px rgba(0,0,0,.22),0 0 0 0 rgba(90,102,72,.55);}50%{box-shadow:0 8px 24px rgba(0,0,0,.22),0 0 0 14px rgba(90,102,72,0);}}
+@media (max-width:480px){.howto-fab-label{display:none;}.howto-fab{padding:11px;}}
+/* Overlay */
+.howto-ovl{position:fixed;inset:0;z-index:400;display:none;pointer-events:none;}
+.howto-ovl.open{display:block;}
+.howto-spotlight{position:absolute;border-radius:8px;box-shadow:0 0 0 9999px rgba(22,24,20,.78);transition:all .4s cubic-bezier(.4,0,.2,1);pointer-events:none;border:2px solid var(--c-accent2);}
+.howto-spotlight.no-target{display:none;}
+.howto-card{position:absolute;background:var(--c-card);color:var(--c-text);padding:18px 20px 16px;border-radius:10px;box-shadow:0 18px 48px rgba(0,0,0,.4);max-width:340px;width:calc(100vw - 32px);pointer-events:auto;transition:top .4s cubic-bezier(.4,0,.2,1),left .4s cubic-bezier(.4,0,.2,1);font-family:'Inter Tight',sans-serif;}
+.howto-step-counter{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-text3);margin-bottom:6px;}
+.howto-title{font-family:'Inter Tight',sans-serif;font-weight:600;font-size:1.05rem;color:var(--c-text);letter-spacing:-.015em;margin-bottom:8px;}
+.howto-body{font-size:.86rem;line-height:1.5;color:var(--c-text2);margin-bottom:14px;}
+.howto-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.howto-nav-r{display:flex;gap:6px;}
+.howto-btn{border:none;padding:7px 13px;border-radius:999px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;}
+.howto-btn.ghost{background:transparent;color:var(--c-text2);}
+.howto-btn.ghost:hover{background:var(--c-surface);color:var(--c-text);}
+.howto-btn.primary{background:var(--c-accent);color:#fff;}
+.howto-btn.primary:hover{background:#414b34;}
+.howto-btn:disabled{opacity:.35;cursor:default;}
+.howto-btn:disabled:hover{background:transparent;color:var(--c-text2);}
+/* end HOW-TO */
 /* REMOTE UPDATE BANNER */
 .remote-update-banner{position:fixed;top:calc(var(--safe-top) + 16px);left:50%;transform:translateX(-50%) translateY(-120%);background:var(--c-text);color:var(--c-card);padding:12px 14px 12px 18px;display:flex;align-items:center;gap:12px;border-radius:999px;box-shadow:0 12px 36px rgba(0,0,0,.3);z-index:300;max-width:calc(100vw - 32px);transition:transform .35s cubic-bezier(.4,0,.2,1);font-family:'Inter Tight',sans-serif;}
 .remote-update-banner.show{transform:translateX(-50%) translateY(0);}
@@ -872,6 +903,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
   <div class="carousel-viewport" id="carousel-vp">
     <div class="carousel-track" id="carousel-track"></div>
   </div>
+  <button class="howto-fab" id="howto-fab" onclick="startHowTo()" aria-label="Como montar look?"><span class="howto-fab-icon">?</span><span class="howto-fab-label">Como montar look?</span><span class="howto-fab-dismiss" onclick="event.stopPropagation();dismissHowToPulse()" aria-label="Esconder destaque" title="Esconder destaque">✕</span></button>
 </div>
 
 <div class="screen hidden" id="screen-gallery">
@@ -1346,6 +1378,127 @@ window.dismissBackupReminder=function(){
   // Soft dismiss: don't update ts, but mark dismissed this session so it doesn't pester
   sessionStorage.setItem('aos_backup_dismissed','1');
 };
+
+// ── HOW-TO (tutorial overlay for Looks screen) ──
+const HOWTO_SEEN_KEY='aos_howto_seen';
+let howToIdx=0;
+let howToResizeHandler=null;
+const HOWTO_STEPS=[
+  {
+    title:'Tutorial — o que praticar',
+    body:'Esta célula mostra o tutorial de styling (o "como fazer o lenço") que vai ser praticado neste look. Clica para escolher entre os tutoriais que tens configurados.',
+    getTarget:()=>document.querySelectorAll('#carousel-track > *')[state.ui.currentIdx]?.querySelectorAll('.card-photo-grid .photo-cell')[2]
+  },
+  {
+    title:'Roupa principal',
+    body:'A roupa que a modelo veste neste look. Clica para escolher do catálogo de roupas. Podes seleccionar várias se forem combinadas.',
+    getTarget:()=>document.querySelectorAll('#carousel-track > *')[state.ui.currentIdx]?.querySelectorAll('.card-photo-grid .photo-cell')[0]
+  },
+  {
+    title:'Lenço',
+    body:'O lenço da combinação. Mesmo conceito — clica para abrir a galeria de lenços e escolher. Multi-selecção também é permitida.',
+    getTarget:()=>document.querySelectorAll('#carousel-track > *')[state.ui.currentIdx]?.querySelectorAll('.card-photo-grid .photo-cell')[1]
+  },
+  {
+    title:'Look final',
+    body:'Esta célula fica vazia no início. Quando chegares ao dia do shoot, clica aqui para tirar/adicionar a foto final deste look — é o registo do resultado.',
+    getTarget:()=>document.querySelectorAll('#carousel-track > *')[state.ui.currentIdx]?.querySelectorAll('.card-photo-grid .photo-cell')[3]
+  },
+  {
+    title:'Detalhes do look',
+    body:'Por baixo das fotos, configuras o resto: modelo, locação, jóias, sapatos, e notas. Cada campo tem o seu próprio selector visual.',
+    getTarget:()=>document.querySelectorAll('#carousel-track > *')[state.ui.currentIdx]?.querySelector('.card-fields')
+  },
+  {
+    title:'Onde se criam as roupas, lenços e tutoriais?',
+    body:'Os itens disponíveis para seleccionar vivem em Configuração. Vai a Configuração → Categorias & Tutoriais (para os tutoriais) e às secções Roupas, Lenços, Modelos, Jóias, Sapatos para tudo o resto. Adicionas fotos e nomes, e ficam disponíveis para usar em qualquer look.',
+    onEnter:()=>{if(window.currentScreen!=='screen-config')switchTab('config');setTimeout(()=>{const sec=document.getElementById('cs-cats');if(sec){if(!sec.classList.contains('open')){const hdr=sec.querySelector('.cfg-section-hdr');if(hdr)hdr.click();}sec.scrollIntoView({behavior:'smooth',block:'center'});}},300);},
+    getTarget:()=>document.getElementById('cs-cats')
+  }
+];
+window.startHowTo=function(){
+  howToIdx=0;
+  document.getElementById('howto-ovl').classList.add('open');
+  document.getElementById('howto-ovl').setAttribute('aria-hidden','false');
+  // Make sure we're on looks screen for first steps
+  if(window.currentScreen!=='screen-looks')switchTab('looks');
+  // Stop pulse animation if it was running
+  document.getElementById('howto-fab').classList.remove('pulse');
+  localStorage.setItem(HOWTO_SEEN_KEY,'1');
+  renderHowToStep();
+  // Re-position on resize/scroll
+  if(!howToResizeHandler){howToResizeHandler=()=>renderHowToStep(true);window.addEventListener('resize',howToResizeHandler);window.addEventListener('scroll',howToResizeHandler,true);}
+};
+window.endHowTo=function(){
+  document.getElementById('howto-ovl').classList.remove('open');
+  document.getElementById('howto-ovl').setAttribute('aria-hidden','true');
+  if(howToResizeHandler){window.removeEventListener('resize',howToResizeHandler);window.removeEventListener('scroll',howToResizeHandler,true);howToResizeHandler=null;}
+};
+window.howToNext=function(){if(howToIdx<HOWTO_STEPS.length-1){howToIdx++;renderHowToStep();}else{endHowTo();}};
+window.howToPrev=function(){if(howToIdx>0){howToIdx--;renderHowToStep();}};
+function renderHowToStep(reposOnly){
+  const step=HOWTO_STEPS[howToIdx];
+  if(!step)return;
+  if(!reposOnly&&step.onEnter)step.onEnter();
+  // Update card content
+  document.getElementById('howto-step-counter').textContent=`${howToIdx+1} / ${HOWTO_STEPS.length}`;
+  document.getElementById('howto-title').textContent=step.title;
+  document.getElementById('howto-body').textContent=step.body;
+  const prevBtn=document.getElementById('howto-prev');
+  const nextBtn=document.getElementById('howto-next');
+  prevBtn.disabled=(howToIdx===0);
+  nextBtn.textContent=howToIdx===HOWTO_STEPS.length-1?'Concluir ✓':'Seguinte →';
+  // Position spotlight + card
+  // Small delay to let onEnter actions (like switchTab) settle
+  setTimeout(()=>positionHowTo(step),reposOnly?0:50);
+}
+function positionHowTo(step){
+  const spotlight=document.getElementById('howto-spotlight');
+  const card=document.getElementById('howto-card');
+  const target=step.getTarget?step.getTarget():null;
+  if(!target){
+    spotlight.classList.add('no-target');
+    // Center the card
+    card.style.top='50%';card.style.left='50%';card.style.transform='translate(-50%,-50%)';
+    return;
+  }
+  spotlight.classList.remove('no-target');
+  // Scroll target into view if needed
+  const r=target.getBoundingClientRect();
+  if(r.top<80||r.bottom>window.innerHeight-80){
+    target.scrollIntoView({behavior:'smooth',block:'center'});
+    setTimeout(()=>positionHowTo(step),350);
+    return;
+  }
+  const pad=8;
+  spotlight.style.top=(r.top-pad)+'px';
+  spotlight.style.left=(r.left-pad)+'px';
+  spotlight.style.width=(r.width+pad*2)+'px';
+  spotlight.style.height=(r.height+pad*2)+'px';
+  // Position card: prefer below target, but if too low, place above
+  const cardH=180; // approx
+  const cardW=Math.min(340,window.innerWidth-32);
+  let top=r.bottom+pad+12;
+  if(top+cardH>window.innerHeight-20)top=Math.max(20,r.top-pad-cardH-12);
+  let left=r.left+r.width/2-cardW/2;
+  if(left<16)left=16;
+  if(left+cardW>window.innerWidth-16)left=window.innerWidth-cardW-16;
+  card.style.top=top+'px';
+  card.style.left=left+'px';
+  card.style.transform='none';
+}
+// Auto-pulse FAB on first ever app open
+function maybePulseHowToFab(){
+  if(!localStorage.getItem(HOWTO_SEEN_KEY)){
+    const fab=document.getElementById('howto-fab');
+    if(fab)fab.classList.add('pulse');
+  }
+}
+window.dismissHowToPulse=function(){
+  localStorage.setItem(HOWTO_SEEN_KEY,'1');
+  const fab=document.getElementById('howto-fab');
+  if(fab)fab.classList.remove('pulse');
+};
 function maybeShowBackupReminder(){
   if(sessionStorage.getItem('aos_backup_dismissed')==='1')return;
   const days=daysSinceLastBackup();
@@ -1371,7 +1524,7 @@ function showBackupReminder(days){
 window.doLogin=function(){const pwd=document.getElementById('login-pwd').value.trim();if(pwd===ACCESS_PASSWORD){localStorage.setItem(SESSION_KEY,'1');document.getElementById('screen-login').classList.add('hidden');initApp();startPresence();}else{document.getElementById('login-err').textContent='⛔ Senha incorrecta.';document.getElementById('login-pwd').value='';}};
 window.doLogout=function(){if(!confirm('Sair?'))return;localStorage.removeItem(SESSION_KEY);document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById('screen-login').classList.remove('hidden');};
 
-function initApp(){loadCache();loadCompareBin();state.ui.currentIdx=0;state.ui.filter='';state.config.theme={...DEFAULT_THEME};applyTheme();document.getElementById('loading').classList.add('hidden');renderFilters();buildCarousel();updateCounter();renderCompareBin();switchTab('dashboard');const fbTO=setTimeout(()=>setSyncStatus('offline'),8000);loadFromFirestore().then(()=>{clearTimeout(fbTO);if(window.currentScreen==='screen-dashboard')renderDashboard();}).catch(()=>{clearTimeout(fbTO);setSyncStatus('offline');});}
+function initApp(){loadCache();loadCompareBin();state.ui.currentIdx=0;state.ui.filter='';state.config.theme={...DEFAULT_THEME};applyTheme();document.getElementById('loading').classList.add('hidden');renderFilters();buildCarousel();updateCounter();renderCompareBin();maybePulseHowToFab();switchTab('dashboard');const fbTO=setTimeout(()=>setSyncStatus('offline'),8000);loadFromFirestore().then(()=>{clearTimeout(fbTO);if(window.currentScreen==='screen-dashboard')renderDashboard();}).catch(()=>{clearTimeout(fbTO);setSyncStatus('offline');});}
 
 window.exportData=function(){return window.exportBackup();};
 window.importData=function(input){if(!input.files[0])return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(!d.config||!d.looks)throw new Error();window.state=d;state.looks=migrateLooks(state.looks);state.config.outfits=normaliseOutfits(state.config.outfits);state.config.joias=normaliseSimple(state.config.joias,DEFAULT_JOIAS);state.config.sapatos=normaliseSimple(state.config.sapatos,DEFAULT_SAPATOS);applyTheme();renderFilters();buildCarousel();updateCounter();scheduleSave();showToast('⬆ Importado!');}catch(e){showToast('✗ Ficheiro inválido');}};r.readAsText(input.files[0]);input.value='';};
@@ -2300,6 +2453,7 @@ window.goToLookFromShooting=function(num){const idx=state.looks.findIndex(x=>x.n
 window.openLookModal=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;const screen=document.getElementById('screen-looks');if(!screen)return;const shell=document.getElementById('look-modal-shell');if(screen.parentElement===shell)return;window.__lookModalReturn={parent:screen.parentElement,next:screen.nextSibling};window.__lookModalWasHidden=screen.classList.contains('hidden');window.__lookModalPrevFilter=state.ui.filter;window.__lookModalPrevIdx=state.ui.currentIdx;shell.appendChild(screen);screen.classList.remove('hidden');state.ui.filter='';state.ui.currentIdx=idx;window.currentScreen='screen-looks';document.body.style.overflow='hidden';document.getElementById('look-modal-ovl').classList.add('open');renderFilters();buildCarousel();updateCounter();};
 window.closeLookModal=function(){const ovl=document.getElementById('look-modal-ovl');if(!ovl.classList.contains('open'))return;const screen=document.getElementById('screen-looks');const ret=window.__lookModalReturn;if(ret&&ret.parent){if(ret.next&&ret.next.parentElement===ret.parent)ret.parent.insertBefore(screen,ret.next);else ret.parent.appendChild(screen);}if(window.__lookModalWasHidden)screen.classList.add('hidden');if(window.__lookModalPrevFilter!==undefined)state.ui.filter=window.__lookModalPrevFilter;if(window.__lookModalPrevIdx!==undefined)state.ui.currentIdx=window.__lookModalPrevIdx;ovl.classList.remove('open');document.body.style.overflow='';window.__lookModalReturn=null;window.__lookModalWasHidden=null;window.__lookModalPrevFilter=undefined;window.__lookModalPrevIdx=undefined;window.currentScreen=document.querySelector('.screen:not(.hidden)')?.id||'screen-shooting';if(!screen.classList.contains('hidden')){renderFilters();buildCarousel();}};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('look-modal-ovl').classList.contains('open'))closeLookModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('howto-ovl').classList.contains('open'))endHowTo();});
 window.unassignLook=function(num){const l=state.looks.find(x=>x.num===num);if(!l)return;l.locationId='';scheduleSave();renderShooting();buildCarousel();};
 window.uploadLocationHero=async function(id,input){if(!input.files[0])return;const c=await compressImage(input.files[0],1200,0.7);const L=(state.config.locations||[]).find(x=>x.id===id);if(!L)return;L.photoUrl=c;scheduleSave();renderShooting();};
 window.updLocationNotes=function(id,val){const L=(state.config.locations||[]).find(x=>x.id===id);if(!L)return;L.notes=val;scheduleSave();};
@@ -2722,6 +2876,22 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElement
     <button class="compare-close" onclick="closeCompare()" aria-label="Fechar">✕</button>
   </div>
   <div class="compare-body"><div class="compare-grid" id="compare-grid"></div></div>
+</div>
+
+<div class="howto-ovl" id="howto-ovl" aria-hidden="true">
+  <div class="howto-spotlight" id="howto-spotlight"></div>
+  <div class="howto-card" id="howto-card">
+    <div class="howto-step-counter" id="howto-step-counter">1 / 6</div>
+    <div class="howto-title" id="howto-title">Título</div>
+    <div class="howto-body" id="howto-body">Descrição</div>
+    <div class="howto-nav">
+      <button class="howto-btn ghost" onclick="endHowTo()">Sair</button>
+      <div class="howto-nav-r">
+        <button class="howto-btn ghost" id="howto-prev" onclick="howToPrev()">← Anterior</button>
+        <button class="howto-btn primary" id="howto-next" onclick="howToNext()">Seguinte →</button>
+      </div>
+    </div>
+  </div>
 </div>
 </body>
 </html>
