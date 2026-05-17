@@ -797,7 +797,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .howto-fab-dismiss:hover{background:rgba(255,255,255,.3);color:#fff;}
 .howto-fab.hidden-fab{display:none;}
 @keyframes howtoFabPulse{0%,100%{box-shadow:0 8px 24px rgba(0,0,0,.22),0 0 0 0 rgba(90,102,72,.55);}50%{box-shadow:0 8px 24px rgba(0,0,0,.22),0 0 0 14px rgba(90,102,72,0);}}
-@media (max-width:480px){.howto-fab-label{display:none;}.howto-fab{padding:11px;}}
+@media (max-width:480px){.howto-fab{padding:9px 14px 9px 11px;font-size:.76rem;gap:7px;}.howto-fab-icon{width:21px;height:21px;font-size:.8rem;}.howto-fab-dismiss{width:17px;height:17px;font-size:.58rem;}}
 /* Overlay */
 .howto-ovl{position:fixed;inset:0;z-index:400;display:none;pointer-events:none;}
 .howto-ovl.open{display:block;}
@@ -852,6 +852,9 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .pres-dot.idle{background:var(--c-text3);animation:none;}
 .pres-v{font-family:'Inter Tight',sans-serif;font-weight:600;font-size:1.6rem;color:var(--c-text);letter-spacing:-.02em;line-height:1;}
 @keyframes presPulse{0%{box-shadow:0 0 0 0 rgba(90,102,72,.55);}70%{box-shadow:0 0 0 8px rgba(90,102,72,0);}100%{box-shadow:0 0 0 0 rgba(90,102,72,0);}}
+.pres-cities{padding:0 22px 22px;display:flex;flex-wrap:wrap;gap:6px;}
+.pres-city-chip{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border:1px solid var(--c-border);background:var(--c-surface);border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--c-text2);}
+.pres-city-n{font-weight:600;color:var(--c-accent);}
 @keyframes spin{to{transform:rotate(360deg);}}
 /* AOS LOGO */
 .aos-mark{display:inline-block;color:currentColor;flex-shrink:0;line-height:0;}
@@ -2488,14 +2491,16 @@ async function renderPresence(){
   // Clear any previous auto-refresh
   if(presenceRefreshTimer){clearInterval(presenceRefreshTimer);presenceRefreshTimer=null;}
   const paint=async()=>{
-    const n=window.fetchPresenceCount?await window.fetchPresenceCount():null;
+    const info=window.fetchPresenceInfo?await window.fetchPresenceInfo():null;
     const target=document.getElementById('presence-indicator');
     if(!target)return;
-    if(n===null){
+    if(info===null){
       target.innerHTML=`<div class="pres-card"><div class="pres-l"><span class="pres-k">Visitantes online</span><span class="pres-sub">Sem ligação ao servidor</span></div><div class="pres-r"><span class="pres-dot idle"></span><span class="pres-v" style="color:var(--c-text3)">—</span></div></div>`;
       return;
     }
-    target.innerHTML=`<div class="pres-card"><div class="pres-l"><span class="pres-k">Visitantes online</span><span class="pres-sub">${n===1?'1 aba activa nos últimos 60s':n+' abas activas nos últimos 60s'}</span></div><div class="pres-r"><span class="pres-dot${n===0?' idle':''}"></span><span class="pres-v">${n}</span></div></div>`;
+    const {online,cities}=info;
+    const citiesHtml=cities.length?`<div class="pres-cities">${cities.map(([city,n])=>`<span class="pres-city-chip">${esc(city)}${n>1?` <span class="pres-city-n">×${n}</span>`:''}</span>`).join('')}</div>`:'';
+    target.innerHTML=`<div class="pres-card"><div class="pres-l"><span class="pres-k">Visitantes online</span><span class="pres-sub">${online===1?'1 aba activa nos últimos 60s':online+' abas activas nos últimos 60s'}</span></div><div class="pres-r"><span class="pres-dot${online===0?' idle':''}"></span><span class="pres-v">${online}</span></div></div>${citiesHtml}`;
   };
   await paint();
   // Refresh every 15s while Equipa screen is visible
@@ -2782,6 +2787,7 @@ window.renderColorGrid=renderColorGrid;
 // "Online" = docs with ts > now - 60s. Stale docs are cleaned up opportunistically.
 const PRESENCE_TTL=60000; // doc is "online" if ts is within this window
 const PRESENCE_INTERVAL=20000; // how often to heartbeat
+const PRESENCE_CITY_KEY='aos_presence_city';
 function getPresenceTabId(){
   let id=sessionStorage.getItem('aos_tab_id');
   if(!id){
@@ -2790,30 +2796,63 @@ function getPresenceTabId(){
   }
   return id;
 }
+// Resolve city once per tab session via free geo-IP services.
+// Result is cached in sessionStorage so we don't ping the API every heartbeat.
+async function resolveCity(){
+  const cached=sessionStorage.getItem(PRESENCE_CITY_KEY);
+  if(cached!==null)return cached; // empty string is valid (means we tried and failed)
+  let city='';
+  try{
+    const r=await fetch('https://ipapi.co/json/',{cache:'no-store'});
+    if(r.ok){const j=await r.json();if(j.city)city=j.city;}
+  }catch(e){/* try fallback */}
+  if(!city){
+    try{
+      const r=await fetch('https://freeipapi.com/api/json',{cache:'no-store'});
+      if(r.ok){const j=await r.json();if(j.cityName&&j.cityName!=='-')city=j.cityName;}
+    }catch(e){/* both failed */}
+  }
+  sessionStorage.setItem(PRESENCE_CITY_KEY,city);
+  return city;
+}
 async function sendHeartbeat(){
   try{
     const tabId=getPresenceTabId();
-    await setDoc(doc(db,'shared','data','docs','presence_'+tabId),{ts:Date.now(),_kind:'presence'});
+    const city=await resolveCity();
+    const payload={ts:Date.now(),_kind:'presence'};
+    if(city)payload.city=city;
+    await setDoc(doc(db,'shared','data','docs','presence_'+tabId),payload);
   }catch(e){console.warn('Heartbeat failed:',e);}
 }
-window.fetchPresenceCount=async function(){
+window.fetchPresenceInfo=async function(){
   try{
     const ref=collection(db,'shared','data','docs');
     const snap=await getDocs(ref);
     const now=Date.now();
+    const cityCounts={};
     let online=0;
     const staleDocs=[];
     snap.forEach(d=>{
       const data=d.data();
-      if(data._kind!=='presence')return; // skip non-presence docs
+      if(data._kind!=='presence')return;
       const ts=data.ts||0;
-      if(now-ts<PRESENCE_TTL)online++;
-      else if(now-ts>10*PRESENCE_TTL)staleDocs.push(d); // 10 min old = junk
+      if(now-ts<PRESENCE_TTL){
+        online++;
+        const c=data.city||'';
+        if(c){cityCounts[c]=(cityCounts[c]||0)+1;}
+        else{cityCounts['(desconhecida)']=(cityCounts['(desconhecida)']||0)+1;}
+      }
+      else if(now-ts>10*PRESENCE_TTL)staleDocs.push(d);
     });
-    // Best-effort cleanup of stale records (>10min)
     if(staleDocs.length){Promise.all(staleDocs.map(d=>deleteDoc(d.ref))).catch(()=>{});}
-    return online;
+    const cities=Object.entries(cityCounts).sort((a,b)=>b[1]-a[1]);
+    return {online,cities};
   }catch(e){console.warn('Presence read failed:',e);return null;}
+};
+// Backwards-compat for any callers that still expect a count only
+window.fetchPresenceCount=async function(){
+  const info=await window.fetchPresenceInfo();
+  return info?info.online:null;
 };
 let presenceHbInterval=null;
 function startPresence(){
