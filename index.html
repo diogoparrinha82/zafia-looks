@@ -793,9 +793,9 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .howto-fab-icon{width:24px;height:24px;border-radius:50%;background:var(--c-accent);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.88rem;line-height:1;}
 .howto-fab-label{white-space:nowrap;}
 .howto-fab.pulse{animation:howtoFabPulse 2.2s ease-in-out infinite;}
-.howto-fab-dismiss{display:none;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.15);color:var(--c-card);font-size:.62rem;align-items:center;justify-content:center;margin-left:2px;margin-right:-4px;line-height:1;cursor:pointer;transition:background .15s,color .15s;}
-.howto-fab.pulse .howto-fab-dismiss{display:inline-flex;}
+.howto-fab-dismiss{display:inline-flex;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.15);color:var(--c-card);font-size:.62rem;align-items:center;justify-content:center;margin-left:2px;margin-right:-4px;line-height:1;cursor:pointer;transition:background .15s,color .15s;}
 .howto-fab-dismiss:hover{background:rgba(255,255,255,.3);color:#fff;}
+.howto-fab.hidden-fab{display:none;}
 @keyframes howtoFabPulse{0%,100%{box-shadow:0 8px 24px rgba(0,0,0,.22),0 0 0 0 rgba(90,102,72,.55);}50%{box-shadow:0 8px 24px rgba(0,0,0,.22),0 0 0 14px rgba(90,102,72,0);}}
 @media (max-width:480px){.howto-fab-label{display:none;}.howto-fab{padding:11px;}}
 /* Overlay */
@@ -903,7 +903,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
   <div class="carousel-viewport" id="carousel-vp">
     <div class="carousel-track" id="carousel-track"></div>
   </div>
-  <button class="howto-fab" id="howto-fab" onclick="startHowTo()" aria-label="Como montar look?"><span class="howto-fab-icon">?</span><span class="howto-fab-label">Como montar look?</span><span class="howto-fab-dismiss" onclick="event.stopPropagation();dismissHowToPulse()" aria-label="Esconder destaque" title="Esconder destaque">✕</span></button>
+  <button class="howto-fab" id="howto-fab" onclick="startHowTo()" aria-label="Como montar look?"><span class="howto-fab-icon">?</span><span class="howto-fab-label">Como montar look?</span><span class="howto-fab-dismiss" onclick="event.stopPropagation();hideHowToFab()" aria-label="Esconder este botão" title="Esconder este botão">✕</span></button>
 </div>
 
 <div class="screen hidden" id="screen-gallery">
@@ -1411,9 +1411,9 @@ const HOWTO_STEPS=[
   },
   {
     title:'Onde se criam as roupas, lenços e tutoriais?',
-    body:'Os itens disponíveis para seleccionar vivem em Configuração. Vai a Configuração → Categorias & Tutoriais (para os tutoriais) e às secções Roupas, Lenços, Modelos, Jóias, Sapatos para tudo o resto. Adicionas fotos e nomes, e ficam disponíveis para usar em qualquer look.',
-    onEnter:()=>{if(window.currentScreen!=='screen-config')switchTab('config');setTimeout(()=>{const sec=document.getElementById('cs-cats');if(sec){if(!sec.classList.contains('open')){const hdr=sec.querySelector('.cfg-section-hdr');if(hdr)hdr.click();}sec.scrollIntoView({behavior:'smooth',block:'center'});}},300);},
-    getTarget:()=>document.getElementById('cs-cats')
+    body:'Esta é a secção "Categorias & Tutoriais" da Configuração — aqui adicionas os tutoriais (com fotos e números). Nas secções seguintes ("Roupas & Peças", "Lenços", "Modelos") configuras tudo o resto. Os itens criados aqui ficam disponíveis em qualquer look.',
+    onEnter:()=>{if(window.currentScreen!=='screen-config')switchTab('config');setTimeout(()=>{const sec=document.getElementById('cs-cats');if(sec){if(!sec.classList.contains('open')){const hdr=sec.querySelector('.cfg-section-hdr');if(hdr)hdr.click();}const hdr=sec.querySelector('.cfg-section-hdr');if(hdr)hdr.scrollIntoView({behavior:'smooth',block:'start'});}},300);},
+    getTarget:()=>document.getElementById('cs-cats')?.querySelector('.cfg-section-hdr')
   }
 ];
 window.startHowTo=function(){
@@ -1450,9 +1450,11 @@ function renderHowToStep(reposOnly){
   nextBtn.textContent=howToIdx===HOWTO_STEPS.length-1?'Concluir ✓':'Seguinte →';
   // Position spotlight + card
   // Small delay to let onEnter actions (like switchTab) settle
-  setTimeout(()=>positionHowTo(step),reposOnly?0:50);
+  setTimeout(()=>positionHowTo(step,!reposOnly),reposOnly?0:50);
 }
-function positionHowTo(step){
+function positionHowTo(step,allowScroll){
+  const ovl=document.getElementById('howto-ovl');
+  if(!ovl||!ovl.classList.contains('open'))return; // safety: stop if closed
   const spotlight=document.getElementById('howto-spotlight');
   const card=document.getElementById('howto-card');
   const target=step.getTarget?step.getTarget():null;
@@ -1463,11 +1465,12 @@ function positionHowTo(step){
     return;
   }
   spotlight.classList.remove('no-target');
-  // Scroll target into view if needed
+  // Scroll target into view ONLY on initial step entry, never during repositioning
+  // (otherwise user scrolling triggers a re-scroll loop that locks the page)
   const r=target.getBoundingClientRect();
-  if(r.top<80||r.bottom>window.innerHeight-80){
+  if(allowScroll&&(r.top<80||r.bottom>window.innerHeight-80)){
     target.scrollIntoView({behavior:'smooth',block:'center'});
-    setTimeout(()=>positionHowTo(step),350);
+    setTimeout(()=>positionHowTo(step,false),400); // recurse without further scroll
     return;
   }
   const pad=8;
@@ -1487,17 +1490,24 @@ function positionHowTo(step){
   card.style.left=left+'px';
   card.style.transform='none';
 }
-// Auto-pulse FAB on first ever app open
+// Auto-pulse FAB on first ever app open; hide entirely if user dismissed it
+const HOWTO_HIDDEN_KEY='aos_howto_hidden';
 function maybePulseHowToFab(){
+  const fab=document.getElementById('howto-fab');
+  if(!fab)return;
+  if(localStorage.getItem(HOWTO_HIDDEN_KEY)==='1'){
+    fab.classList.add('hidden-fab');
+    return;
+  }
   if(!localStorage.getItem(HOWTO_SEEN_KEY)){
-    const fab=document.getElementById('howto-fab');
-    if(fab)fab.classList.add('pulse');
+    fab.classList.add('pulse');
   }
 }
-window.dismissHowToPulse=function(){
+window.hideHowToFab=function(){
+  localStorage.setItem(HOWTO_HIDDEN_KEY,'1');
   localStorage.setItem(HOWTO_SEEN_KEY,'1');
   const fab=document.getElementById('howto-fab');
-  if(fab)fab.classList.remove('pulse');
+  if(fab){fab.classList.remove('pulse');fab.classList.add('hidden-fab');}
 };
 function maybeShowBackupReminder(){
   if(sessionStorage.getItem('aos_backup_dismissed')==='1')return;
