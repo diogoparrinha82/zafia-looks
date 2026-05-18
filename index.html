@@ -466,6 +466,11 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .sh-detail-no .hr{flex:1;height:1px;background:var(--c-border);}
 .sh-detail-name{font-family:'Inter Tight',sans-serif;font-weight:600;font-size:clamp(28px,4.5vw,52px);line-height:1;letter-spacing:-.025em;margin-top:14px;color:var(--c-text);}
 .sh-detail-place{margin-top:12px;font-size:.95rem;color:var(--c-text2);letter-spacing:.01em;}
+.sh-detail-hero-topline{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.sh-detail-edit{flex-shrink:0;background:transparent;color:var(--c-text);border:1px solid var(--c-border);border-radius:999px;padding:9px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;transition:background .15s,border-color .15s,color .15s;line-height:1;}
+.sh-detail-edit:hover{background:var(--c-accent);color:#fff;border-color:var(--c-accent);}
+.sh-detail-edit span:first-child{font-size:.85rem;line-height:1;}
+@media (max-width:560px){.sh-detail-edit{padding:8px 11px;}.sh-detail-edit-lbl{display:none;}}
 .sh-detail-factgrid{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--c-border);}
 .sh-detail-fact{padding:14px 0;border-bottom:1px solid var(--c-border);display:flex;flex-direction:column;gap:4px;}
 .sh-detail-fact:nth-child(odd){padding-right:16px;border-right:1px solid var(--c-border);}
@@ -1294,7 +1299,14 @@ function pruneOrphanReferences(){
     if(l.sapatos&&!valid.sapatos.has(l.sapatos)){l.sapatos='';pruned++;}
     if(l.model&&!valid.models.has(l.model)){l.model='';pruned++;}
   });
-  if(pruned){console.log(`Pruned ${pruned} orphan reference(s) from looks.`);scheduleSave();}
+  // Locations also reference model names in their roster
+  (state.config.locations||[]).forEach(L=>{
+    if(!Array.isArray(L.models))return;
+    const before=L.models.length;
+    L.models=L.models.filter(n=>valid.models.has(n));
+    pruned+=before-L.models.length;
+  });
+  if(pruned){console.log(`Pruned ${pruned} orphan reference(s) from looks and locations.`);scheduleSave();}
 }
 
 // ── REMOTE CHANGE WATCH ──
@@ -2264,8 +2276,17 @@ window.renameConfigItem=function(type,index,newName){
   arr[index].name=newName;
   const field=RENAME_TARGETS[type];
   if(field)cascadeRename(field,oldName,newName);
+  // Models also appear in each location's roster (L.models[]) — cascade there too
+  if(type==='models'&&oldName&&oldName!==newName){
+    (state.config.locations||[]).forEach(L=>{
+      if(Array.isArray(L.models)){
+        L.models=L.models.map(n=>n===oldName?newName:n);
+      }
+    });
+  }
   scheduleSave();
   buildCarousel();
+  if(window.currentScreen==='screen-shooting')renderShooting();
 };
 // Rename outfit (main) – different from above because the outfit name maps to look.outfit array
 window.renameOutfitMain=function(oi,newName){
@@ -2493,10 +2514,13 @@ function renderShootingDetail(id){const L=(state.config.locations||[]).find(x=>x
     <button class="sh-detail-upload-btn" onclick="document.getElementById('${heroFile}').click()">↑ ${L.photoUrl?'Trocar':'Upload'}</button>
   </div>
   <div class="sh-detail-hero-info">
-    <div>
-      <div class="sh-detail-no"><span>Locação ${String(idx+1).padStart(2,'0')}</span><span class="hr"></span><span>${assignedLooks.length} looks</span></div>
-      <div class="sh-detail-name">${esc(L.name)}</div>
-      <div class="sh-detail-place">${esc(L.city||'—')} · ${esc(SH_CAT_LABELS[L.category]||L.category||'—')}</div>
+    <div class="sh-detail-hero-topline">
+      <div>
+        <div class="sh-detail-no"><span>Locação ${String(idx+1).padStart(2,'0')}</span><span class="hr"></span><span>${assignedLooks.length} looks</span></div>
+        <div class="sh-detail-name">${esc(L.name)}</div>
+        <div class="sh-detail-place">${esc(L.city||'—')} · ${esc(SH_CAT_LABELS[L.category]||L.category||'—')}</div>
+      </div>
+      <button class="sh-detail-edit" onclick="openLocationModal('${id}')" aria-label="Editar locação" title="Editar locação"><span>✎</span><span class="sh-detail-edit-lbl">Editar</span></button>
     </div>
     <div class="sh-detail-factgrid">
       <div class="sh-detail-fact"><span class="k">📅 Data</span><span class="v">${esc(fmtDateLong(L.date))}</span></div>
@@ -2562,7 +2586,7 @@ window.updLocationNotes=function(id,val){const L=(state.config.locations||[]).fi
 window.removeLocation=function(id){const L=(state.config.locations||[]).find(x=>x.id===id);if(!L)return;const assigned=looksForLocation(id).length;const msg=assigned?`Remover "${L.name}"? ${assigned} look${assigned!==1?'s':''} ficarão sem locação específica (categoria mantém-se).`:`Remover "${L.name}"?`;if(!confirm(msg))return;state.looks.forEach(l=>{if(l.locationId===id)l.locationId='';});state.config.locations=state.config.locations.filter(x=>x.id!==id);scheduleSave();if(shView.id===id){shView={mode:'dashboard',id:null};}renderShooting();buildCarousel();};
 
 // Location modal (add/edit)
-window.openLocationModal=function(id){const L=id?(state.config.locations||[]).find(x=>x.id===id):null;const isEdit=!!L;const f={id:L?.id||'',name:L?.name||'',city:L?.city||'',category:L?.category||'Portugal – Exterior',date:L?.date||'',timeStart:L?.timeStart||'',timeEnd:L?.timeEnd||'',notes:L?.notes||'',models:(L?.models||[]).slice()};window.__lmModels=new Set(f.models);const allModels=state.config.models||[];const chipsHtml=allModels.length?`<div class="sh-model-picker" id="lm-model-picker">${allModels.map(m=>{const on=window.__lmModels.has(m.name);return `<button type="button" class="sh-model-chip${on?' on':''}" data-name="${esc(m.name)}" onclick="toggleLmModel(this)">${m.photo?`<img src="${m.photo}" alt="">`:`<div class="ph">👤</div>`}<span>${esc(m.name)}</span></button>`;}).join('')}</div>`:`<div class="sh-model-empty">Nenhum modelo configurado. Adiciona modelos em Configuração primeiro.</div>`;const html=`<div class="pin-card" style="max-width:460px"><div class="pin-title">${isEdit?'Editar locação':'Nova locação'}</div><div class="sh-modal-form"><label>Nome</label><input type="text" id="lm-name" value="${esc(f.name)}" placeholder="Casa Modernista"><label>Cidade / Bairro</label><input type="text" id="lm-city" value="${esc(f.city)}" placeholder="Lisboa · Alfama"><label>Categoria</label><select id="lm-cat"><option${f.category==='Portugal – Estúdio'?' selected':''}>Portugal – Estúdio</option><option${f.category==='Portugal – Exterior'?' selected':''}>Portugal – Exterior</option><option${f.category==='Cabo Verde – Exterior'?' selected':''}>Cabo Verde – Exterior</option></select><label>Data</label><input type="date" id="lm-date" value="${esc(f.date)}"><div class="sh-modal-row"><label>Início<input type="time" id="lm-ts" value="${esc(f.timeStart)}"></label><label>Fim<input type="time" id="lm-te" value="${esc(f.timeEnd)}"></label></div><label>Modelos</label>${chipsHtml}<label>Notas</label><textarea id="lm-notes" placeholder="Observações…">${esc(f.notes)}</textarea></div><div class="pin-actions"><button class="pin-btn" onclick="closeLocationModal()">Cancelar</button><button class="pin-btn primary" onclick="saveLocationFromModal('${f.id}')">${isEdit?'Guardar':'Adicionar'}</button></div></div>`;const ovl=document.getElementById('loc-modal-ovl');ovl.innerHTML=html;ovl.classList.add('open');};
+window.openLocationModal=function(id){const L=id?(state.config.locations||[]).find(x=>x.id===id):null;const isEdit=!!L;const f={id:L?.id||'',name:L?.name||'',city:L?.city||'',category:L?.category||'Portugal – Exterior',date:L?.date||'',timeStart:L?.timeStart||'',timeEnd:L?.timeEnd||'',notes:L?.notes||'',models:(L?.models||[]).slice()};const validModelNames=new Set((state.config.models||[]).map(m=>m.name));window.__lmModels=new Set(f.models.filter(n=>validModelNames.has(n)));const allModels=state.config.models||[];const chipsHtml=allModels.length?`<div class="sh-model-picker" id="lm-model-picker">${allModels.map(m=>{const on=window.__lmModels.has(m.name);return `<button type="button" class="sh-model-chip${on?' on':''}" data-name="${esc(m.name)}" onclick="toggleLmModel(this)">${m.photo?`<img src="${m.photo}" alt="">`:`<div class="ph">👤</div>`}<span>${esc(m.name)}</span></button>`;}).join('')}</div>`:`<div class="sh-model-empty">Nenhum modelo configurado. Adiciona modelos em Configuração primeiro.</div>`;const html=`<div class="pin-card" style="max-width:460px"><div class="pin-title">${isEdit?'Editar locação':'Nova locação'}</div><div class="sh-modal-form"><label>Nome</label><input type="text" id="lm-name" value="${esc(f.name)}" placeholder="Casa Modernista"><label>Cidade / Bairro</label><input type="text" id="lm-city" value="${esc(f.city)}" placeholder="Lisboa · Alfama"><label>Categoria</label><select id="lm-cat"><option${f.category==='Portugal – Estúdio'?' selected':''}>Portugal – Estúdio</option><option${f.category==='Portugal – Exterior'?' selected':''}>Portugal – Exterior</option><option${f.category==='Cabo Verde – Exterior'?' selected':''}>Cabo Verde – Exterior</option></select><label>Data</label><input type="date" id="lm-date" value="${esc(f.date)}"><div class="sh-modal-row"><label>Início<input type="time" id="lm-ts" value="${esc(f.timeStart)}"></label><label>Fim<input type="time" id="lm-te" value="${esc(f.timeEnd)}"></label></div><label>Modelos</label>${chipsHtml}<label>Notas</label><textarea id="lm-notes" placeholder="Observações…">${esc(f.notes)}</textarea></div><div class="pin-actions"><button class="pin-btn" onclick="closeLocationModal()">Cancelar</button><button class="pin-btn primary" onclick="saveLocationFromModal('${f.id}')">${isEdit?'Guardar':'Adicionar'}</button></div></div>`;const ovl=document.getElementById('loc-modal-ovl');ovl.innerHTML=html;ovl.classList.add('open');};
 window.toggleLmModel=function(btn){const name=btn.dataset.name;if(window.__lmModels.has(name)){window.__lmModels.delete(name);btn.classList.remove('on');}else{window.__lmModels.add(name);btn.classList.add('on');}};
 window.closeLocationModal=function(){const ovl=document.getElementById('loc-modal-ovl');ovl.classList.remove('open');ovl.innerHTML='';window.__lmModels=null;};
 window.saveLocationFromModal=function(id){const name=document.getElementById('lm-name').value.trim();if(!name){alert('Nome é obrigatório.');return;}const modelsArr=window.__lmModels?Array.from(window.__lmModels):[];const data={name,city:document.getElementById('lm-city').value.trim(),category:document.getElementById('lm-cat').value,date:document.getElementById('lm-date').value,timeStart:document.getElementById('lm-ts').value,timeEnd:document.getElementById('lm-te').value,notes:document.getElementById('lm-notes').value.trim(),models:modelsArr};if(!state.config.locations)state.config.locations=[];if(id){const L=state.config.locations.find(x=>x.id===id);if(L){const oldCat=L.category;Object.assign(L,data);if(oldCat!==data.category){state.looks.forEach(l=>{if(l.locationId===id)l.location=data.category;});}}}else{const newId='loc-'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);state.config.locations.push({id:newId,photoUrl:'',...data});}scheduleSave();closeLocationModal();renderShooting();buildCarousel();};
