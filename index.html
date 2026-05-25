@@ -342,7 +342,9 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .cat-count-lbl{font-size:.56rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.06em;}
 
 /* pieces grid */
-.pieces-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:10px;}
+.pieces-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+@media (min-width:720px){.pieces-grid{grid-template-columns:repeat(3,1fr);}}
+@media (min-width:1100px){.pieces-grid{grid-template-columns:repeat(4,1fr);}}
 .piece-cell{display:flex;flex-direction:column;gap:5px;}
 .piece-img{width:100%;aspect-ratio:1;border-radius:8px;object-fit:cover;cursor:pointer;display:block;}
 .piece-img.contain{object-fit:contain;background:#0a0a1a;}
@@ -371,7 +373,9 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .outfit-card.open .outfit-card-body{display:block;}
 
 /* simple item grid (jóias / sapatos / lenços / modelos) */
-.photo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;}
+.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media (min-width:720px){.photo-grid{grid-template-columns:repeat(3,1fr);}}
+@media (min-width:1100px){.photo-grid{grid-template-columns:repeat(4,1fr);}}
 .photo-row{display:flex;flex-direction:column;gap:6px;padding:8px 0;}
 .photo-mini{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;cursor:pointer;display:block;}
 .photo-mini-ph{width:100%;aspect-ratio:1;border-radius:10px;border:2px dashed var(--c-border);display:flex;align-items:center;justify-content:center;font-size:2rem;cursor:pointer;color:var(--c-text3);background:var(--c-surface);}
