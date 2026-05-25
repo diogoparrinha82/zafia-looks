@@ -342,9 +342,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .cat-count-lbl{font-size:.56rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.06em;}
 
 /* pieces grid */
-.pieces-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-@media (min-width:720px){.pieces-grid{grid-template-columns:repeat(3,1fr);}}
-@media (min-width:1100px){.pieces-grid{grid-template-columns:repeat(4,1fr);}}
+.pieces-grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(180px,1fr))!important;gap:10px;margin-bottom:10px;}
 .piece-cell{display:flex;flex-direction:column;gap:5px;}
 .piece-img{width:100%;aspect-ratio:1;border-radius:8px;object-fit:cover;cursor:pointer;display:block;}
 .piece-img.contain{object-fit:contain;background:#0a0a1a;}
@@ -373,9 +371,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .outfit-card.open .outfit-card-body{display:block;}
 
 /* simple item grid (jóias / sapatos / lenços / modelos) */
-.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-@media (min-width:720px){.photo-grid{grid-template-columns:repeat(3,1fr);}}
-@media (min-width:1100px){.photo-grid{grid-template-columns:repeat(4,1fr);}}
+.photo-grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))!important;gap:12px;}
 .photo-row{display:flex;flex-direction:column;gap:6px;padding:8px 0;}
 .photo-mini{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;cursor:pointer;display:block;}
 .photo-mini-ph{width:100%;aspect-ratio:1;border-radius:10px;border:2px dashed var(--c-border);display:flex;align-items:center;justify-content:center;font-size:2rem;cursor:pointer;color:var(--c-text3);background:var(--c-surface);}
@@ -630,6 +626,44 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .db-shoot-k{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;opacity:.78;}
 .db-shoot-v{font-family:'Inter Tight',sans-serif;font-weight:600;font-size:1rem;letter-spacing:-.01em;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .db-shoot-cta{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;flex-shrink:0;}
+/* TODAY MODELS WIDGET */
+.today-models{background:var(--c-surface);border-bottom:1px solid var(--c-border);}
+.today-models-hdr{padding:14px 22px 8px;display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
+.today-models-k{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-text3);font-weight:600;}
+.today-models-ct{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text2);}
+.today-models-strip{padding:0 22px 14px;display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;}
+.today-models-strip::-webkit-scrollbar{height:6px;}
+.today-models-strip::-webkit-scrollbar-thumb{background:var(--c-border);border-radius:3px;}
+.tm-chip{flex-shrink:0;background:var(--c-card);border:1px solid var(--c-border);border-radius:999px;padding:6px 14px 6px 6px;display:flex;align-items:center;gap:9px;cursor:pointer;font-family:'Inter Tight',sans-serif;transition:all .15s;color:var(--c-text);}
+.tm-chip:hover{border-color:var(--c-text2);transform:translateY(-1px);}
+.tm-chip.on{background:var(--c-accent);border-color:var(--c-accent);color:#fff;}
+.tm-photo{width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;background:var(--c-surface);}
+.tm-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+.tm-photo-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--c-text3);}
+.tm-info{display:flex;flex-direction:column;gap:1px;min-width:0;}
+.tm-name{font-weight:600;font-size:.85rem;letter-spacing:-.005em;white-space:nowrap;}
+.tm-meta{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;opacity:.7;white-space:nowrap;}
+.today-models-panel{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1);background:var(--c-card);border-top:0 solid var(--c-border);}
+.today-models-panel.open{max-height:600px;overflow-y:auto;border-top:1px solid var(--c-border);}
+.tm-panel-empty{padding:24px 22px;text-align:center;color:var(--c-text2);font-size:.85rem;font-family:'Inter Tight',sans-serif;}
+.tm-panel-grid{padding:16px 22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;}
+.tm-look{background:var(--c-surface);border:1px solid var(--c-border);border-radius:6px;padding:10px;cursor:pointer;transition:border-color .15s,transform .12s;display:flex;flex-direction:column;gap:8px;}
+.tm-look:hover{border-color:var(--c-accent);transform:translateY(-1px);}
+.tm-look.done{opacity:.72;}
+.tm-look.progress{border-color:#b48c28;}
+.tm-look-num{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.14em;color:var(--c-text3);font-weight:600;}
+.tm-look-thumbs{display:grid;grid-template-columns:1fr 1fr;gap:3px;}
+.tm-look-thumbs img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--c-bg);border-radius:3px;}
+.tm-look-thumbs img.contain{object-fit:contain;background:var(--c-bg);}
+.tm-look-thumb-ph{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:var(--c-bg);color:var(--c-text3);font-size:.9rem;border-radius:3px;}
+.tm-look-info{display:flex;flex-wrap:wrap;gap:5px;}
+.tm-look-cat{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--c-text2);padding:2px 7px;background:var(--c-bg);border-radius:999px;}
+.tm-look-status{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;padding:2px 7px;border-radius:999px;font-weight:600;}
+.tm-look-status.todo{background:rgba(22,24,20,.08);color:var(--c-text2);}
+.tm-look-status.progress{background:rgba(180,140,40,.18);color:#9a7320;}
+.tm-look-status.done{background:rgba(90,102,72,.18);color:var(--c-accent);}
+.tm-look-loc{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;background:var(--c-card);color:var(--c-text3);border-radius:999px;}
+/* end TODAY MODELS WIDGET */
 #screen-dashboard{background:var(--c-bg);}
 .db-hero{padding:22px 24px 18px;border-bottom:1px solid var(--c-border);display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;}
 .db-hero-l{flex:1;min-width:240px;}
@@ -2339,6 +2373,182 @@ function fmtDateLabel(iso){if(!iso)return '—';const M=['JAN','FEV','MAR','ABR'
 function fmtDateLong(iso){if(!iso)return '—';const M=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];const p=iso.split('-');if(p.length!==3)return iso;return `${p[2]} ${M[parseInt(p[1],10)-1]||''} ${p[0]}`;}
 function fmtTimeLabel(s,e){if(s&&e)return `${s} – ${e}`;return s||e||'—';}
 function looksForLocation(locId){return state.looks.filter(l=>l.locationId===locId);}
+
+// ── TODAY'S MODELS WIDGET ──
+// Returns [{name, photo, locations:[locName], looks:[lookObj]}] for everyone scheduled today.
+// True if NOW falls within [timeStart-30min, timeEnd+30min] of the given location's day.
+// If timeStart is missing, the location is considered active throughout its day
+// (we don't want missing data to silently hide info). If timeEnd is missing, assume +2h after timeStart.
+function isLocActiveNow(loc){
+  if(loc.date!==todayISO())return false;
+  const ts=(loc.timeStart||'').trim();
+  if(!ts)return true; // no time → assume active all day
+  const [hS,mS]=ts.split(':').map(n=>parseInt(n,10));
+  if(isNaN(hS))return true;
+  const te=(loc.timeEnd||'').trim();
+  let hE,mE;
+  if(te){[hE,mE]=te.split(':').map(n=>parseInt(n,10));}
+  if(isNaN(hE)){hE=hS+2;mE=mS||0;} // default end = start + 2h
+  const now=new Date();
+  const startMin=hS*60+(mS||0)-30; // 30min margin before
+  const endMin=hE*60+(mE||0)+30; // 30min margin after
+  const nowMin=now.getHours()*60+now.getMinutes();
+  return nowMin>=startMin&&nowMin<=endMin;
+}
+function getTodayModelsBreakdown(){
+  const today=todayISO();
+  // Only locations active in the [start-30min, end+30min] window right now
+  const activeLocs=(state.config.locations||[]).filter(l=>l.date===today&&isLocActiveNow(l));
+  if(!activeLocs.length)return[];
+  // Aggregate: model name -> {locations:Set, looks:[]}
+  const byModel=new Map();
+  activeLocs.forEach(loc=>{
+    const roster=Array.isArray(loc.models)?loc.models:[];
+    // Looks assigned to this location, grouped by model (the model from the look itself)
+    const locLooks=looksForLocation(loc.id);
+    roster.forEach(name=>{
+      if(!byModel.has(name))byModel.set(name,{locations:new Set(),looks:[]});
+      byModel.get(name).locations.add(loc.name||'(sem nome)');
+    });
+    locLooks.forEach(l=>{
+      const m=l.model||'';
+      if(!m)return;
+      if(!byModel.has(m))byModel.set(m,{locations:new Set(),looks:[]});
+      byModel.get(m).looks.push({look:l,locName:loc.name||''});
+      byModel.get(m).locations.add(loc.name||'(sem nome)');
+    });
+  });
+  // Build output array with photo + sort by looks count desc, then alpha
+  const catalog=state.config.models||[];
+  const result=[];
+  byModel.forEach((data,name)=>{
+    const cm=catalog.find(c=>c.name===name);
+    result.push({
+      name,
+      photo:cm?.photo||'',
+      locations:[...data.locations],
+      looks:data.looks
+    });
+  });
+  result.sort((a,b)=>{
+    if(b.looks.length!==a.looks.length)return b.looks.length-a.looks.length;
+    return a.name.localeCompare(b.name);
+  });
+  return result;
+}
+function renderTodayModelsStrip(containerId){
+  const models=getTodayModelsBreakdown();
+  if(!models.length)return''; // no widget — outside window or nobody scheduled
+  const showMultiLoc=models.some(m=>m.locations.length>1);
+  // Auto-refresh every minute so the widget appears/disappears when windows open/close
+  scheduleTodayModelsRefresh(containerId);
+  return `<div class="today-models" id="${containerId}">
+    <div class="today-models-hdr">
+      <span class="today-models-k">No set agora</span>
+      <span class="today-models-ct">${models.length} ${models.length===1?'modelo':'modelos'}</span>
+    </div>
+    <div class="today-models-strip">
+      ${models.map((m,i)=>{
+        const safeName=m.name.replace(/'/g,"\\'");
+        return `<button class="tm-chip" data-model="${esc(m.name)}" onclick="toggleTodayModel('${containerId}','${esc(safeName)}')">
+          <div class="tm-photo">${m.photo?`<img src="${m.photo}" alt="">`:`<div class="tm-photo-ph">👤</div>`}</div>
+          <div class="tm-info">
+            <div class="tm-name">${esc(m.name)}</div>
+            <div class="tm-meta">${m.looks.length} look${m.looks.length!==1?'s':''}${showMultiLoc&&m.locations.length>1?' · '+esc(m.locations.join(', ')):''}</div>
+          </div>
+        </button>`;
+      }).join('')}
+    </div>
+    <div class="today-models-panel" id="${containerId}-panel"></div>
+  </div>`;
+}
+let todayModelsRefreshTimer=null;
+function scheduleTodayModelsRefresh(containerId){
+  // Single shared timer that re-renders the current dashboard screen every minute
+  if(todayModelsRefreshTimer)return;
+  todayModelsRefreshTimer=setInterval(()=>{
+    // Only re-render if a today-models widget is currently in the DOM
+    if(!document.getElementById('db-today-models')&&!document.getElementById('sh-today-models')){
+      clearInterval(todayModelsRefreshTimer);
+      todayModelsRefreshTimer=null;
+      return;
+    }
+    // Preserve which model panel was open (if any) before re-render
+    const dbPanel=document.getElementById('db-today-models-panel');
+    const shPanel=document.getElementById('sh-today-models-panel');
+    const openDb=dbPanel?dbPanel.dataset.openModel:'';
+    const openSh=shPanel?shPanel.dataset.openModel:'';
+    const cs=window.currentScreen;
+    if(cs==='screen-dashboard'&&document.getElementById('db-today-models')){
+      renderDashboard();
+      if(openDb&&document.querySelector('#db-today-models .tm-chip[data-model="'+CSS.escape(openDb)+'"]')){
+        toggleTodayModel('db-today-models',openDb);
+      }
+    }else if(cs==='screen-shooting'&&document.getElementById('sh-today-models')&&shView.mode==='dashboard'){
+      renderShootingDashboard();
+      if(openSh&&document.querySelector('#sh-today-models .tm-chip[data-model="'+CSS.escape(openSh)+'"]')){
+        toggleTodayModel('sh-today-models',openSh);
+      }
+    }
+  },60000);
+}
+window.toggleTodayModel=function(containerId,modelName){
+  const container=document.getElementById(containerId);
+  if(!container)return;
+  const panel=document.getElementById(containerId+'-panel');
+  const allChips=container.querySelectorAll('.tm-chip');
+  const currentlyOpen=panel.dataset.openModel===modelName;
+  // Clear all "on" states
+  allChips.forEach(c=>c.classList.remove('on'));
+  if(currentlyOpen){
+    panel.dataset.openModel='';
+    panel.innerHTML='';
+    panel.classList.remove('open');
+    return;
+  }
+  // Find model data
+  const models=getTodayModelsBreakdown();
+  const m=models.find(x=>x.name===modelName);
+  if(!m)return;
+  // Mark chip as active
+  allChips.forEach(c=>{if(c.dataset.model===modelName)c.classList.add('on');});
+  panel.dataset.openModel=modelName;
+  // Build look cards
+  const showLocCol=m.locations.length>1;
+  if(!m.looks.length){
+    panel.innerHTML=`<div class="tm-panel-empty">${esc(modelName)} está no elenco mas ainda não tem looks atribuídos para hoje.</div>`;
+  }else{
+    panel.innerHTML=`<div class="tm-panel-grid">${m.looks.map(({look:l,locName})=>{
+      const tut=tutorialOf(l);
+      const tPhoto=tut?.photo||'';
+      const oName=toArr(l.outfit)[0]||'';
+      const oPhoto=photoOf('outfits',oName);
+      const sName=toArr(l.scarf)[0]||'';
+      const sPhoto=photoOf('scarves',sName);
+      const status=l.status||'';
+      const statusLbl=status==='done'?'✓ Pronto':(status==='shooting'||status==='progress')?'Em curso':'Por fazer';
+      const statusCls=status==='done'?'done':(status==='shooting'||status==='progress')?'progress':'todo';
+      const sp=l.shootingPhoto||'';
+      return `<div class="tm-look ${statusCls}" onclick="openLookModal(${l.num})">
+        <div class="tm-look-num">№${String(l.num).padStart(2,'0')}</div>
+        <div class="tm-look-thumbs">
+          ${oPhoto?`<img src="${oPhoto}" alt="">`:`<div class="tm-look-thumb-ph">👗</div>`}
+          ${sPhoto?`<img src="${sPhoto}" alt="">`:`<div class="tm-look-thumb-ph">🧣</div>`}
+          ${tPhoto?`<img src="${tPhoto}" alt="" class="contain">`:`<div class="tm-look-thumb-ph">📋</div>`}
+          ${sp?`<img src="${sp}" alt="">`:`<div class="tm-look-thumb-ph">📸</div>`}
+        </div>
+        <div class="tm-look-info">
+          <span class="tm-look-cat">${esc(l.category)}</span>
+          <span class="tm-look-status ${statusCls}">${statusLbl}</span>
+          ${showLocCol?`<span class="tm-look-loc">${esc(locName)}</span>`:''}
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+  }
+  panel.classList.add('open');
+  // Smooth scroll panel into view
+  setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+};
 function todayISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function aosMarkSvg(size){const s=size||24;return `<span class="aos-mark"><svg viewBox="0 0 60 60" width="${s}" height="${s}" aria-hidden="true"><g fill="currentColor"><rect x="10.5" y="8" width="1" height="44"/><rect x="13" y="8" width="1.8" height="44"/><rect x="16.3" y="8" width="2.8" height="44"/><rect x="20.6" y="8" width="4" height="44"/><rect x="26.1" y="8" width="5.8" height="44"/><rect x="33.4" y="8" width="8.2" height="44"/><rect x="43.1" y="8" width="11.5" height="44"/></g></svg></span>`;}
 function aosWordmark(sizePx){const fs=sizePx||18;return `<span class="aos-wordmark" style="font-size:${fs}px"><span class="aos-ser">Art of</span><span class="aos-gap"></span><span class="aos-san">Scarves</span></span>`;}
@@ -2355,7 +2565,7 @@ window.renderDashboard=function(){const el=document.getElementById('dashboard-sc
   const featured=[...inProgress,...others].slice(0,12);
   // alerts
   const alerts=[];const noLoc=all.filter(l=>!l.locationId).length;if(noLoc>0)alerts.push({icon:'📍',title:`${noLoc} look${noLoc!==1?'s':''} sem locação`,sub:'Atribui em Shooting para organizar os dias.',n:noLoc,go:()=>switchTab('shooting')});const noModel=all.filter(l=>!l.model).length;if(noModel>0)alerts.push({icon:'👤',title:`${noModel} sem modelo definido`,sub:'Abre o look e escolhe um modelo.',n:noModel,go:()=>switchTab('looks')});const noOutfit=all.filter(l=>!toArr(l.outfit).length).length;if(noOutfit>0)alerts.push({icon:'👗',title:`${noOutfit} sem roupa atribuída`,sub:'Faltam decisões de styling.',n:noOutfit,go:()=>switchTab('looks')});const locsNoDate=locs.filter(l=>!l.date).length;if(locsNoDate>0)alerts.push({icon:'📅',title:`${locsNoDate} locaç${locsNoDate!==1?'ões':'ão'} sem data`,sub:'Define data para entrar no calendário.',n:locsNoDate,go:()=>switchTab('shooting')});
-  el.innerHTML=`${todayLocs.length?`<div class="db-shoot-banner" onclick="enterShootDay('${todayLocs[0].id}')"><div class="db-shoot-pulse"></div><div class="db-shoot-text"><div class="db-shoot-k">Shoot Day · Hoje</div><div class="db-shoot-v">${esc(todayLocs.map(l=>l.name).join(' · '))}</div></div><div class="db-shoot-cta">Abrir →</div></div>`:''}<div class="db-hero">
+  el.innerHTML=`${todayLocs.length?`<div class="db-shoot-banner" onclick="enterShootDay('${todayLocs[0].id}')"><div class="db-shoot-pulse"></div><div class="db-shoot-text"><div class="db-shoot-k">Shoot Day · Hoje</div><div class="db-shoot-v">${esc(todayLocs.map(l=>l.name).join(' · '))}</div></div><div class="db-shoot-cta">Abrir →</div></div>${renderTodayModelsStrip('db-today-models')}`:''}<div class="db-hero">
     <div class="db-hero-l">
       <div class="db-hello">Centro de produção · ${esc(fmtDateLabel(today))} ${new Date().getFullYear()}</div>
       <div class="db-title">Olá.</div>
@@ -2399,7 +2609,7 @@ function renderDbLoc(L){const ct=looksForLocation(L.id).length;const dd=daysFrom
 </div>`;}
 function visibleLocations(){const today=todayISO();let arr=(state.config.locations||[]).slice();if(shFilter==='upcoming')arr=arr.filter(l=>(l.date||'')>=today);if(shFilter==='past')arr=arr.filter(l=>(l.date||'')&&l.date<today);if(shQuery.trim()){const q=shQuery.trim().toLowerCase();arr=arr.filter(l=>(l.name||'').toLowerCase().includes(q)||(l.city||'').toLowerCase().includes(q)||(l.models||[]).some(m=>m.toLowerCase().includes(q)));}arr.sort((a,b)=>{const ad=a.date||'9999-99-99',bd=b.date||'9999-99-99';const af=ad>=today,bf=bd>=today;if(af&&!bf)return -1;if(!af&&bf)return 1;if(af)return ad.localeCompare(bd);return bd.localeCompare(ad);});return arr;}
 window.renderShooting=function(){if(shView.mode==='dashboard')return renderShootingDashboard();if(shView.mode==='detail')return renderShootingDetail(shView.id);if(shView.mode==='shootday')return renderShootDay(shView.id);};
-function renderShootingDashboard(){document.getElementById('sh-nav-title').textContent='Shooting';const addBtn=document.getElementById('sh-nav-add');addBtn.textContent='＋';addBtn.onclick=()=>openLocationModal();const el=document.getElementById('shooting-scroll');const all=state.config.locations||[];const today=todayISO();const todayLocs=all.filter(l=>l.date===today);const upcoming=all.filter(l=>(l.date||'')>=today).length;const past=all.filter(l=>(l.date||'')&&l.date<today).length;const vis=visibleLocations();const banner=todayLocs.length?`<div class="db-shoot-banner" onclick="enterShootDay('${todayLocs[0].id}')"><div class="db-shoot-pulse"></div><div class="db-shoot-text"><div class="db-shoot-k">Shoot Day · Hoje</div><div class="db-shoot-v">${esc(todayLocs.map(l=>l.name).join(' · '))}</div></div><div class="db-shoot-cta">Abrir →</div></div>`:'';const toolbar=`<div class="sh-toolbar"><div class="sh-toolbar-l">
+function renderShootingDashboard(){document.getElementById('sh-nav-title').textContent='Shooting';const addBtn=document.getElementById('sh-nav-add');addBtn.textContent='＋';addBtn.onclick=()=>openLocationModal();const el=document.getElementById('shooting-scroll');const all=state.config.locations||[];const today=todayISO();const todayLocs=all.filter(l=>l.date===today);const upcoming=all.filter(l=>(l.date||'')>=today).length;const past=all.filter(l=>(l.date||'')&&l.date<today).length;const vis=visibleLocations();const banner=todayLocs.length?`<div class="db-shoot-banner" onclick="enterShootDay('${todayLocs[0].id}')"><div class="db-shoot-pulse"></div><div class="db-shoot-text"><div class="db-shoot-k">Shoot Day · Hoje</div><div class="db-shoot-v">${esc(todayLocs.map(l=>l.name).join(' · '))}</div></div><div class="db-shoot-cta">Abrir →</div></div>${renderTodayModelsStrip('sh-today-models')}`:'';const toolbar=`<div class="sh-toolbar"><div class="sh-toolbar-l">
   <button class="sh-chip${shFilter==='all'?' on':''}" onclick="setShFilter('all')">Todas <span class="ct">${all.length}</span></button>
   <button class="sh-chip${shFilter==='upcoming'?' on':''}" onclick="setShFilter('upcoming')">Próximas <span class="ct">${upcoming}</span></button>
   <button class="sh-chip${shFilter==='past'?' on':''}" onclick="setShFilter('past')">Anteriores <span class="ct">${past}</span></button>
