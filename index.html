@@ -199,6 +199,13 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .picker-grid{display:grid;grid-template-columns:repeat(2,1fr);grid-auto-rows:min-content;align-content:start;gap:12px;padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1 1 auto;min-height:0;}
 @media(min-width:500px){.picker-grid{grid-template-columns:repeat(3,1fr);}}
 @media(min-width:700px){.picker-grid{grid-template-columns:repeat(4,1fr);}}
+.picker-filter-host{grid-column:1/-1;}
+.scarf-filter-strip{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 10px;border-bottom:1px solid var(--c-border);margin-bottom:4px;}
+.scarf-filter-chip{padding:6px 12px;border-radius:999px;border:1px solid var(--c-border);background:transparent;font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text2);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;font-weight:600;}
+.scarf-filter-chip:hover{border-color:var(--c-text2);color:var(--c-text);}
+.scarf-filter-chip.on{background:var(--c-accent);color:#fff;border-color:var(--c-accent);}
+.scarf-filter-chip .ct{font-weight:400;opacity:.7;}
+.scarf-filter-chip.on .ct{opacity:.85;}
 .picker-item{background:var(--c-card);border-radius:var(--radius-sm);border:2px solid transparent;cursor:pointer;overflow:hidden;transition:all .15s;position:relative;}
 .picker-item:hover{border-color:var(--c-border);transform:translateY(-2px);}
 .picker-item.selected{border-color:var(--c-accent);box-shadow:0 0 0 3px rgba(201,168,76,.2);}
@@ -373,6 +380,13 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 /* simple item grid (jóias / sapatos / lenços / modelos) */
 .photo-grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))!important;gap:12px;}
 .photo-row{display:flex;flex-direction:column;gap:6px;padding:8px 0;}
+.photo-row-mid{display:flex;flex-direction:column;gap:5px;width:100%;}
+.scarf-size-sel{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--c-text2);background:var(--c-surface);border:1px solid var(--c-border);border-radius:4px;padding:4px 6px;cursor:pointer;outline:none;width:100%;}
+.scarf-size-sel:focus{border-color:var(--c-accent);}
+.scarf-size-group{margin-bottom:18px;}
+.scarf-size-hdr{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-text);font-weight:600;padding:10px 0 8px;border-bottom:1px solid var(--c-border);margin-bottom:10px;display:flex;align-items:baseline;gap:8px;}
+.scarf-size-hdr.scarf-size-hdr-none{color:var(--c-text3);}
+.scarf-size-ct{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.14em;color:var(--c-text3);font-weight:400;background:var(--c-surface);padding:2px 7px;border-radius:999px;}
 .photo-mini{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;cursor:pointer;display:block;}
 .photo-mini-ph{width:100%;aspect-ratio:1;border-radius:10px;border:2px dashed var(--c-border);display:flex;align-items:center;justify-content:center;font-size:2rem;cursor:pointer;color:var(--c-text3);background:var(--c-surface);}
 .photo-name-inp{width:100%;background:transparent;border:none;color:var(--c-text);font-family:'Inter Tight',sans-serif;font-size:.82rem;outline:none;padding:4px 18px 4px 0;border-bottom:1px dashed var(--c-border);text-align:center;transition:border-color .2s;}
@@ -2223,7 +2237,7 @@ function renderConfig(){
   renderOutfitInputs();
   renderSimpleItems('joias','joias-inputs','💍');
   renderSimpleItems('sapatos','sapatos-inputs','👟');
-  renderSimpleItems('scarves','scarf-inputs','🧣');
+  renderScarves();
   renderSimpleItems('models','model-inputs','👤');
   renderColorGrid();
 }
@@ -2282,10 +2296,50 @@ window.removeOutfitAt=function(oi){if(!state.config.outfits||!state.config.outfi
 
 // Simple items (joias, sapatos, scarves, models)
 function renderSimpleItems(type,cid,icon){
+  if(type==='scarves'){renderScarves();return;}
   const el=document.getElementById(cid);if(!el)return;
   el.innerHTML=`<div class="photo-grid">${(state.config[type]||[]).map((item,i)=>`<div class="photo-row">${item.photo?`<img class="photo-mini" src="${item.photo}" onclick="openLb('${item.photo}')">`:`<div class="photo-mini-ph" onclick="document.getElementById('f-${type}-${i}').click()">${icon||'📷'}</div>`}<input type="file" accept="image/*" id="f-${type}-${i}" style="display:none" onchange="handleSimplePhoto('${type}','${cid}',${i},this)"><label class="photo-name-wrap"><input class="photo-name-inp" type="text" value="${esc(item.name)}" placeholder="Nome…" onchange="renameConfigItem('${type}',${i},this.value)"></label><div class="photo-row-actions"><span style="font-size:.7rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px" onclick="document.getElementById('f-${type}-${i}').click()" title="${item.photo?'Trocar foto':'Adicionar foto'}">${item.photo?'🔄':'📷'}</span><span style="font-size:.7rem;color:#C72A1C;cursor:pointer;padding:2px 6px;border:1px solid rgba(199,42,28,.3);border-radius:4px" onclick="removeItemAt('${type}','${cid}',${i},'${icon||''}')" title="Eliminar">🗑</span></div></div>`).join('')}</div>`;
 }
 window.handleSimplePhoto=async function(type,cid,i,input){if(!input.files[0])return;const c=await compressImage(input.files[0],400,0.6);state.config[type][i].photo=c;scheduleSave();renderSimpleItems(type,cid);buildCarousel();};
+
+// Specialized scarves renderer: groups items by size in the order defined by SCARF_SIZES.
+function renderScarves(){
+  const el=document.getElementById('scarf-inputs');if(!el)return;
+  const scarves=state.config.scarves||[];
+  // Build index list (preserves original index for handlers)
+  const indexed=scarves.map((s,i)=>({s,i}));
+  // Group by size; unknown sizes go to "Sem tamanho"
+  const groups=new Map();
+  SCARF_SIZES.forEach(sz=>groups.set(sz,[]));
+  groups.set('',[]); // "no size" bucket
+  indexed.forEach(({s,i})=>{
+    const sz=s.size||'';
+    const key=groups.has(sz)?sz:'';
+    groups.get(key).push({s,i});
+  });
+  // Render
+  const sections=[];
+  const renderItem=({s,i})=>`<div class="photo-row">${s.photo?`<img class="photo-mini" src="${s.photo}" onclick="openLb('${s.photo}')">`:`<div class="photo-mini-ph" onclick="document.getElementById('f-scarves-${i}').click()">🧣</div>`}<input type="file" accept="image/*" id="f-scarves-${i}" style="display:none" onchange="handleSimplePhoto('scarves','scarf-inputs',${i},this)"><div class="photo-row-mid"><label class="photo-name-wrap"><input class="photo-name-inp" type="text" value="${esc(s.name)}" placeholder="Nome…" onchange="renameConfigItem('scarves',${i},this.value)"></label><select class="scarf-size-sel" onchange="setScarfSize(${i},this.value)"><option value=""${!s.size?' selected':''}>— Tamanho —</option>${SCARF_SIZES.map(sz=>`<option value="${sz}"${s.size===sz?' selected':''}>${SCARF_SIZE_LABELS[sz]}</option>`).join('')}</select></div><div class="photo-row-actions"><span style="font-size:.7rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px" onclick="document.getElementById('f-scarves-${i}').click()" title="${s.photo?'Trocar foto':'Adicionar foto'}">${s.photo?'🔄':'📷'}</span><span style="font-size:.7rem;color:#C72A1C;cursor:pointer;padding:2px 6px;border:1px solid rgba(199,42,28,.3);border-radius:4px" onclick="removeItemAt('scarves','scarf-inputs',${i},'🧣')" title="Eliminar">🗑</span></div></div>`;
+  // SCARF_SIZES order, then unknown last
+  SCARF_SIZES.forEach(sz=>{
+    const items=groups.get(sz);
+    if(!items.length)return;
+    sections.push(`<div class="scarf-size-group"><div class="scarf-size-hdr">${SCARF_SIZE_LABELS[sz]} <span class="scarf-size-ct">${items.length}</span></div><div class="photo-grid">${items.map(renderItem).join('')}</div></div>`);
+  });
+  const noSize=groups.get('');
+  if(noSize.length){
+    sections.push(`<div class="scarf-size-group"><div class="scarf-size-hdr scarf-size-hdr-none">Sem tamanho atribuído <span class="scarf-size-ct">${noSize.length}</span></div><div class="photo-grid">${noSize.map(renderItem).join('')}</div></div>`);
+  }
+  if(!scarves.length){el.innerHTML='';return;}
+  el.innerHTML=sections.join('');
+}
+window.setScarfSize=function(idx,size){
+  const s=state.config.scarves[idx];
+  if(!s)return;
+  s.size=size||'';
+  scheduleSave();
+  renderScarves();
+};
 
 // Map config-collection name → field on the look that uses it
 const RENAME_TARGETS={outfits:'outfit',scarves:'scarf',joias:'joias',sapatos:'sapatos',models:'model'};
@@ -2367,6 +2421,8 @@ window.regenerateFromCats=function(){const ct=state.config.cats.reduce((s,[,n])=
 
 // ─── SHOOTING MODULE ───
 const SH_CAT_LABELS={'Portugal – Estúdio':'PT · Estúdio','Portugal – Exterior':'PT · Exterior','Cabo Verde – Exterior':'CV · Exterior'};
+const SCARF_SIZES=['50x50','60x60','70x70','80x80','90x90','100x100','120x120','135x135','200+'];
+const SCARF_SIZE_LABELS={'50x50':'50×50','60x60':'60×60','70x70':'70×70','80x80':'80×80','90x90':'90×90','100x100':'100×100','120x120':'120×120','135x135':'135×135','200+':'+ 200 cm'};
 let shView={mode:'dashboard',id:null};
 let shFilter='all';let shQuery='';
 function fmtDateLabel(iso){if(!iso)return '—';const M=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];const p=iso.split('-');if(p.length!==3)return iso;return `${p[2]} ${M[parseInt(p[1],10)-1]||''}`;}
@@ -3017,14 +3073,41 @@ window.openPicker=function(lookNum,field){
   const selectedSet=cfg.multi?new Set(toArr(rawValue)):null;
   const currentSingle=cfg.multi?'':rawValue;
 
+  // Special: scarves get a size filter strip
+  let filteredItems=items;
+  let scarfFilterHtml='';
+  if(field==='scarf'){
+    const activeFilter=window.__scarfPickerFilter||'';
+    // Compute counts per size
+    const counts={'':items.length};
+    SCARF_SIZES.forEach(sz=>counts[sz]=0);
+    const noSize=[];
+    items.forEach(it=>{
+      const sz=it.size||'';
+      if(sz&&counts[sz]!==undefined)counts[sz]++;
+      else if(!sz)noSize.push(it);
+    });
+    const noSizeN=noSize.length;
+    // Render chips: All + each size that has at least 1 + "sem tamanho" if any
+    const chipBtn=(value,label,count,active)=>`<button class="scarf-filter-chip${active?' on':''}" onclick="setScarfPickerFilter(${value===''?"''":"'"+value+"'"},${lookNum})">${label}${count!=null?` <span class="ct">${count}</span>`:''}</button>`;
+    let chips=chipBtn('','Todos',items.length,activeFilter==='');
+    SCARF_SIZES.forEach(sz=>{if(counts[sz]>0)chips+=chipBtn(sz,SCARF_SIZE_LABELS[sz],counts[sz],activeFilter===sz);});
+    if(noSizeN>0)chips+=chipBtn('__none','Sem tamanho',noSizeN,activeFilter==='__none');
+    scarfFilterHtml=`<div class="scarf-filter-strip">${chips}</div>`;
+    if(activeFilter==='__none'){filteredItems=noSize;}
+    else if(activeFilter){filteredItems=items.filter(it=>(it.size||'')===activeFilter);}
+  }
+  // Inject filter UI into grid header by prepending to html
+  if(scarfFilterHtml)html+=`<div class="picker-filter-host">${scarfFilterHtml}</div>`;
+
   if(cfg.nullable&&!cfg.multi){
     const isSel=!currentSingle;
     html+=`<div class="picker-item${isSel?' selected':''}" data-value=""><div class="picker-item-photo"><span class="picker-item-photo-ph">∅</span></div><div class="picker-item-name">— nenhum${field==='joias'?'a':'s'} —</div><div class="picker-item-check">✓</div></div>`;
   }
-  if(items.length===0){
-    html+=`<div class="picker-none">Sem items configurados. Adiciona em Configuração.</div>`;
+  if(filteredItems.length===0){
+    html+=`<div class="picker-none">${field==='scarf'&&items.length>0?'Sem lenços deste tamanho.':'Sem items configurados. Adiciona em Configuração.'}</div>`;
   } else {
-    items.forEach(item=>{
+    filteredItems.forEach(item=>{
       const photo=cfg.getPhoto(item);
       const isSel=cfg.multi?selectedSet.has(item.name):item.name===currentSingle;
       const photoHtml=photo
@@ -3039,6 +3122,11 @@ window.openPicker=function(lookNum,field){
 
 window.closePicker=function(){
   document.getElementById('picker-overlay').classList.remove('open');
+  window.__scarfPickerFilter='';
+};
+window.setScarfPickerFilter=function(filter,lookNum){
+  window.__scarfPickerFilter=filter||'';
+  openPicker(lookNum,'scarf');
 };
 
 window.pickItem=function(lookNum,field,value){
