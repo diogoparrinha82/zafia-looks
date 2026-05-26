@@ -2822,6 +2822,7 @@ function renderShootingLookItem(l){
   const oName=toArr(l.outfit).join(' + ')||'—';
   const firstScarf=toArr(l.scarf)[0]||'';
   const sPhoto=photoOf('scarves',firstScarf);
+  const sObj=firstScarf?(state.config.scarves||[]).find(x=>x.name===firstScarf):null;
   const mPhoto=photoOf('models',l.model);
   const tut=tutorialOf(l);
   const tPhoto=tut?.photo||'';
@@ -2834,7 +2835,7 @@ function renderShootingLookItem(l){
     </div>
     <div class="sh-look-photos">
       ${photo(oPhoto,'👗','Roupa',false)}
-      ${photo(sPhoto,'🧣','Lenço',false)}
+      ${photo(sPhoto,'🧣','Lenço',false,scarfSizeBadge(sObj))}
       ${photo(mPhoto,'👤','Modelo',false)}
       ${photo(tPhoto,'📋','Tutorial',true,tutBadge(tut))}
     </div>
