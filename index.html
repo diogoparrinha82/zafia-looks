@@ -141,6 +141,9 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .tut-num-badge{position:absolute;top:6px;left:6px;background:rgba(22,24,20,.78);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.08em;padding:3px 7px;border-radius:3px;pointer-events:none;z-index:2;font-weight:600;}
 .tut-num-badge.lg{font-size:.72rem;padding:4px 10px;}
 .tut-num-badge.sm{font-size:.5rem;padding:2px 5px;}
+.scarf-size-badge{position:absolute;top:6px;left:6px;background:rgba(22,24,20,.78);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.08em;padding:3px 7px;border-radius:3px;pointer-events:none;z-index:2;font-weight:600;}
+.scarf-size-badge.lg{font-size:.72rem;padding:4px 10px;}
+.scarf-size-badge.sm{font-size:.5rem;padding:2px 5px;}
 .photo-cell-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--c-text3);font-size:.6rem;}
 .photo-cell-ph .icon{font-size:1.6rem;}
 .photo-cell-lbl{position:absolute;bottom:6px;left:6px;font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:rgba(22,24,20,.7);padding:3px 7px;pointer-events:none;z-index:1;}
@@ -1221,6 +1224,7 @@ function photoOf(type,name){const item=(state.config[type]||[]).find(x=>x.name==
 function catColorIdx(cat){return state.config.cats.findIndex(([c])=>c===cat);}
 function tutorialOf(look){const cat=state.config.cats.find(([c])=>c===look.category);if(!cat||!cat[2]||!cat[2].length)return null;return cat[2][look.tutorialIdx||0]||cat[2][0]||null;}
 function tutBadge(tut,size){if(!tut||tut.num==null||isNaN(tut.num))return '';const cls=size==='lg'?' lg':size==='sm'?' sm':'';return `<span class="tut-num-badge${cls}">№${tut.num}</span>`;}
+function scarfSizeBadge(scarf,size){if(!scarf||!scarf.size)return '';const cls=size==='lg'?' lg':size==='sm'?' sm':'';const lbl=SCARF_SIZE_LABELS[scarf.size]||scarf.size;return `<span class="scarf-size-badge${cls}">${lbl}</span>`;}
 function compressImage(file,maxW,quality){return new Promise(resolve=>{const reader=new FileReader();reader.onload=e=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxW/img.width);const w=Math.round(img.width*scale);const h=Math.round(img.height*scale);const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);resolve(canvas.toDataURL('image/jpeg',quality));};img.src=e.target.result;};reader.readAsDataURL(file);});}
 
 function normaliseOutfits(arr){return(arr||[]).map(o=>{if(typeof o==='string')return{name:o,photo:'',pieces:[]};if(!o.pieces)return{name:o.name,photo:o.photo||'',pieces:[]};return{name:o.name,photo:o.photo||'',pieces:o.pieces||[]};});}
@@ -1710,7 +1714,7 @@ function getOutfitSlides(look){
 // get slides for scarves (for multi-scarf mini carousel)
 function getScarfSlides(look){
   const slides=[];
-  toArr(look.scarf).forEach(sName=>{const s=state.config.scarves?.find(x=>x.name===sName);if(s?.photo)slides.push({photo:s.photo,label:s.name,contain:false});});
+  toArr(look.scarf).forEach(sName=>{const s=state.config.scarves?.find(x=>x.name===sName);if(s?.photo)slides.push({photo:s.photo,label:s.name,contain:false,badge:scarfSizeBadge(s)});});
   return slides;
 }
 
@@ -1799,10 +1803,10 @@ function buildCard(look){
   function multiCell(slidesArr,label,icon,contain,cur,slideFnName,galleryKey){
     LB_GALLERIES[galleryKey]=slidesArr;
     if(slidesArr.length===0)return `<div class="photo-cell${contain?' contain':''}"><div class="photo-cell-ph"><span class="icon">${icon}</span><span>${label}</span></div></div>`;
-    if(slidesArr.length===1){return `<div class="photo-cell${contain?' contain':''}" onclick="openLbFor('${galleryKey}',0)"><img src="${slidesArr[0].photo}" alt="${label}"><div class="photo-cell-lbl">${esc(slidesArr[0].label||label)}</div></div>`;}
+    if(slidesArr.length===1){return `<div class="photo-cell${contain?' contain':''}" onclick="openLbFor('${galleryKey}',0)">${slidesArr[0].badge||''}<img src="${slidesArr[0].photo}" alt="${label}"><div class="photo-cell-lbl">${esc(slidesArr[0].label||label)}</div></div>`;}
     const idStem=slideFnName==='slideScarf'?'scm-':'sjm-';
     const dotsId=slideFnName==='slideScarf'?'scDots-':'sjDots-';
-    const sHTML=slidesArr.map((s,si)=>`<div class="outfit-mini-slide${contain?' contain':''}"><img src="${s.photo}" onclick="openLbFor('${galleryKey}',${si})"><div class="photo-cell-lbl">${esc(s.label||label)}</div></div>`).join('');
+    const sHTML=slidesArr.map((s,si)=>`<div class="outfit-mini-slide${contain?' contain':''}">${s.badge||''}<img src="${s.photo}" onclick="openLbFor('${galleryKey}',${si})"><div class="photo-cell-lbl">${esc(s.label||label)}</div></div>`).join('');
     const dots=slidesArr.map((_,si)=>`<div class="outfit-mini-dot${si===cur?' on':''}"></div>`).join('');
     return `<div class="photo-cell${contain?' contain':''}"><div class="outfit-mini"><div class="outfit-mini-track no-anim" id="${idStem}${look.num}" style="transform:translateX(-${cur*100}%)">${sHTML}</div><button class="outfit-mini-btn prev" onclick="${slideFnName}(${look.num},-1,${slidesArr.length})">‹</button><button class="outfit-mini-btn next" onclick="${slideFnName}(${look.num},1,${slidesArr.length})">›</button><div class="outfit-mini-dots" id="${dotsId}${look.num}">${dots}</div></div></div>`;
   }
@@ -2185,6 +2189,7 @@ function renderCompareColumn(l){
   const oPhoto=photoOf('outfits',oName);
   const sName=toArr(l.scarf)[0]||'';
   const sPhoto=photoOf('scarves',sName);
+  const sObj=sName?(state.config.scarves||[]).find(x=>x.name===sName):null;
   const mPhoto=photoOf('models',l.model);
   const sp=l.shootingPhoto||'';
   const catColor=CAT_COLORS[catColorIdx(l.category)]||'#888';
@@ -2192,9 +2197,10 @@ function renderCompareColumn(l){
   const locName=locMatch?locMatch.name:(l.location||'—');
   const status=l.status||'';
   const statusLbl=status==='done'?'✓ Pronto':status==='shooting'?'Em curso':status==='progress'?'Em curso':'Por fazer';
-  function ph(photo,icon,lbl,contain){
-    if(!photo)return `<div class="cmp-col-photo${contain?' contain':''}"><div class="cmp-col-photo-ph">${icon}</div><span class="cmp-col-photo-lbl">${lbl}</span></div>`;
-    return `<div class="cmp-col-photo${contain?' contain':''}" onclick="openLb('${photo}','${esc(lbl)} #${l.num}')"><img src="${photo}" alt=""><span class="cmp-col-photo-lbl">${lbl}</span></div>`;
+  function ph(photo,icon,lbl,contain,badge){
+    const badgeHtml=badge||'';
+    if(!photo)return `<div class="cmp-col-photo${contain?' contain':''}">${badgeHtml}<div class="cmp-col-photo-ph">${icon}</div><span class="cmp-col-photo-lbl">${lbl}</span></div>`;
+    return `<div class="cmp-col-photo${contain?' contain':''}" onclick="openLb('${photo}','${esc(lbl)} #${l.num}')">${badgeHtml}<img src="${photo}" alt=""><span class="cmp-col-photo-lbl">${lbl}</span></div>`;
   }
   return `<div class="cmp-col">
     <div class="cmp-col-hd">
@@ -2203,7 +2209,7 @@ function renderCompareColumn(l){
     </div>
     <div class="cmp-col-photos">
       ${ph(oPhoto,'👗','Roupa',false)}
-      ${ph(sPhoto,'🧣','Lenço',false)}
+      ${ph(sPhoto,'🧣','Lenço',false,scarfSizeBadge(sObj))}
       ${ph(tPhoto,'📋','Tutorial'+(tut&&tut.num!=null&&!isNaN(tut.num)?' №'+tut.num:''),true)}
       ${ph(sp,'📸','Look final',false)}
     </div>
@@ -2319,7 +2325,7 @@ function renderScarves(){
   });
   // Render
   const sections=[];
-  const renderItem=({s,i})=>`<div class="photo-row">${s.photo?`<img class="photo-mini" src="${s.photo}" onclick="openLb('${s.photo}')">`:`<div class="photo-mini-ph" onclick="document.getElementById('f-scarves-${i}').click()">🧣</div>`}<input type="file" accept="image/*" id="f-scarves-${i}" style="display:none" onchange="handleSimplePhoto('scarves','scarf-inputs',${i},this)"><div class="photo-row-mid"><label class="photo-name-wrap"><input class="photo-name-inp" type="text" value="${esc(s.name)}" placeholder="Nome…" onchange="renameConfigItem('scarves',${i},this.value)"></label><select class="scarf-size-sel" onchange="setScarfSize(${i},this.value)"><option value=""${!s.size?' selected':''}>— Tamanho —</option>${SCARF_SIZES.map(sz=>`<option value="${sz}"${s.size===sz?' selected':''}>${SCARF_SIZE_LABELS[sz]}</option>`).join('')}</select></div><div class="photo-row-actions"><span style="font-size:.7rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px" onclick="document.getElementById('f-scarves-${i}').click()" title="${s.photo?'Trocar foto':'Adicionar foto'}">${s.photo?'🔄':'📷'}</span><span style="font-size:.7rem;color:#C72A1C;cursor:pointer;padding:2px 6px;border:1px solid rgba(199,42,28,.3);border-radius:4px" onclick="removeItemAt('scarves','scarf-inputs',${i},'🧣')" title="Eliminar">🗑</span></div></div>`;
+  const renderItem=({s,i})=>`<div class="photo-row">${s.photo?`<div style="position:relative;flex-shrink:0">${scarfSizeBadge(s,'sm')}<img class="photo-mini" src="${s.photo}" onclick="openLb('${s.photo}')"></div>`:`<div class="photo-mini-ph" onclick="document.getElementById('f-scarves-${i}').click()">🧣</div>`}<input type="file" accept="image/*" id="f-scarves-${i}" style="display:none" onchange="handleSimplePhoto('scarves','scarf-inputs',${i},this)"><div class="photo-row-mid"><label class="photo-name-wrap"><input class="photo-name-inp" type="text" value="${esc(s.name)}" placeholder="Nome…" onchange="renameConfigItem('scarves',${i},this.value)"></label><select class="scarf-size-sel" onchange="setScarfSize(${i},this.value)"><option value=""${!s.size?' selected':''}>— Tamanho —</option>${SCARF_SIZES.map(sz=>`<option value="${sz}"${s.size===sz?' selected':''}>${SCARF_SIZE_LABELS[sz]}</option>`).join('')}</select></div><div class="photo-row-actions"><span style="font-size:.7rem;color:var(--c-text3);cursor:pointer;padding:2px 6px;border:1px solid var(--c-border);border-radius:4px" onclick="document.getElementById('f-scarves-${i}').click()" title="${s.photo?'Trocar foto':'Adicionar foto'}">${s.photo?'🔄':'📷'}</span><span style="font-size:.7rem;color:#C72A1C;cursor:pointer;padding:2px 6px;border:1px solid rgba(199,42,28,.3);border-radius:4px" onclick="removeItemAt('scarves','scarf-inputs',${i},'🧣')" title="Eliminar">🗑</span></div></div>`;
   // SCARF_SIZES order, then unknown last
   SCARF_SIZES.forEach(sz=>{
     const items=groups.get(sz);
@@ -3110,9 +3116,10 @@ window.openPicker=function(lookNum,field){
     filteredItems.forEach(item=>{
       const photo=cfg.getPhoto(item);
       const isSel=cfg.multi?selectedSet.has(item.name):item.name===currentSingle;
+      const badge=field==='scarf'?scarfSizeBadge(item,'sm'):'';
       const photoHtml=photo
-        ?`<div class="picker-item-photo${cfg.contain?' contain':''}"><img src="${photo}"></div>`
-        :`<div class="picker-item-photo"><span class="picker-item-photo-ph">${cfg.icon}</span></div>`;
+        ?`<div class="picker-item-photo${cfg.contain?' contain':''}">${badge}<img src="${photo}"></div>`
+        :`<div class="picker-item-photo">${badge}<span class="picker-item-photo-ph">${cfg.icon}</span></div>`;
       html+=`<div class="picker-item${isSel?' selected':''}" data-value="${esc(item.name)}">${photoHtml}<div class="picker-item-name">${esc(item.name||'(sem nome)')}</div><div class="picker-item-check">✓</div></div>`;
     });
   }
