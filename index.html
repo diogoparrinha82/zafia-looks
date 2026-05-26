@@ -287,7 +287,8 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .gallery-cell{background:var(--c-card);border-radius:var(--radius-sm);overflow:hidden;cursor:pointer;position:relative;border:1px solid var(--c-border);transition:transform .12s;}
 .gallery-cell:hover{transform:scale(.97);}
 .gallery-cell.done-cell{opacity:.6;}
-.gallery-cell-imgs{display:flex;height:80px;}
+.gallery-cell-imgs{display:flex;}
+.gallery-cell-imgs>*{flex:1;min-width:0;aspect-ratio:1;}
 .gallery-cell-img{flex:1;object-fit:cover;}
 .gallery-cell-img-ph{flex:1;display:flex;align-items:center;justify-content:center;font-size:1.2rem;background:var(--c-surface);}
 .gallery-cell-body{padding:7px 9px 6px;}
