@@ -1362,6 +1362,11 @@ function pruneOrphanReferences(){
     pruned+=joBefore-l.joias.length;
     if(l.sapatos&&!valid.sapatos.has(l.sapatos)){l.sapatos='';pruned++;}
     if(l.model&&!valid.models.has(l.model)){l.model='';pruned++;}
+    // Orphan locationId: location was deleted but locationId still set on the look
+    if(l.locationId){
+      const exists=(state.config.locations||[]).some(L=>L.id===l.locationId);
+      if(!exists){l.locationId='';pruned++;}
+    }
   });
   // Locations also reference model names in their roster
   (state.config.locations||[]).forEach(L=>{
@@ -1790,7 +1795,25 @@ function buildCard(look){
 
   const statusCls=status==='done'?'done':status==='shooting'?'shooting':'idle';
   const statusLbl=status==='done'?'Feito':status==='shooting'?'Shooting':'Pronto';
-  const locOpts=`<option value=""${!look.location?' selected':''}>—</option>`+["Portugal – Estúdio","Portugal – Exterior","Cabo Verde – Exterior"].map(l=>`<option${l===look.location?' selected':''}>${l}</option>`).join('');
+  // Location dropdown: optgroups by category, with both "category only" and concrete locations
+  const CATS=["Portugal – Estúdio","Portugal – Exterior","Cabo Verde – Exterior"];
+  const allLocs=state.config.locations||[];
+  // Selected value: prefer locationId if set, fallback to category only
+  const selVal=look.locationId?`loc:${look.locationId}`:(look.location?`cat:${look.location}`:'');
+  const locsByCat={};
+  CATS.forEach(c=>locsByCat[c]=[]);
+  allLocs.forEach(L=>{if(locsByCat[L.category])locsByCat[L.category].push(L);else{(locsByCat[L.category]=locsByCat[L.category]||[]).push(L);}});
+  Object.keys(locsByCat).forEach(c=>locsByCat[c].sort((a,b)=>(a.name||'').localeCompare(b.name||'')));
+  const locOpts=`<option value=""${!selVal?' selected':''}>—</option>`+CATS.map(cat=>{
+    const items=locsByCat[cat]||[];
+    const catVal=`cat:${cat}`;
+    const catSel=selVal===catVal?' selected':'';
+    let group=`<optgroup label="${esc(cat)}">`;
+    group+=`<option value="${esc(catVal)}"${catSel}>${esc(cat)} (sem locação concreta)</option>`;
+    items.forEach(L=>{const v=`loc:${L.id}`;const sel=selVal===v?' selected':'';const nm=L.name||'(sem nome)';const city=L.city?` · ${L.city}`:'';group+=`<option value="${esc(v)}"${sel}>↳ ${esc(nm)}${esc(city)}</option>`;});
+    group+='</optgroup>';
+    return group;
+  }).join('');
 
   // outfit cell html
   LB_GALLERIES['outfit:'+look.num]=slides;
@@ -1844,7 +1867,7 @@ function buildCard(look){
       ${pickBtn('sapatos','Sapatos',look.sapatos,'sapatos',false,'👟')}
       ${pickBtn('model','Modelo',look.model,'models',false,'👤')}
       ${tutPickBtn()}
-      <div class="field-row"><div class="field-lbl">Local</div><select class="field-sel" onchange="updLookField(${look.num},'location',this.value)">${locOpts}</select></div>
+      <div class="field-row"><div class="field-lbl">Local</div><select class="field-sel" onchange="updLookLocation(${look.num},this.value)">${locOpts}</select></div>
       <div class="field-row"><div class="field-lbl">Notas</div><input class="field-inp" type="text" value="${esc(look.notes||'')}" placeholder="Adicionar nota…" onchange="updLookField(${look.num},'notes',this.value)"></div>
       <div class="card-actions-row">
         <button class="card-dup-btn" onclick="duplicateLook(${look.num})">⎘ Duplicar</button>
@@ -1991,6 +2014,20 @@ function updateFeatured(){
 
 // ── LOOK UPDATES ──
 window.updLookField=function(num,field,val){const l=state.looks.find(x=>x.num===num);if(!l)return;l[field]=val;if(field==='location'&&l.locationId){const L=(state.config.locations||[]).find(x=>x.id===l.locationId);if(L&&val&&L.category!==val){l.locationId='';refreshCardLocHeader(num);}}scheduleSave();if(['outfit','joias','sapatos','scarf'].includes(field))rebuildOutfitCell(num);if(field==='tutorialIdx')rebuildTutorialCell(num);};
+window.updLookLocation=function(num,val){
+  const l=state.looks.find(x=>x.num===num);if(!l)return;
+  // Decode prefix: 'cat:<category>' or 'loc:<id>' or '' for none
+  if(!val){l.location='';l.locationId='';}
+  else if(val.startsWith('loc:')){
+    const id=val.slice(4);
+    const L=(state.config.locations||[]).find(x=>x.id===id);
+    if(L){l.locationId=id;l.location=L.category||'';}
+    else{l.locationId='';l.location='';}
+  }
+  else if(val.startsWith('cat:')){l.location=val.slice(4);l.locationId='';}
+  scheduleSave();
+  refreshCardLocHeader(num);
+};
 window.duplicateLook=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;const src=state.looks[idx];const parentNum=src.extra?src.parentNum:src.num;const maxNum=state.looks.reduce((m,l)=>Math.max(m,l.num),0);const newNum=Math.max(101,maxNum+1);const copy={category:src.category,outfit:toArr(src.outfit).slice(),scarf:toArr(src.scarf).slice(),joias:toArr(src.joias).slice(),sapatos:src.sapatos||'',model:'',location:src.location||'',locationId:src.locationId||'',tutorialIdx:src.tutorialIdx||0,status:'',shootingPhoto:'',notes:'',done:false,num:newNum,extra:true,parentNum};state.looks.splice(idx+1,0,copy);scheduleSave();const fl=filteredLooks();const newIdx=fl.findIndex(x=>x.num===newNum);if(newIdx>=0)state.ui.currentIdx=newIdx;renderFilters();buildCarousel();updateCounter();};
 window.deleteLook=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;const l=state.looks[idx];if(!l.extra){alert('Só é possível apagar looks duplicados. Os 100 originais não podem ser eliminados.');return;}const desc=`Look #${l.num} · variação de #${l.parentNum} · ${l.category}${l.model?' · '+l.model:''}`;if(!confirm(`Apagar esta variação?\n\n${desc}`))return;state.looks.splice(idx,1);scheduleSave();state.ui.currentIdx=Math.max(0,Math.min(idx,state.looks.length-1));renderFilters();buildCarousel();updateCounter();};
 function refreshCardLocHeader(num){const fl=filteredLooks();const idx=fl.findIndex(x=>x.num===num);if(idx<0)return;const cardEl=document.getElementById('carousel-track').children[idx];if(!cardEl)return;const numEl=cardEl.querySelector('.card-num');if(!numEl)return;const look=fl[idx];const locMatch=look.locationId?(state.config.locations||[]).find(L=>L.id===look.locationId):null;const locName=locMatch?locMatch.name:'';numEl.innerHTML=`Look #${look.num}${look.extra&&look.parentNum?` <span class="card-extra-tag">var. de #${look.parentNum}</span>`:''}${locName?` · <span class="card-locname">${esc(locName)}</span>`:''}`;}
@@ -2865,7 +2902,7 @@ window.updLookNotesFromShooting=function(num,val){const l=state.looks.find(x=>x.
 window.backToShooting=function(){shView={mode:'dashboard',id:null};renderShooting();};
 window.goToLookFromShooting=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;openLookModal(num);};
 window.openLookModal=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;const screen=document.getElementById('screen-looks');if(!screen)return;const shell=document.getElementById('look-modal-shell');if(screen.parentElement===shell)return;window.__lookModalReturn={parent:screen.parentElement,next:screen.nextSibling};window.__lookModalWasHidden=screen.classList.contains('hidden');window.__lookModalPrevFilter=state.ui.filter;window.__lookModalPrevIdx=state.ui.currentIdx;shell.appendChild(screen);screen.classList.remove('hidden');state.ui.filter='';state.ui.currentIdx=idx;window.currentScreen='screen-looks';document.body.style.overflow='hidden';document.getElementById('look-modal-ovl').classList.add('open');renderFilters();buildCarousel();updateCounter();};
-window.closeLookModal=function(){const ovl=document.getElementById('look-modal-ovl');if(!ovl.classList.contains('open'))return;const screen=document.getElementById('screen-looks');const ret=window.__lookModalReturn;if(ret&&ret.parent){if(ret.next&&ret.next.parentElement===ret.parent)ret.parent.insertBefore(screen,ret.next);else ret.parent.appendChild(screen);}if(window.__lookModalWasHidden)screen.classList.add('hidden');if(window.__lookModalPrevFilter!==undefined)state.ui.filter=window.__lookModalPrevFilter;if(window.__lookModalPrevIdx!==undefined)state.ui.currentIdx=window.__lookModalPrevIdx;ovl.classList.remove('open');document.body.style.overflow='';window.__lookModalReturn=null;window.__lookModalWasHidden=null;window.__lookModalPrevFilter=undefined;window.__lookModalPrevIdx=undefined;window.currentScreen=document.querySelector('.screen:not(.hidden)')?.id||'screen-shooting';if(!screen.classList.contains('hidden')){renderFilters();buildCarousel();}};
+window.closeLookModal=function(){const ovl=document.getElementById('look-modal-ovl');if(!ovl.classList.contains('open'))return;const screen=document.getElementById('screen-looks');const ret=window.__lookModalReturn;if(ret&&ret.parent){if(ret.next&&ret.next.parentElement===ret.parent)ret.parent.insertBefore(screen,ret.next);else ret.parent.appendChild(screen);}if(window.__lookModalWasHidden)screen.classList.add('hidden');if(window.__lookModalPrevFilter!==undefined)state.ui.filter=window.__lookModalPrevFilter;if(window.__lookModalPrevIdx!==undefined)state.ui.currentIdx=window.__lookModalPrevIdx;ovl.classList.remove('open');document.body.style.overflow='';window.__lookModalReturn=null;window.__lookModalWasHidden=null;window.__lookModalPrevFilter=undefined;window.__lookModalPrevIdx=undefined;window.currentScreen=document.querySelector('.screen:not(.hidden)')?.id||'screen-shooting';if(!screen.classList.contains('hidden')){renderFilters();buildCarousel();}if(window.currentScreen==='screen-shooting'&&typeof renderShooting==='function')renderShooting();if(window.currentScreen==='screen-dashboard'&&typeof renderDashboard==='function')renderDashboard();if(window.currentScreen==='screen-gallery'&&typeof renderGallery==='function')renderGallery();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('look-modal-ovl').classList.contains('open'))closeLookModal();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('howto-ovl').classList.contains('open'))endHowTo();});
 window.unassignLook=function(num){const l=state.looks.find(x=>x.num===num);if(!l)return;l.locationId='';scheduleSave();renderShooting();buildCarousel();};
