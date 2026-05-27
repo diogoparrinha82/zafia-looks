@@ -411,6 +411,14 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .color-picker{width:0;height:0;opacity:0;position:absolute;}
 .apply-btn{display:block;width:calc(100% - 32px);margin:16px;padding:14px;background:var(--c-accent);color:var(--c-bg);border:none;border-radius:var(--radius-sm);font-family:'Inter Tight',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;text-align:center;}
 .add-remove-row{display:flex;gap:8px;margin-top:10px;}
+.bulk-drop{border:2px dashed var(--c-border);border-radius:8px;padding:18px 16px;text-align:center;cursor:pointer;background:var(--c-surface);transition:all .15s;margin-bottom:14px;user-select:none;}
+.bulk-drop:hover{border-color:var(--c-accent);background:var(--c-card);}
+.bulk-drop.dragover{border-color:var(--c-accent);border-style:solid;background:var(--c-accent2);}
+.bulk-drop.busy{pointer-events:none;opacity:.7;}
+.bulk-drop-icon{font-size:1.4rem;color:var(--c-text2);margin-bottom:4px;font-family:'JetBrains Mono',monospace;}
+.bulk-drop-title{font-family:'Inter Tight',sans-serif;font-size:.92rem;font-weight:600;color:var(--c-text);margin-bottom:3px;}
+.bulk-drop-sub{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text3);}
+.bulk-drop-progress{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--c-accent);font-weight:600;margin-top:4px;}
 .mini-btn{flex:1;padding:9px;border-radius:var(--radius-sm);font-family:'Inter Tight',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;border:1.5px solid var(--c-border);background:transparent;color:var(--c-text2);transition:all .15s;}
 .mini-btn:hover{background:var(--c-surface);}
 .mini-btn.danger{color:#C72A1C;border-color:rgba(255,107,107,.3);}
@@ -1050,6 +1058,12 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
         </div>
         <!-- Roupas panel -->
         <div class="sub-panel on" id="sp-roupas">
+          <div class="bulk-drop" id="bd-outfits" onclick="document.getElementById('bd-outfits-inp').click()">
+            <input type="file" id="bd-outfits-inp" accept="image/*" multiple style="display:none" onchange="handleBulkPick('outfits',this)">
+            <div class="bulk-drop-icon">⬆</div>
+            <div class="bulk-drop-title">Largar imagens aqui</div>
+            <div class="bulk-drop-sub">ou toca para escolher · máx 50 ficheiros</div>
+          </div>
           <div id="outfit-inputs" style="margin-top:4px"></div>
           <div class="add-remove-row" style="padding:0 0 4px">
             <button class="mini-btn" onclick="addOutfit()">+ Roupa</button>
@@ -1058,6 +1072,12 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
         </div>
         <!-- Jóias panel -->
         <div class="sub-panel" id="sp-joias">
+          <div class="bulk-drop" id="bd-joias" onclick="document.getElementById('bd-joias-inp').click()">
+            <input type="file" id="bd-joias-inp" accept="image/*" multiple style="display:none" onchange="handleBulkPick('joias',this)">
+            <div class="bulk-drop-icon">⬆</div>
+            <div class="bulk-drop-title">Largar imagens aqui</div>
+            <div class="bulk-drop-sub">ou toca para escolher · máx 50 ficheiros</div>
+          </div>
           <div id="joias-inputs" style="margin-top:4px"></div>
           <div class="add-remove-row" style="padding:0 0 4px">
             <button class="mini-btn" onclick="addItem('joias','joias-inputs')">+ Jóia</button>
@@ -1066,6 +1086,12 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
         </div>
         <!-- Sapatos panel -->
         <div class="sub-panel" id="sp-sapatos">
+          <div class="bulk-drop" id="bd-sapatos" onclick="document.getElementById('bd-sapatos-inp').click()">
+            <input type="file" id="bd-sapatos-inp" accept="image/*" multiple style="display:none" onchange="handleBulkPick('sapatos',this)">
+            <div class="bulk-drop-icon">⬆</div>
+            <div class="bulk-drop-title">Largar imagens aqui</div>
+            <div class="bulk-drop-sub">ou toca para escolher · máx 50 ficheiros</div>
+          </div>
           <div id="sapatos-inputs" style="margin-top:4px"></div>
           <div class="add-remove-row" style="padding:0 0 4px">
             <button class="mini-btn" onclick="addItem('sapatos','sapatos-inputs')">+ Sapatos</button>
@@ -1077,7 +1103,16 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 
     <div class="cfg-section" id="cs-scarves">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-scarves')"><div><div class="cfg-section-title">Lenços</div></div><span class="cfg-chevron">▾</span></div>
-      <div class="cfg-section-body" style="padding:14px 16px;"><div id="scarf-inputs"></div><div class="add-remove-row"><button class="mini-btn" onclick="addItem('scarves','scarf-inputs')">+ Adicionar</button><button class="mini-btn danger" onclick="removeItem('scarves','scarf-inputs')">− Remover</button></div></div>
+      <div class="cfg-section-body" style="padding:14px 16px;">
+        <div class="bulk-drop" id="bd-scarves" onclick="document.getElementById('bd-scarves-inp').click()">
+          <input type="file" id="bd-scarves-inp" accept="image/*" multiple style="display:none" onchange="handleBulkPick('scarves',this)">
+          <div class="bulk-drop-icon">⬆</div>
+          <div class="bulk-drop-title">Largar imagens aqui</div>
+          <div class="bulk-drop-sub">ou toca para escolher · máx 50 ficheiros</div>
+        </div>
+        <div id="scarf-inputs"></div>
+        <div class="add-remove-row"><button class="mini-btn" onclick="addItem('scarves','scarf-inputs')">+ Adicionar</button><button class="mini-btn danger" onclick="removeItem('scarves','scarf-inputs')">− Remover</button></div>
+      </div>
     </div>
     <div class="cfg-section" id="cs-models">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-models')"><div><div class="cfg-section-title">Modelos</div></div><span class="cfg-chevron">▾</span></div>
@@ -2460,6 +2495,92 @@ window.renameCategory=function(idx,newName){
   buildCarousel();
 };
 window.addItem=function(type,cid){if(!state.config[type])state.config[type]=[];state.config[type].push({name:'',photo:''});renderSimpleItems(type,cid);};
+
+// ── BULK IMPORT ──
+const BULK_MAX=50;
+// Clean a filename to a presentable display name: strip extension, replace separators with spaces, capitalize first letter
+function fileToDisplayName(filename){
+  if(!filename)return '';
+  // Strip extension
+  const noExt=filename.replace(/\.[^./\\]+$/,'');
+  // Replace _ and - with spaces, collapse whitespace
+  const cleaned=noExt.replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim();
+  if(!cleaned)return '';
+  // Capitalize first letter
+  return cleaned.charAt(0).toUpperCase()+cleaned.slice(1);
+}
+window.handleBulkPick=function(type,inputEl){
+  const files=Array.from(inputEl.files||[]);
+  inputEl.value=''; // reset so picking the same files again works
+  bulkImportItems(type,files);
+};
+async function bulkImportItems(type,files){
+  if(!files||!files.length)return;
+  // Limit
+  if(files.length>BULK_MAX){showToast(`Limite de ${BULK_MAX} ficheiros. A processar os primeiros ${BULK_MAX}.`);files=files.slice(0,BULK_MAX);}
+  // Only images
+  files=files.filter(f=>f.type&&f.type.startsWith('image/'));
+  if(!files.length){showToast('Nenhum ficheiro de imagem.');return;}
+  // Find the drop zone for visual feedback
+  const dzId='bd-'+type;
+  const dz=document.getElementById(dzId);
+  if(dz){dz.classList.add('busy');}
+  if(!state.config[type])state.config[type]=[];
+  let imported=0,failed=0;
+  const total=files.length;
+  for(let i=0;i<files.length;i++){
+    const f=files[i];
+    if(dz){
+      let progEl=dz.querySelector('.bulk-drop-progress');
+      if(!progEl){progEl=document.createElement('div');progEl.className='bulk-drop-progress';dz.appendChild(progEl);}
+      progEl.textContent=`A processar ${i+1} de ${total}…`;
+    }
+    try{
+      const photo=await compressImage(f,400,0.6);
+      const name=fileToDisplayName(f.name);
+      if(type==='outfits'){
+        // outfits have main {name, photo, pieces}
+        state.config.outfits.push({name,photo,pieces:[]});
+      }else if(type==='scarves'){
+        state.config.scarves.push({name,photo,size:''});
+      }else{
+        state.config[type].push({name,photo});
+      }
+      imported++;
+      // Render progressively so user sees items appearing
+      if(type==='outfits')renderOutfitInputs();
+      else if(type==='scarves')renderScarves();
+      else renderSimpleItems(type,type+'-inputs',type==='joias'?'💍':'👟');
+    }catch(e){console.error('bulk import failed for',f.name,e);failed++;}
+  }
+  // Cleanup progress UI
+  if(dz){dz.classList.remove('busy');const progEl=dz.querySelector('.bulk-drop-progress');if(progEl)progEl.remove();}
+  // Single save at the end (avoids saving N times during the batch)
+  scheduleSave();
+  // Feedback
+  if(imported&&!failed)showToast(`${imported} ${imported===1?'item importado':'items importados'}`);
+  else if(imported&&failed)showToast(`${imported} importados · ${failed} falharam`);
+  else if(failed)showToast(`${failed} ${failed===1?'ficheiro falhou':'ficheiros falharam'}`);
+  // Refresh carousel if relevant
+  if(['outfits','scarves','joias','sapatos'].includes(type)&&typeof buildCarousel==='function')buildCarousel();
+}
+// Wire drag-and-drop events on each drop zone
+function initBulkDropZones(){
+  ['outfits','joias','sapatos','scarves'].forEach(type=>{
+    const dz=document.getElementById('bd-'+type);
+    if(!dz||dz.dataset.wired==='1')return;
+    dz.dataset.wired='1';
+    ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();if(!dz.classList.contains('busy'))dz.classList.add('dragover');}));
+    ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();dz.classList.remove('dragover');}));
+    dz.addEventListener('drop',e=>{
+      if(dz.classList.contains('busy'))return;
+      const files=Array.from(e.dataTransfer?.files||[]);
+      bulkImportItems(type,files);
+    });
+  });
+}
+// Init when DOM is ready (or right away if already loaded)
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initBulkDropZones);}else{setTimeout(initBulkDropZones,0);}
 window.removeItem=function(type,cid){if(state.config[type]&&state.config[type].length>1){state.config[type].pop();renderSimpleItems(type,cid);}};
 window.removeItemAt=function(type,cid,i,icon){if(!state.config[type]||!state.config[type][i])return;const it=state.config[type][i];const label=it.name||'este item';if(!confirm(`Eliminar "${label}"?`))return;state.config[type].splice(i,1);scheduleSave();renderSimpleItems(type,cid,icon);buildCarousel();};
 
