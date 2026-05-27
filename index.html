@@ -2024,8 +2024,14 @@ function updateStatusBtn(num){const fl=filteredLooks();const idx=fl.findIndex(x=
 
 // ── GALLERY ──
 function outfitKey(look){return toArr(look.outfit).slice().sort().join(' + ')||'—';}
-function getSortedLooks(){const fl=[...filteredLooks()];const sort=document.getElementById('gallery-sort')?.value||'default';if(sort==='outfit-model')return fl.sort((a,b)=>outfitKey(a).localeCompare(outfitKey(b))||(a.model||'').localeCompare(b.model||''));if(sort==='model-outfit')return fl.sort((a,b)=>(a.model||'').localeCompare(b.model||'')||outfitKey(a).localeCompare(outfitKey(b)));if(sort==='model')return fl.sort((a,b)=>{const am=a.model||'',bm=b.model||'';if(!am&&bm)return 1;if(am&&!bm)return -1;return am.localeCompare(bm)||a.num-b.num;});if(sort==='category')return fl.sort((a,b)=>a.category.localeCompare(b.category));if(sort==='location')return fl.sort((a,b)=>a.location.localeCompare(b.location));if(sort==='done')return fl.sort((a,b)=>Number(a.status==='done')-Number(b.status==='done'));return fl;}
-function getGroupKey(look,sort){const oName=outfitKey(look);if(sort==='outfit-model')return`${oName} · ${look.model}`;if(sort==='model-outfit')return`${look.model} · ${oName}`;if(sort==='model')return look.model||'Sem modelo';if(sort==='category')return look.category;if(sort==='location')return look.location;return null;}
+function locLabelForLook(look){
+  if(!look.locationId)return '';
+  const L=(state.config.locations||[]).find(x=>x.id===look.locationId);
+  if(!L)return ''; // orphan: location deleted
+  return L.name||'(sem nome)';
+}
+function getSortedLooks(){const fl=[...filteredLooks()];const sort=document.getElementById('gallery-sort')?.value||'default';if(sort==='outfit-model')return fl.sort((a,b)=>outfitKey(a).localeCompare(outfitKey(b))||(a.model||'').localeCompare(b.model||''));if(sort==='model-outfit')return fl.sort((a,b)=>(a.model||'').localeCompare(b.model||'')||outfitKey(a).localeCompare(outfitKey(b)));if(sort==='model')return fl.sort((a,b)=>{const am=a.model||'',bm=b.model||'';if(!am&&bm)return 1;if(am&&!bm)return -1;return am.localeCompare(bm)||a.num-b.num;});if(sort==='category')return fl.sort((a,b)=>a.category.localeCompare(b.category));if(sort==='location')return fl.sort((a,b)=>{const al=locLabelForLook(a),bl=locLabelForLook(b);if(!al&&bl)return 1;if(al&&!bl)return -1;if(!al&&!bl)return (a.category||'').localeCompare(b.category||'')||a.num-b.num;return al.localeCompare(bl)||a.num-b.num;});if(sort==='done')return fl.sort((a,b)=>Number(a.status==='done')-Number(b.status==='done'));return fl;}
+function getGroupKey(look,sort){const oName=outfitKey(look);if(sort==='outfit-model')return`${oName} · ${look.model}`;if(sort==='model-outfit')return`${look.model} · ${oName}`;if(sort==='model')return look.model||'Sem modelo';if(sort==='category')return look.category;if(sort==='location'){const ln=locLabelForLook(look);if(ln){const L=(state.config.locations||[]).find(x=>x.id===look.locationId);return L?.city?`${ln} · ${L.city}`:ln;}return `Sem locação · ${look.category}`;}return null;}
 function buildA4Sheet(look){
   const cat=state.config.cats.find(([c])=>c===look.category);
   const tutorials=cat?.[2]||[];
