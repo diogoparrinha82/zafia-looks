@@ -662,6 +662,35 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .pc-rm:hover{background:rgba(199,42,28,.08);color:#C72A1C;}
 .prod-empty{padding:20px;text-align:center;color:var(--c-text3);font-size:.85rem;font-family:'Inter Tight',sans-serif;font-style:italic;}
 /* end PRODUCTION COSTS */
+/* PHOTOS SCREEN */
+#screen-photos{background:var(--c-bg);}
+.photos-toolbar{padding:16px 22px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--c-border);background:var(--c-surface);}
+.photos-counter{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--c-text3);font-weight:600;flex:1;}
+.photos-grid{padding:18px 22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;}
+.photos-empty{padding:60px 20px;text-align:center;color:var(--c-text3);font-family:'Inter Tight',sans-serif;font-size:.95rem;font-style:italic;grid-column:1/-1;}
+.pp-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-sm);overflow:hidden;display:flex;flex-direction:column;}
+.pp-photos{display:flex;background:var(--c-bg);position:relative;aspect-ratio:4/3;}
+.pp-photos>*{flex:1;min-width:0;position:relative;}
+.pp-photo{width:100%;height:100%;object-fit:cover;display:block;cursor:pointer;}
+.pp-photo-ph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:var(--c-card);color:var(--c-text3);font-family:'Inter Tight',sans-serif;font-size:.78rem;cursor:pointer;border-left:1px dashed var(--c-border);}
+.pp-photo-ph .icon{font-size:1.6rem;}
+.pp-photos > :first-child .pp-photo-ph{border-left:none;}
+.pp-photo-actions{position:absolute;top:6px;right:6px;display:flex;gap:4px;opacity:0;transition:opacity .15s;}
+.pp-photos:hover .pp-photo-actions,.pp-photo-actions.always{opacity:1;}
+.pp-photo-act{background:rgba(22,24,20,.72);color:#fff;border:none;border-radius:4px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:.75rem;cursor:pointer;}
+.pp-photo-act:hover{background:rgba(22,24,20,.92);}
+.pp-photo-act.danger{background:rgba(199,42,28,.85);}
+.pp-photo-act.danger:hover{background:#C72A1C;}
+.pp-body{padding:10px 12px 12px;display:flex;align-items:center;gap:8px;}
+.pp-name-inp{flex:1;min-width:0;border:none;background:transparent;font-family:'Inter Tight',sans-serif;font-size:.92rem;font-weight:600;color:var(--c-text);outline:none;padding:4px 0;letter-spacing:-.005em;}
+.pp-name-inp::placeholder{color:var(--c-text3);font-weight:500;font-style:italic;}
+.pp-rm{background:transparent;border:none;color:var(--c-text3);cursor:pointer;font-size:1rem;padding:4px 6px;border-radius:4px;line-height:1;flex-shrink:0;}
+.pp-rm:hover{background:rgba(199,42,28,.08);color:#C72A1C;}
+@media(max-width:560px){
+  .photos-grid{padding:14px 14px;gap:14px;grid-template-columns:1fr;}
+  .photos-toolbar{padding:12px 14px;}
+}
+/* end PHOTOS SCREEN */
 .lightbox{position:fixed;inset:0;background:rgba(245,245,240,.96);z-index:999;display:none;align-items:center;justify-content:center;flex-direction:column;}
 .lightbox.show{display:flex;}
 .lightbox img{max-width:94vw;max-height:82vh;border-radius:10px;object-fit:contain;}
@@ -1191,6 +1220,24 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
   </div>
 </div>
 
+<!-- ── FOTOS ── -->
+<div class="screen hidden" id="screen-photos">
+  <div class="nav-bar">
+    <button class="menu-btn" onclick="openDrawer()" aria-label="Menu"><span></span><span></span><span></span></button>
+    <div><div class="nav-title">Fotos</div></div>
+    <button class="nav-btn" onclick="createPhotoPack()" title="Novo pack">＋</button>
+  </div>
+  <div class="scroll-area" id="photos-scroll">
+    <div class="photos-toolbar">
+      <div class="photos-counter" id="photos-counter">0 packs</div>
+      <input type="file" id="photos-bulk-inp" accept="image/*" multiple style="display:none" onchange="handlePhotoPackPick(this)">
+      <button class="mini-btn accent" onclick="createPhotoPack()" style="padding:8px 16px">＋ Novo pack</button>
+    </div>
+    <div class="photos-grid" id="photos-grid"></div>
+    <div style="height:20px"></div>
+  </div>
+</div>
+
 <!-- DRAWER MENU -->
 <div class="drawer-scrim" id="drawer-scrim" onclick="closeDrawer()"></div>
 <aside class="drawer" id="drawer">
@@ -1205,6 +1252,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
     <button class="drawer-item" id="drw-config" onclick="switchTab('config');closeDrawer()">Configuração</button>
     <button class="drawer-item" id="drw-shooting" onclick="switchTab('shooting');closeDrawer()">Shooting</button>
     <button class="drawer-item" id="drw-equipa" onclick="switchTab('equipa');closeDrawer()">Equipa & Custos</button>
+    <button class="drawer-item" id="drw-photos" onclick="switchTab('photos');closeDrawer()">Fotos</button>
   </nav>
   <div class="drawer-foot">
     <div class="drawer-foot-sync"><div class="sync-dot" id="sync-dot"></div><span id="sync-txt">sync</span></div>
@@ -1295,7 +1343,7 @@ window.state={
     locations:[],
     theme:{...DEFAULT_THEME}
   },
-  looks:[],team:[],production:{costs:[]},ui:{currentIdx:0,filter:'',galleryView:'grid',compareBin:[]}
+  looks:[],team:[],production:{costs:[]},photoPacks:[],ui:{currentIdx:0,filter:'',galleryView:'grid',compareBin:[]}
 };
 window.currentScreen='screen-looks';
 const outfitSlideIdx={};
@@ -1329,7 +1377,7 @@ function saveCache(d){try{const l={...d,config:{...d.config,outfits:d.config.out
 function toArr(v){if(Array.isArray(v))return v.filter(Boolean);if(v==null||v==='')return [];return [v];}
 function migrateLooks(looks){return (looks||[]).map(l=>({...l,outfit:toArr(l.outfit),scarf:toArr(l.scarf),joias:toArr(l.joias),locationId:l.locationId||'',extra:!!l.extra,parentNum:l.parentNum||null}));}
 
-function loadCache(){try{const c=localStorage.getItem(CACHE_KEY);if(c){const d=JSON.parse(c);if(d.config){state.config={...state.config,...d.config};state.config.outfits=normaliseOutfits(state.config.outfits);state.config.joias=normaliseSimple(state.config.joias,DEFAULT_JOIAS);state.config.sapatos=normaliseSimple(state.config.sapatos,DEFAULT_SAPATOS);}if(d.looks)state.looks=migrateLooks(d.looks);if(d.team)state.team=d.team;if(d.production&&Array.isArray(d.production.costs))state.production={costs:d.production.costs};if(d.ui){const {currentIdx,filter,...restUi}=d.ui;state.ui={...state.ui,...restUi};}}}catch(e){}if(state.ui.galleryView==='sheets')state.ui.galleryView='grid';}
+function loadCache(){try{const c=localStorage.getItem(CACHE_KEY);if(c){const d=JSON.parse(c);if(d.config){state.config={...state.config,...d.config};state.config.outfits=normaliseOutfits(state.config.outfits);state.config.joias=normaliseSimple(state.config.joias,DEFAULT_JOIAS);state.config.sapatos=normaliseSimple(state.config.sapatos,DEFAULT_SAPATOS);}if(d.looks)state.looks=migrateLooks(d.looks);if(d.team)state.team=d.team;if(d.production&&Array.isArray(d.production.costs))state.production={costs:d.production.costs};if(Array.isArray(d.photoPacks))state.photoPacks=d.photoPacks;if(d.ui){const {currentIdx,filter,...restUi}=d.ui;state.ui={...state.ui,...restUi};}}}catch(e){}if(state.ui.galleryView==='sheets')state.ui.galleryView='grid';}
 
 // ── SYNC ──
 function setSyncStatus(s){['sync-dot','sync-dot2'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.className='sync-dot'+(s==='syncing'?' syncing':s==='offline'?' offline':'');});const txt=s==='syncing'?'a guardar…':s==='offline'?'offline':'guardado';['sync-txt','sync-txt2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=txt;});}
@@ -1373,6 +1421,7 @@ async function doSave(){
       saveChunked('models',state.config.models),
       saveChunked('locations',state.config.locations||[]),
       saveChunked('looks',state.looks),
+      saveChunked('photoPacks',state.photoPacks||[]),
       setDoc(base('team'),{items:state.team,production:state.production||{costs:[]},ui:state.ui})
     ]);
     saveCache(state);setSyncStatus('ok');
@@ -1392,7 +1441,7 @@ async function loadChunked(base,prefix){
 async function loadFromFirestore(){
   try{
     const base=n=>doc(db,'shared','data','docs',n);
-    const [cfgSnap,teamSnap,outfits,joias,sapatos,scarves,models,locations,looks]=await Promise.all([
+    const [cfgSnap,teamSnap,outfits,joias,sapatos,scarves,models,locations,looks,photoPacks]=await Promise.all([
       getDoc(base('config')),
       getDoc(base('team')),
       loadChunked(base,'outfits'),
@@ -1401,7 +1450,8 @@ async function loadFromFirestore(){
       loadChunked(base,'scarves'),
       loadChunked(base,'models'),
       loadChunked(base,'locations'),
-      loadChunked(base,'looks')
+      loadChunked(base,'looks'),
+      loadChunked(base,'photoPacks')
     ]);
     if(!cfgSnap.exists()&&looks===null){state.looks=genLooks();state.team=defaultTeam();doSave();}
     else{
@@ -1414,6 +1464,7 @@ async function loadFromFirestore(){
       if(models!==null)state.config.models=models;
       if(locations!==null)state.config.locations=locations;
       if(looks!==null)state.looks=migrateLooks(looks);
+      if(photoPacks!==null)state.photoPacks=Array.isArray(photoPacks)?photoPacks:[];
       if(teamSnap.exists()){state.team=teamSnap.data().items||[];const prod=teamSnap.data().production;if(prod&&Array.isArray(prod.costs))state.production={costs:prod.costs};if(teamSnap.data().ui){const {currentIdx,filter,...restUi}=teamSnap.data().ui;state.ui={...state.ui,...restUi};}}
     }
     pruneOrphanReferences();
@@ -1472,8 +1523,8 @@ function startRemoteWatch(){
   if(remoteWatchActive)return;
   remoteWatchActive=true;
   const myTag=sessionStorage.getItem('aos_tab_id')||'unknown';
-  const watched=['looks','locations','outfits','scarves','models','joias','sapatos'];
-  const labels={looks:'Looks',locations:'Locações',outfits:'Roupas',scarves:'Lenços',models:'Modelos',joias:'Jóias',sapatos:'Sapatos'};
+  const watched=['looks','locations','outfits','scarves','models','joias','sapatos','photoPacks'];
+  const labels={looks:'Looks',locations:'Locações',outfits:'Roupas',scarves:'Lenços',models:'Modelos',joias:'Jóias',sapatos:'Sapatos',photoPacks:'Fotos'};
   // Track timestamps observed at watch-start (so we don't fire for "current" state)
   const seenTs={};
   watched.forEach(prefix=>{
@@ -1542,7 +1593,8 @@ window.exportBackup=function(){
       config:state.config,
       looks:state.looks,
       team:state.team,
-      production:state.production||{costs:[]}
+      production:state.production||{costs:[]},
+      photoPacks:state.photoPacks||[]
     };
     const json=JSON.stringify(payload,null,2);
     const blob=new Blob([json],{type:'application/json'});
@@ -1777,7 +1829,7 @@ function genLooksEmpty(){
 function defaultTeam(){return[{id:1,name:'',role:'Fotógrafo Principal',location:'PT Est+Ext+CV',phone:'',email:'',notes:'',photo:'',viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true}];}
 
 // ── SCREENS ──
-window.switchTab=function(tab){if(tab==='equipa'&&!state.ui.equipaUnlocked){promptPIN(()=>{state.ui.equipaUnlocked=true;switchTab('equipa');});return;}const map={dashboard:'screen-dashboard',looks:'screen-looks',gallery:'screen-gallery',config:'screen-config',shooting:'screen-shooting',equipa:'screen-equipa'};document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById(map[tab]).classList.remove('hidden');document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('on'));const el=document.getElementById('tab-'+tab);if(el)el.classList.add('on');document.querySelectorAll('.drawer-item').forEach(d=>d.classList.remove('on'));const di=document.getElementById('drw-'+tab);if(di)di.classList.add('on');window.currentScreen=map[tab];if(tab==='dashboard'){renderDashboard();maybeShowBackupReminder();}if(tab==='gallery')renderGallery();if(tab==='config')renderConfig();if(tab==='shooting')renderShooting();if(tab==='equipa')renderTeam();};
+window.switchTab=function(tab){if(tab==='equipa'&&!state.ui.equipaUnlocked){promptPIN(()=>{state.ui.equipaUnlocked=true;switchTab('equipa');});return;}const map={dashboard:'screen-dashboard',looks:'screen-looks',gallery:'screen-gallery',config:'screen-config',shooting:'screen-shooting',equipa:'screen-equipa',photos:'screen-photos'};document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById(map[tab]).classList.remove('hidden');document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('on'));const el=document.getElementById('tab-'+tab);if(el)el.classList.add('on');document.querySelectorAll('.drawer-item').forEach(d=>d.classList.remove('on'));const di=document.getElementById('drw-'+tab);if(di)di.classList.add('on');window.currentScreen=map[tab];if(tab==='dashboard'){renderDashboard();maybeShowBackupReminder();}if(tab==='gallery')renderGallery();if(tab==='config')renderConfig();if(tab==='shooting')renderShooting();if(tab==='equipa')renderTeam();if(tab==='photos')renderPhotos();};
 window.toggleCS=function(id){document.getElementById(id).classList.toggle('open');};
 
 // sub-tabs inside Roupas & Peças
@@ -3191,6 +3243,149 @@ window.removeProductionCost=function(id){
   scheduleSave();
 };
 // end PRODUCTION COSTS
+
+// ── PHOTO PACKS ──
+const PACK_PHOTO_MAX_DIM=800;
+const PACK_PHOTO_QUALITY=0.65;
+function renderPhotos(){
+  if(!Array.isArray(state.photoPacks))state.photoPacks=[];
+  const packs=[...state.photoPacks].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const counter=document.getElementById('photos-counter');
+  if(counter)counter.textContent=`${packs.length} ${packs.length===1?'pack':'packs'}`;
+  const grid=document.getElementById('photos-grid');
+  if(!grid)return;
+  if(!packs.length){
+    grid.innerHTML='<div class="photos-empty">Ainda não há fotos. Cria o primeiro pack acima.</div>';
+    return;
+  }
+  // Build a lightbox gallery per pack for navigation
+  grid.innerHTML=packs.map(pack=>{
+    const photos=Array.isArray(pack.photos)?pack.photos:[];
+    const galleryKey='pp:'+pack.id;
+    LB_GALLERIES[galleryKey]=photos.map((p,i)=>({photo:p,label:(pack.name||'Pack')+' · '+(i+1)}));
+    const photoCells=[0,1].map(slot=>{
+      const has=!!photos[slot];
+      if(has){
+        return `<div>
+          <img class="pp-photo" src="${photos[slot]}" alt="" onclick="openLbFor('${galleryKey}',${slot})">
+          <div class="pp-photo-actions">
+            <button class="pp-photo-act" onclick="event.stopPropagation();replacePackPhoto('${pack.id}',${slot})" title="Substituir">↻</button>
+            <button class="pp-photo-act danger" onclick="event.stopPropagation();removePackPhoto('${pack.id}',${slot})" title="Remover foto">✕</button>
+          </div>
+        </div>`;
+      }
+      // empty slot: clickable to add (only matters for slot 1 when slot 0 already has a photo)
+      if(slot===0){
+        return `<div><div class="pp-photo-ph" onclick="addPhotoToPack('${pack.id}',0)"><span class="icon">＋</span><span>Adicionar</span></div></div>`;
+      }
+      // slot 1 empty: show "add 2nd"
+      return `<div><div class="pp-photo-ph" onclick="addPhotoToPack('${pack.id}',1)"><span class="icon">＋</span><span>Adicionar 2ª</span></div></div>`;
+    }).join('');
+    return `<div class="pp-card" data-id="${pack.id}">
+      <div class="pp-photos">${photoCells}</div>
+      <div class="pp-body">
+        <input class="pp-name-inp" type="text" value="${esc(pack.name||'')}" placeholder="Nome do pack…" oninput="updPhotoPackName('${pack.id}',this.value)">
+        <button class="pp-rm" onclick="removePhotoPack('${pack.id}')" title="Eliminar pack">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+// Click on "+ Novo pack" → open file picker; selecting 1-2 files creates a single pack
+window.createPhotoPack=function(){
+  document.getElementById('photos-bulk-inp').click();
+};
+window.handlePhotoPackPick=async function(input){
+  const files=Array.from(input.files||[]).filter(f=>f.type&&f.type.startsWith('image/'));
+  input.value='';
+  if(!files.length)return;
+  if(files.length>2){showToast('Máx 2 fotos por pack. A usar as primeiras 2.');files.length=2;}
+  showToast(`A processar ${files.length===1?'1 foto':'2 fotos'}…`);
+  try{
+    const photos=[];
+    for(const f of files){
+      const p=await compressImage(f,PACK_PHOTO_MAX_DIM,PACK_PHOTO_QUALITY);
+      photos.push(p);
+    }
+    if(!Array.isArray(state.photoPacks))state.photoPacks=[];
+    state.photoPacks.push({
+      id:'pp-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),
+      name:'',
+      photos,
+      createdAt:Date.now()
+    });
+    renderPhotos();
+    scheduleSave();
+    showToast(`Pack criado · ${photos.length} ${photos.length===1?'foto':'fotos'}`);
+  }catch(e){console.error(e);showToast('Erro ao processar fotos');}
+};
+window.updPhotoPackName=function(id,name){
+  const p=state.photoPacks?.find(x=>x.id===id);
+  if(!p)return;
+  p.name=name;
+  scheduleSave();
+};
+// Add a photo to slot 0 (creates new pack from picker if pack has no photos)
+// or to slot 1 (adds second photo to existing pack)
+window.addPhotoToPack=function(id,slot){
+  const p=state.photoPacks?.find(x=>x.id===id);
+  if(!p)return;
+  // Spawn a hidden input
+  const inp=document.createElement('input');
+  inp.type='file';
+  inp.accept='image/*';
+  inp.onchange=async()=>{
+    const f=inp.files?.[0];
+    if(!f)return;
+    try{
+      const photo=await compressImage(f,PACK_PHOTO_MAX_DIM,PACK_PHOTO_QUALITY);
+      if(!Array.isArray(p.photos))p.photos=[];
+      p.photos[slot]=photo;
+      // Ensure array is dense (no holes)
+      p.photos=p.photos.filter(x=>x);
+      renderPhotos();
+      scheduleSave();
+    }catch(e){console.error(e);showToast('Erro ao processar foto');}
+  };
+  inp.click();
+};
+window.replacePackPhoto=function(id,slot){
+  const p=state.photoPacks?.find(x=>x.id===id);
+  if(!p)return;
+  const inp=document.createElement('input');
+  inp.type='file';
+  inp.accept='image/*';
+  inp.onchange=async()=>{
+    const f=inp.files?.[0];
+    if(!f)return;
+    try{
+      const photo=await compressImage(f,PACK_PHOTO_MAX_DIM,PACK_PHOTO_QUALITY);
+      p.photos[slot]=photo;
+      renderPhotos();
+      scheduleSave();
+    }catch(e){console.error(e);showToast('Erro ao processar foto');}
+  };
+  inp.click();
+};
+window.removePackPhoto=function(id,slot){
+  const p=state.photoPacks?.find(x=>x.id===id);
+  if(!p||!Array.isArray(p.photos))return;
+  if(p.photos.length<=1){
+    // Removing the last photo: confirm + remove whole pack
+    if(!confirm('Esta é a última foto. Eliminar o pack inteiro?'))return;
+    state.photoPacks=state.photoPacks.filter(x=>x.id!==id);
+  }else{
+    p.photos.splice(slot,1);
+  }
+  renderPhotos();
+  scheduleSave();
+};
+window.removePhotoPack=function(id){
+  if(!confirm('Eliminar este pack?'))return;
+  state.photoPacks=(state.photoPacks||[]).filter(x=>x.id!==id);
+  renderPhotos();
+  scheduleSave();
+};
+// end PHOTO PACKS
 let presenceRefreshTimer=null;
 async function renderPresence(){
   const el=document.getElementById('presence-indicator');
