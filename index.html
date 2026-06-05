@@ -1405,10 +1405,9 @@ async function doSave(){
   try{
     const base=n=>doc(db,'shared','data','docs',n);
     // split array items into chunks that fit Firestore's 1MB/doc limit
-    // we aim for ~700KB per chunk to leave headroom; fallback to smaller if huge photos
+    // we aim for ~600KB per chunk to leave generous headroom
     async function saveChunked(prefix,items){
-      // serialize items individually, pack until chunk exceeds threshold
-      const MAX_CHUNK_BYTES=700*1024;
+      const MAX_CHUNK_BYTES=600*1024;
       const chunks=[];
       let current=[],curSize=0;
       for(const item of items){
@@ -1426,20 +1425,35 @@ async function doSave(){
       for(let i=chunks.length;i<20;i++){writes.push(setDoc(base(`${prefix}_chunk_${i}`),{items:[],_stale:true}));}
       await Promise.all(writes);
     }
-    await Promise.all([
-      setDoc(base('config'),{locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme,ts:Date.now()}),
-      saveChunked('outfits',state.config.outfits),
-      saveChunked('joias',state.config.joias||[]),
-      saveChunked('sapatos',state.config.sapatos||[]),
-      saveChunked('scarves',state.config.scarves),
-      saveChunked('models',state.config.models),
-      saveChunked('locations',state.config.locations||[]),
-      saveChunked('looks',state.looks),
-      saveChunked('photoPacks',state.photoPacks||[]),
-      setDoc(base('team'),{items:state.team,production:state.production||{costs:[]},ui:state.ui})
-    ]);
-    saveCache(state);setSyncStatus('ok');
-  }catch(e){console.error(e);setSyncStatus('offline');showToast('⚠️ Erro ao guardar');}
+    // Use allSettled so partial failures don't mask which component failed
+    const ops=[
+      {name:'config',p:setDoc(base('config'),{locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme,ts:Date.now()})},
+      {name:'outfits',p:saveChunked('outfits',state.config.outfits)},
+      {name:'joias',p:saveChunked('joias',state.config.joias||[])},
+      {name:'sapatos',p:saveChunked('sapatos',state.config.sapatos||[])},
+      {name:'scarves',p:saveChunked('scarves',state.config.scarves)},
+      {name:'models',p:saveChunked('models',state.config.models)},
+      {name:'locations',p:saveChunked('locations',state.config.locations||[])},
+      {name:'looks',p:saveChunked('looks',state.looks)},
+      {name:'photoPacks',p:saveChunked('photoPacks',state.photoPacks||[])},
+      {name:'team',p:setDoc(base('team'),{items:state.team,production:state.production||{costs:[]},ui:state.ui})}
+    ];
+    const results=await Promise.allSettled(ops.map(o=>o.p));
+    const failed=[];
+    results.forEach((r,i)=>{
+      if(r.status==='rejected'){
+        const opName=ops[i].name;
+        console.error(`[doSave] ${opName} FAILED:`,r.reason);
+        failed.push(opName);
+      }
+    });
+    if(failed.length){
+      setSyncStatus('offline');
+      showToast(`⚠️ Falhou guardar: ${failed.join(', ')}`);
+    }else{
+      saveCache(state);setSyncStatus('ok');
+    }
+  }catch(e){console.error('[doSave] catastrophic:',e);setSyncStatus('offline');showToast('⚠️ Erro ao guardar');}
 }
 async function loadChunked(base,prefix){
   const metaSnap=await getDoc(base(prefix));
@@ -1482,9 +1496,29 @@ async function loadFromFirestore(){
       if(teamSnap.exists()){state.team=teamSnap.data().items||[];const prod=teamSnap.data().production;if(prod&&Array.isArray(prod.costs))state.production={costs:prod.costs};if(teamSnap.data().ui){const {currentIdx,filter,...restUi}=teamSnap.data().ui;state.ui={...state.ui,...restUi};}}
     }
     pruneOrphanReferences();
+    ensureDefaultCategories();
     applyTheme();renderFilters();buildCarousel();updateCounter();setSyncStatus('ok');saveCache(state);
     startRemoteWatch();
   }catch(e){console.error('Firebase:',e);setSyncStatus('offline');}
+}
+// Ensure essential categories exist; idempotent, only adds if missing.
+// Tolerates singular/plural variants — won't duplicate.
+function ensureDefaultCategories(){
+  if(!Array.isArray(state.config.cats))state.config.cats=[];
+  const have=new Set(state.config.cats.map(([n])=>String(n||'').toLowerCase()));
+  // Required categories with their preferred display name
+  const required=[
+    {variants:['vestido','vestidos'],label:'Vestidos'},
+    {variants:['saia','saias'],label:'Saias'}
+  ];
+  let added=0;
+  required.forEach(r=>{
+    if(!r.variants.some(v=>have.has(v))){
+      state.config.cats.push([r.label,0,[]]);
+      added++;
+    }
+  });
+  if(added){console.log(`[migrate] Added ${added} missing default categor${added===1?'y':'ies'}.`);scheduleSave();}
 }
 // Drops names from look fields that no longer exist in the catalog.
 // Runs once after a full load — handles legacy data corrupted by the rename bug.
@@ -3264,8 +3298,8 @@ window.removeProductionCost=function(id){
 // end PRODUCTION COSTS
 
 // ── PHOTO PACKS ──
-const PACK_PHOTO_MAX_DIM=800;
-const PACK_PHOTO_QUALITY=0.65;
+const PACK_PHOTO_MAX_DIM=700;
+const PACK_PHOTO_QUALITY=0.6;
 function renderPhotos(){
   if(!Array.isArray(state.photoPacks))state.photoPacks=[];
   const allPacks=[...state.photoPacks].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
