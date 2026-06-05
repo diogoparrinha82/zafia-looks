@@ -1408,6 +1408,17 @@ async function doSave(){
     // we aim for ~600KB per chunk to leave generous headroom
     async function saveChunked(prefix,items){
       const MAX_CHUNK_BYTES=600*1024;
+      const SAFETY_LIMIT=900*1024; // Firestore hard limit is 1MiB per doc; leave headroom
+      // Pre-validate: any single oversized item is fatal — refuse to corrupt the meta
+      for(let idx=0;idx<items.length;idx++){
+        const item=items[idx];
+        const sz=JSON.stringify(item).length;
+        if(sz>SAFETY_LIMIT){
+          const label=item?.name?` "${item.name}"`:` #${idx+1}`;
+          throw new Error(`${prefix}: item${label} tem ${Math.round(sz/1024)}KB (limite ${SAFETY_LIMIT/1024}KB)`);
+        }
+      }
+      // Build chunks
       const chunks=[];
       let current=[],curSize=0;
       for(const item of items){
@@ -1416,14 +1427,17 @@ async function doSave(){
         current.push(item);curSize+=sz;
       }
       if(current.length)chunks.push(current);
-      // write chunks as prefix_chunk_0, prefix_chunk_1, ...
-      const writes=chunks.map((ch,i)=>setDoc(base(`${prefix}_chunk_${i}`),{items:ch}));
-      // meta doc records chunk count so loader knows how many to fetch + writer for snapshot deduping
+      // STEP 1: write all chunks FIRST. If any fails, throw BEFORE touching the meta doc.
+      // This preserves the previous-good meta so the loader never points to missing chunks.
+      const chunkWrites=chunks.map((ch,i)=>setDoc(base(`${prefix}_chunk_${i}`),{items:ch}));
+      await Promise.all(chunkWrites);
+      // STEP 2: only after all chunks succeed, update the meta doc
       const writerTag=sessionStorage.getItem('aos_tab_id')||'unknown';
-      writes.push(setDoc(base(prefix),{chunked:true,chunks:chunks.length,ts:Date.now(),_writer:writerTag}));
-      // clean up old stale chunks (best-effort: overwrite beyond current count with empty)
-      for(let i=chunks.length;i<20;i++){writes.push(setDoc(base(`${prefix}_chunk_${i}`),{items:[],_stale:true}));}
-      await Promise.all(writes);
+      await setDoc(base(prefix),{chunked:true,chunks:chunks.length,ts:Date.now(),_writer:writerTag});
+      // STEP 3: cleanup stale chunks beyond the current count (best-effort)
+      const cleanup=[];
+      for(let i=chunks.length;i<20;i++){cleanup.push(setDoc(base(`${prefix}_chunk_${i}`),{items:[],_stale:true}));}
+      try{await Promise.all(cleanup);}catch(e){console.warn(`[saveChunked] ${prefix}: cleanup partial fail (non-critical):`,e);}
     }
     // Use allSettled so partial failures don't mask which component failed
     const ops=[
@@ -1440,16 +1454,20 @@ async function doSave(){
     ];
     const results=await Promise.allSettled(ops.map(o=>o.p));
     const failed=[];
+    const reasons=[];
     results.forEach((r,i)=>{
       if(r.status==='rejected'){
         const opName=ops[i].name;
         console.error(`[doSave] ${opName} FAILED:`,r.reason);
         failed.push(opName);
+        reasons.push(`${opName}: ${r.reason?.message||r.reason}`);
       }
     });
     if(failed.length){
       setSyncStatus('offline');
-      showToast(`⚠️ Falhou guardar: ${failed.join(', ')}`);
+      // Show the first reason directly so user knows what to fix
+      const firstReason=reasons[0]||failed.join(', ');
+      showToast(`⚠️ Não guardou: ${firstReason}`);
     }else{
       saveCache(state);setSyncStatus('ok');
     }
