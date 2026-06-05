@@ -664,8 +664,10 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 /* end PRODUCTION COSTS */
 /* PHOTOS SCREEN */
 #screen-photos{background:var(--c-bg);}
-.photos-toolbar{padding:16px 22px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--c-border);background:var(--c-surface);}
-.photos-counter{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--c-text3);font-weight:600;flex:1;}
+.photos-toolbar{padding:16px 22px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--c-border);background:var(--c-surface);flex-wrap:wrap;}
+.photos-counter{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--c-text3);font-weight:600;flex:1;min-width:80px;}
+.photos-filter-sel{background:var(--c-bg);border:1.5px solid var(--c-border);border-radius:var(--radius-sm);color:var(--c-text);font-family:'Inter Tight',sans-serif;font-size:.78rem;padding:6px 10px;outline:none;cursor:pointer;flex-shrink:0;}
+.photos-filter-sel:focus{border-color:var(--c-accent);}
 .photos-grid{padding:18px 22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;}
 .photos-empty{padding:60px 20px;text-align:center;color:var(--c-text3);font-family:'Inter Tight',sans-serif;font-size:.95rem;font-style:italic;grid-column:1/-1;}
 .pp-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-sm);overflow:hidden;display:flex;flex-direction:column;}
@@ -681,11 +683,20 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .pp-photo-act:hover{background:rgba(22,24,20,.92);}
 .pp-photo-act.danger{background:rgba(199,42,28,.85);}
 .pp-photo-act.danger:hover{background:#C72A1C;}
-.pp-body{padding:10px 12px 12px;display:flex;align-items:center;gap:8px;}
+.pp-body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px;}
+.pp-body-row{display:flex;align-items:center;gap:8px;}
+.pp-cat-row{display:flex;align-items:center;gap:8px;}
+.pp-cat-sel{flex:1;min-width:0;font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--c-text2);background:var(--c-card);border:1px solid var(--c-border);border-radius:4px;padding:5px 8px;outline:none;cursor:pointer;font-weight:600;}
+.pp-cat-sel:focus{border-color:var(--c-accent);}
+.pp-cat-sel.has-cat{color:#fff;}
 .pp-name-inp{flex:1;min-width:0;border:none;background:transparent;font-family:'Inter Tight',sans-serif;font-size:.92rem;font-weight:600;color:var(--c-text);outline:none;padding:4px 0;letter-spacing:-.005em;}
 .pp-name-inp::placeholder{color:var(--c-text3);font-weight:500;font-style:italic;}
 .pp-rm{background:transparent;border:none;color:var(--c-text3);cursor:pointer;font-size:1rem;padding:4px 6px;border-radius:4px;line-height:1;flex-shrink:0;}
 .pp-rm:hover{background:rgba(199,42,28,.08);color:#C72A1C;}
+.pp-retake{flex-shrink:0;width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:#C72A1C;color:#fff;border:none;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;cursor:pointer;opacity:.1;transition:opacity .15s,transform .12s;padding:0;line-height:1;}
+.pp-retake:hover{opacity:.55;}
+.pp-retake.on{opacity:1;}
+.pp-retake.on:hover{opacity:1;transform:scale(1.06);}
 @media(max-width:560px){
   .photos-grid{padding:14px 14px;gap:14px;grid-template-columns:1fr;}
   .photos-toolbar{padding:12px 14px;}
@@ -1230,8 +1241,11 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
   <div class="scroll-area" id="photos-scroll">
     <div class="photos-toolbar">
       <div class="photos-counter" id="photos-counter">0 packs</div>
+      <select id="photos-filter" onchange="renderPhotos()" class="photos-filter-sel">
+        <option value="">Todas as categorias</option>
+      </select>
       <input type="file" id="photos-bulk-inp" accept="image/*" multiple style="display:none" onchange="handlePhotoPackPick(this)">
-      <button class="mini-btn accent" onclick="createPhotoPack()" style="padding:8px 16px">＋ Novo pack</button>
+      <button class="mini-btn accent" onclick="createPhotoPack()" style="padding:8px 16px;flex-shrink:0">＋ Novo pack</button>
     </div>
     <div class="photos-grid" id="photos-grid"></div>
     <div style="height:20px"></div>
@@ -1510,6 +1524,11 @@ function pruneOrphanReferences(){
     const before=L.models.length;
     L.models=L.models.filter(n=>valid.models.has(n));
     pruned+=before-L.models.length;
+  });
+  // Photo packs reference category names
+  const validCats=new Set((state.config.cats||[]).map(([n])=>n));
+  (state.photoPacks||[]).forEach(p=>{
+    if(p.category&&!validCats.has(p.category)){p.category='';pruned++;}
   });
   if(pruned){console.log(`Pruned ${pruned} orphan reference(s) from looks and locations.`);scheduleSave();}
 }
@@ -3249,16 +3268,47 @@ const PACK_PHOTO_MAX_DIM=800;
 const PACK_PHOTO_QUALITY=0.65;
 function renderPhotos(){
   if(!Array.isArray(state.photoPacks))state.photoPacks=[];
-  const packs=[...state.photoPacks].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const allPacks=[...state.photoPacks].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  // Populate filter dropdown options (idempotent — preserves selected value)
+  const filterSel=document.getElementById('photos-filter');
+  const filterVal=filterSel?filterSel.value:'';
+  if(filterSel){
+    const cats=(state.config.cats||[]).map(([n])=>n);
+    // Counts per category (use all packs, not filtered)
+    const counts={};
+    cats.forEach(c=>counts[c]=0);
+    let noneCt=0;
+    allPacks.forEach(p=>{
+      const c=p.category||'';
+      if(c&&counts[c]!==undefined)counts[c]++;
+      else if(!c)noneCt++;
+    });
+    let opts=`<option value="">Todas as categorias (${allPacks.length})</option>`;
+    cats.forEach(c=>{if(counts[c]>0)opts+=`<option value="${esc(c)}"${filterVal===c?' selected':''}>${esc(c)} · ${counts[c]}</option>`;});
+    if(noneCt>0)opts+=`<option value="__none"${filterVal==='__none'?' selected':''}>Sem categoria · ${noneCt}</option>`;
+    filterSel.innerHTML=opts;
+    // Preserve selection that may no longer be valid
+    if(filterVal&&filterSel.value!==filterVal)filterSel.value='';
+  }
+  // Filter packs
+  const activeFilter=filterSel?filterSel.value:'';
+  let packs=allPacks;
+  if(activeFilter==='__none')packs=allPacks.filter(p=>!p.category);
+  else if(activeFilter)packs=allPacks.filter(p=>p.category===activeFilter);
   const counter=document.getElementById('photos-counter');
-  if(counter)counter.textContent=`${packs.length} ${packs.length===1?'pack':'packs'}`;
+  if(counter){
+    const totalLbl=allPacks.length===1?'pack':'packs';
+    if(activeFilter)counter.textContent=`${packs.length} de ${allPacks.length} ${totalLbl}`;
+    else counter.textContent=`${allPacks.length} ${totalLbl}`;
+  }
   const grid=document.getElementById('photos-grid');
   if(!grid)return;
   if(!packs.length){
-    grid.innerHTML='<div class="photos-empty">Ainda não há fotos. Cria o primeiro pack acima.</div>';
+    grid.innerHTML=`<div class="photos-empty">${activeFilter?'Nenhum pack nesta categoria.':'Ainda não há fotos. Cria o primeiro pack acima.'}</div>`;
     return;
   }
-  // Build a lightbox gallery per pack for navigation
+  // Categories for dropdowns
+  const cats=(state.config.cats||[]).map(([n])=>n);
   grid.innerHTML=packs.map(pack=>{
     const photos=Array.isArray(pack.photos)?pack.photos:[];
     const galleryKey='pp:'+pack.id;
@@ -3274,18 +3324,28 @@ function renderPhotos(){
           </div>
         </div>`;
       }
-      // empty slot: clickable to add (only matters for slot 1 when slot 0 already has a photo)
       if(slot===0){
         return `<div><div class="pp-photo-ph" onclick="addPhotoToPack('${pack.id}',0)"><span class="icon">＋</span><span>Adicionar</span></div></div>`;
       }
-      // slot 1 empty: show "add 2nd"
       return `<div><div class="pp-photo-ph" onclick="addPhotoToPack('${pack.id}',1)"><span class="icon">＋</span><span>Adicionar 2ª</span></div></div>`;
     }).join('');
+    // Category dropdown for this pack
+    const packCat=pack.category||'';
+    const catColor=packCat?(CAT_COLORS[catColorIdx(packCat)]||'#888'):'';
+    const catStyle=packCat?`background:${catColor};border-color:${catColor};`:'';
+    const catCls=packCat?'has-cat':'';
+    const catOptions=`<option value="">— Categoria —</option>`+cats.map(c=>`<option value="${esc(c)}"${packCat===c?' selected':''}>${esc(c)}</option>`).join('');
     return `<div class="pp-card" data-id="${pack.id}">
       <div class="pp-photos">${photoCells}</div>
       <div class="pp-body">
-        <input class="pp-name-inp" type="text" value="${esc(pack.name||'')}" placeholder="Nome do pack…" oninput="updPhotoPackName('${pack.id}',this.value)">
-        <button class="pp-rm" onclick="removePhotoPack('${pack.id}')" title="Eliminar pack">✕</button>
+        <div class="pp-body-row">
+          <input class="pp-name-inp" type="text" value="${esc(pack.name||'')}" placeholder="Nome do pack…" oninput="updPhotoPackName('${pack.id}',this.value)">
+          <button class="pp-retake${pack.needsRetake?' on':''}" onclick="togglePackRetake('${pack.id}')" title="${pack.needsRetake?'Marcado para repetir':'Marcar para repetir'}">R</button>
+          <button class="pp-rm" onclick="removePhotoPack('${pack.id}')" title="Eliminar pack">✕</button>
+        </div>
+        <div class="pp-cat-row">
+          <select class="pp-cat-sel ${catCls}" style="${catStyle}" onchange="updPhotoPackCategory('${pack.id}',this.value)">${catOptions}</select>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -3322,6 +3382,26 @@ window.updPhotoPackName=function(id,name){
   const p=state.photoPacks?.find(x=>x.id===id);
   if(!p)return;
   p.name=name;
+  scheduleSave();
+};
+window.updPhotoPackCategory=function(id,cat){
+  const p=state.photoPacks?.find(x=>x.id===id);
+  if(!p)return;
+  p.category=cat||'';
+  // Re-render so the chip color updates + filter dropdown counts update
+  renderPhotos();
+  scheduleSave();
+};
+window.togglePackRetake=function(id){
+  const p=state.photoPacks?.find(x=>x.id===id);
+  if(!p)return;
+  p.needsRetake=!p.needsRetake;
+  // Local DOM update without full re-render (avoids losing input focus / scroll position)
+  const btn=document.querySelector(`.pp-card[data-id="${id}"] .pp-retake`);
+  if(btn){
+    btn.classList.toggle('on',p.needsRetake);
+    btn.title=p.needsRetake?'Marcado para repetir':'Marcar para repetir';
+  }
   scheduleSave();
 };
 // Add a photo to slot 0 (creates new pack from picker if pack has no photos)
