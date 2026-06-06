@@ -1257,6 +1257,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
         <option value="name">Nome A-Z</option>
       </select>
       <input type="file" id="photos-bulk-inp" accept="image/*" multiple style="display:none" onchange="handlePhotoPackPick(this)">
+      <button class="mini-btn" style="padding:8px 14px;flex-shrink:0;background:transparent;border:1.5px solid var(--c-border);font-size:.72rem" onclick="diagnosePhotoPacks()" title="Diagnosticar problemas de save">🔍 Diagnóstico</button>
       <button class="mini-btn accent" onclick="createPhotoPack()" style="padding:8px 16px;flex-shrink:0">＋ Novo pack</button>
     </div>
     <div class="photos-grid" id="photos-grid"></div>
@@ -1430,13 +1431,29 @@ async function doSave(){
     async function saveChunked(prefix,items){
       const MAX_CHUNK_BYTES=600*1024;
       const SAFETY_LIMIT=900*1024; // Firestore hard limit is 1MiB per doc; leave headroom
-      // Pre-validate: any single oversized item is fatal — refuse to corrupt the meta
-      for(let idx=0;idx<items.length;idx++){
-        const item=items[idx];
-        const sz=JSON.stringify(item).length;
-        if(sz>SAFETY_LIMIT){
-          const label=item?.name?` "${item.name}"`:` #${idx+1}`;
-          throw new Error(`${prefix}: item${label} tem ${Math.round(sz/1024)}KB (limite ${SAFETY_LIMIT/1024}KB)`);
+      // For photoPacks: isolate oversized items instead of aborting the whole save.
+      // Saving 48/49 packs is much better than saving 0/49.
+      const skipped=[];
+      if(prefix==='photoPacks'){
+        items=items.filter((item,idx)=>{
+          const sz=JSON.stringify(item).length;
+          if(sz>SAFETY_LIMIT){
+            const label=item?.name?`"${item.name}"`:`#${idx+1}`;
+            skipped.push(`${label} (${Math.round(sz/1024)}KB)`);
+            console.warn(`[saveChunked] photoPacks: skipping oversized pack ${label} – ${Math.round(sz/1024)}KB`);
+            return false;
+          }
+          return true;
+        });
+      }else{
+        // For other types: keep old strict behaviour (no quiet corruption of catalog data)
+        for(let idx=0;idx<items.length;idx++){
+          const item=items[idx];
+          const sz=JSON.stringify(item).length;
+          if(sz>SAFETY_LIMIT){
+            const label=item?.name?` "${item.name}"`:` #${idx+1}`;
+            throw new Error(`${prefix}: item${label} tem ${Math.round(sz/1024)}KB (limite ${SAFETY_LIMIT/1024}KB)`);
+          }
         }
       }
       // Build chunks
@@ -1459,6 +1476,12 @@ async function doSave(){
       const cleanup=[];
       for(let i=chunks.length;i<20;i++){cleanup.push(setDocT(base(`${prefix}_chunk_${i}`),{items:[],_stale:true},10000));}
       try{await Promise.all(cleanup);}catch(e){console.warn(`[saveChunked] ${prefix}: cleanup partial fail (non-critical):`,e);}
+      // Report what was skipped (so the user knows)
+      if(skipped.length){
+        const msg=`${prefix}: ${skipped.length} item(s) não gravados — demasiado grandes: ${skipped.join(', ')}`;
+        // Throw a "soft" error: save did succeed for the others, but report so toast surfaces
+        throw new Error(msg);
+      }
     }
     // Use allSettled so partial failures don't mask which component failed
     const ops=[
@@ -3361,6 +3384,152 @@ function updatePhotoSaveFabState(state){
   if(photoPacksPendingChanges){fab.classList.add('pending');fab.textContent='Guardar alterações';}
   else fab.textContent='Guardar alterações';
 }
+window.diagnosePhotoPacks=function(){
+  const packs=state.photoPacks||[];
+  const SAFETY_LIMIT=900*1024; // matches saveChunked threshold
+  const WARN_LIMIT=600*1024;
+  const audit=packs.map((p,i)=>{
+    const json=JSON.stringify(p);
+    const jsonSize=json.length;
+    const photosSizes=(Array.isArray(p.photos)?p.photos:[]).map(ph=>(ph||'').length);
+    const photosTotal=photosSizes.reduce((s,n)=>s+n,0);
+    // Detect anomalies
+    const issues=[];
+    if(!Array.isArray(p.photos))issues.push('photos não é array');
+    if(Array.isArray(p.photos)&&p.photos.some(x=>!x))issues.push('foto null/undefined');
+    if(Array.isArray(p.photos)&&p.photos.some(x=>x&&typeof x!=='string'))issues.push('foto não-string');
+    if(jsonSize>SAFETY_LIMIT)issues.push(`JSON ${Math.round(jsonSize/1024)}KB > limite ${SAFETY_LIMIT/1024}KB`);
+    else if(jsonSize>WARN_LIMIT)issues.push(`JSON ${Math.round(jsonSize/1024)}KB (perto do limite)`);
+    if(!p.id)issues.push('sem id');
+    return {idx:i,pack:p,jsonSize,photosTotal,photosSizes,issues};
+  });
+  const broken=audit.filter(a=>a.issues.some(i=>i.includes('limite')||i.includes('não é array')||i.includes('null')||i.includes('não-string')||i.includes('sem id')));
+  const warnings=audit.filter(a=>!broken.includes(a)&&a.issues.length);
+  // Total payload size when serialised together
+  const totalPayload=JSON.stringify(packs).length;
+  const totalChunks=Math.ceil(totalPayload/(600*1024));
+  // Build modal HTML
+  const fmtKB=n=>Math.round(n/1024)+' KB';
+  let html=`
+    <div style="padding:18px 22px;border-bottom:1px solid var(--c-border);display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-family:'Inter Tight',sans-serif;font-size:1.1rem;font-weight:700;color:var(--c-text);">Diagnóstico Photo Packs</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text3);margin-top:3px;">${packs.length} packs · ${fmtKB(totalPayload)} total · ${totalChunks} chunks Firestore</div>
+      </div>
+      <button onclick="closeDiagnoseModal()" style="background:transparent;border:none;color:var(--c-text2);font-size:1.4rem;cursor:pointer;">✕</button>
+    </div>
+    <div style="padding:14px 22px;overflow-y:auto;flex:1;">`;
+  if(!packs.length){html+=`<div style="text-align:center;color:var(--c-text3);padding:30px;">Não há packs.</div>`;}
+  else{
+    if(broken.length){
+      html+=`<div style="background:rgba(199,42,28,.08);border-left:3px solid #C72A1C;padding:12px 14px;border-radius:4px;margin-bottom:14px;">
+        <div style="font-weight:700;color:#C72A1C;font-size:.95rem;margin-bottom:4px;">⚠ ${broken.length} pack${broken.length>1?'s':''} com problemas críticos</div>
+        <div style="font-size:.78rem;color:var(--c-text2);">Estes packs estão a bloquear o save de todos os outros.</div>
+      </div>`;
+    }else if(warnings.length){
+      html+=`<div style="background:rgba(245,166,35,.08);border-left:3px solid #f5a623;padding:12px 14px;border-radius:4px;margin-bottom:14px;">
+        <div style="font-weight:700;color:#9a7320;font-size:.95rem;margin-bottom:4px;">${warnings.length} pack${warnings.length>1?'s':''} perto do limite</div>
+        <div style="font-size:.78rem;color:var(--c-text2);">Funcionam por agora mas podem falhar futuramente.</div>
+      </div>`;
+    }else{
+      html+=`<div style="background:rgba(58,125,58,.08);border-left:3px solid #3a7d3a;padding:12px 14px;border-radius:4px;margin-bottom:14px;">
+        <div style="font-weight:700;color:#3a7d3a;font-size:.95rem;">✓ Todos os packs estão dentro dos limites</div>
+        <div style="font-size:.78rem;color:var(--c-text2);margin-top:3px;">Se ainda há perda de dados, o problema não é de tamanho.</div>
+      </div>`;
+    }
+    // Table of all packs
+    html+=`<div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;">
+      <div style="display:grid;grid-template-columns:34px 1fr 60px 70px 1fr;gap:8px;padding:8px 4px;border-bottom:1px solid var(--c-border);font-weight:700;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text3);">
+        <div>#</div><div>Nome</div><div style="text-align:right;">Fotos</div><div style="text-align:right;">Total</div><div>Problemas</div>
+      </div>`;
+    audit.forEach(a=>{
+      const isBroken=broken.includes(a);
+      const isWarn=warnings.includes(a);
+      const bg=isBroken?'background:rgba(199,42,28,.06);':isWarn?'background:rgba(245,166,35,.06);':'';
+      const issueColor=isBroken?'#C72A1C':isWarn?'#9a7320':'var(--c-text3)';
+      html+=`<div style="display:grid;grid-template-columns:34px 1fr 60px 70px 1fr;gap:8px;padding:8px 4px;border-bottom:1px solid var(--c-border);${bg}align-items:center;">
+        <div style="color:var(--c-text3);">${a.idx+1}</div>
+        <div style="font-family:'Inter Tight',sans-serif;font-size:.82rem;color:var(--c-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(a.pack.name||'(sem nome)')}</div>
+        <div style="text-align:right;color:var(--c-text2);">${(a.pack.photos||[]).length}</div>
+        <div style="text-align:right;color:${isBroken?'#C72A1C':'var(--c-text)'};font-weight:${isBroken||isWarn?'700':'400'};">${fmtKB(a.jsonSize)}</div>
+        <div style="color:${issueColor};font-family:'Inter Tight',sans-serif;font-size:.74rem;">${a.issues.length?esc(a.issues.join(' · ')):'—'}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+    // Action buttons
+    if(broken.length){
+      html+=`<div style="margin-top:18px;padding:14px;background:var(--c-card);border-radius:6px;">
+        <div style="font-family:'Inter Tight',sans-serif;font-size:.85rem;color:var(--c-text);margin-bottom:10px;font-weight:600;">Acções disponíveis</div>
+        <button onclick="if(confirm('Eliminar ${broken.length} pack(s) problemáticos? Esta acção não pode ser desfeita.'))deleteBrokenPacks();" style="background:#C72A1C;color:#fff;border:none;border-radius:6px;padding:9px 16px;font-family:'Inter Tight',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;margin-right:8px;">Eliminar ${broken.length} pack(s) problemáticos</button>
+        <button onclick="recompressBigPacks()" style="background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:9px 16px;font-family:'Inter Tight',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;">Recomprimir fotos grandes</button>
+      </div>`;
+    }
+  }
+  html+=`</div>`;
+  // Show modal
+  let ovl=document.getElementById('diag-ovl');
+  if(!ovl){
+    ovl=document.createElement('div');
+    ovl.id='diag-ovl';
+    ovl.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    ovl.onclick=(e)=>{if(e.target===ovl)closeDiagnoseModal();};
+    document.body.appendChild(ovl);
+  }
+  ovl.innerHTML=`<div style="background:var(--c-bg);border-radius:10px;max-width:880px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;">${html}</div>`;
+  // Also log compact summary to console
+  console.group('[Photo Packs Diagnostic]');
+  console.log(`Total packs: ${packs.length}, total size: ${fmtKB(totalPayload)}`);
+  console.log(`Broken (will block save): ${broken.length}`);
+  broken.forEach(a=>console.warn(`  #${a.idx+1} "${a.pack.name||'(sem nome)'}" – ${fmtKB(a.jsonSize)} – ${a.issues.join(', ')}`));
+  console.log(`Warnings (near limit): ${warnings.length}`);
+  warnings.forEach(a=>console.log(`  #${a.idx+1} "${a.pack.name||'(sem nome)'}" – ${fmtKB(a.jsonSize)}`));
+  console.groupEnd();
+};
+window.closeDiagnoseModal=function(){const o=document.getElementById('diag-ovl');if(o)o.remove();};
+window.deleteBrokenPacks=function(){
+  const SAFETY_LIMIT=900*1024;
+  const before=(state.photoPacks||[]).length;
+  state.photoPacks=(state.photoPacks||[]).filter(p=>{
+    if(!p.id)return false;
+    if(!Array.isArray(p.photos))return false;
+    if(p.photos.some(x=>!x||typeof x!=='string'))return false;
+    if(JSON.stringify(p).length>SAFETY_LIMIT)return false;
+    return true;
+  });
+  const removed=before-state.photoPacks.length;
+  closeDiagnoseModal();
+  renderPhotos();
+  markPhotoPacksPending();
+  scheduleSave();
+  showToast(`${removed} pack(s) removido(s). Faz "Guardar alterações".`);
+};
+window.recompressBigPacks=async function(){
+  const SAFETY_LIMIT=900*1024;
+  const big=(state.photoPacks||[]).filter(p=>JSON.stringify(p).length>SAFETY_LIMIT);
+  if(!big.length){showToast('Não há packs para recomprimir.');return;}
+  showToast(`A recomprimir ${big.length} pack(s)…`);
+  closeDiagnoseModal();
+  for(const p of big){
+    if(!Array.isArray(p.photos))continue;
+    const newPhotos=[];
+    for(const dataUrl of p.photos){
+      if(!dataUrl){continue;}
+      try{
+        // Decode base64 back to blob, then recompress more aggressively (500px @ 0.5)
+        const res=await fetch(dataUrl);
+        const blob=await res.blob();
+        const file=new File([blob],'recompress.jpg',{type:'image/jpeg'});
+        const recompressed=await compressImage(file,500,0.5);
+        newPhotos.push(recompressed);
+      }catch(e){console.error('[recompress] failed for one photo:',e);newPhotos.push(dataUrl);}
+    }
+    p.photos=newPhotos;
+  }
+  renderPhotos();
+  markPhotoPacksPending();
+  scheduleSave();
+  showToast('Recompressão concluída. Faz "Guardar alterações".');
+};
 window.forceSavePhotos=async function(){
   updatePhotoSaveFabState('saving');
   // Top-level safety net: even if doSave somehow hangs, the UI never gets stuck
