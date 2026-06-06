@@ -1418,13 +1418,33 @@ function scheduleSave(){clearTimeout(saveTimer);setSyncStatus('syncing');saveTim
 async function doSave(){
   try{
     const base=n=>doc(db,'shared','data','docs',n);
-    // Wrap setDoc with a hard timeout so a stalled write never hangs the whole save.
-    // Firestore can occasionally hang on docs near the 1MiB limit or with flaky connectivity.
-    function setDocT(ref,data,ms=18000){
-      return Promise.race([
-        setDoc(ref,data),
-        new Promise((_,reject)=>setTimeout(()=>reject(new Error(`timeout (${ms/1000}s)`)),ms))
-      ]);
+    // Wrap setDoc with timeout AND retry-on-transient-failure.
+    // Most Firestore write failures are transient (network blip, rate limit) and clear within seconds.
+    async function setDocT(ref,data,ms=30000,attempts=3){
+      let lastErr;
+      for(let i=0;i<attempts;i++){
+        try{
+          await Promise.race([
+            setDoc(ref,data),
+            new Promise((_,reject)=>setTimeout(()=>reject(new Error(`timeout (${ms/1000}s)`)),ms))
+          ]);
+          return; // success
+        }catch(e){
+          lastErr=e;
+          // Don't retry permission errors or invalid-argument — they won't fix themselves
+          const code=e?.code||'';
+          if(code==='permission-denied'||code==='invalid-argument'||code==='unauthenticated'){
+            throw e;
+          }
+          // Exponential backoff: 1s, 3s, 7s
+          if(i<attempts-1){
+            const wait=[1000,3000,7000][i]||1000;
+            console.warn(`[setDocT] attempt ${i+1}/${attempts} failed (${e?.code||e?.message}); retrying in ${wait}ms`);
+            await new Promise(r=>setTimeout(r,wait));
+          }
+        }
+      }
+      throw lastErr;
     }
     // split array items into chunks that fit Firestore's 1MB/doc limit
     // we aim for ~600KB per chunk to leave generous headroom
@@ -1467,8 +1487,12 @@ async function doSave(){
       if(current.length)chunks.push(current);
       // STEP 1: write all chunks FIRST. If any fails, throw BEFORE touching the meta doc.
       // This preserves the previous-good meta so the loader never points to missing chunks.
-      const chunkWrites=chunks.map((ch,i)=>setDocT(base(`${prefix}_chunk_${i}`),{items:ch}));
-      await Promise.all(chunkWrites);
+      // Use small parallel batches (4 at a time) instead of all-at-once to avoid Firestore rate limits.
+      const BATCH_SIZE=4;
+      for(let i=0;i<chunks.length;i+=BATCH_SIZE){
+        const slice=chunks.slice(i,i+BATCH_SIZE);
+        await Promise.all(slice.map((ch,j)=>setDocT(base(`${prefix}_chunk_${i+j}`),{items:ch})));
+      }
       // STEP 2: only after all chunks succeed, update the meta doc
       const writerTag=sessionStorage.getItem('aos_tab_id')||'unknown';
       await setDocT(base(prefix),{chunked:true,chunks:chunks.length,ts:Date.now(),_writer:writerTag});
@@ -1504,7 +1528,9 @@ async function doSave(){
         const opName=ops[i].name;
         console.error(`[doSave] ${opName} FAILED:`,r.reason);
         failed.push(opName);
-        reasons.push(`${opName}: ${r.reason?.message||r.reason}`);
+        const code=r.reason?.code?` [${r.reason.code}]`:'';
+        const msg=r.reason?.message||String(r.reason);
+        reasons.push(`${opName}${code}: ${msg}`);
       }
     });
     if(failed.length){
