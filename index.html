@@ -1257,7 +1257,6 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
         <option value="name">Nome A-Z</option>
       </select>
       <input type="file" id="photos-bulk-inp" accept="image/*" multiple style="display:none" onchange="handlePhotoPackPick(this)">
-      <button class="mini-btn" style="padding:8px 14px;flex-shrink:0;background:transparent;border:1.5px solid var(--c-border);font-size:.72rem" onclick="diagnosePhotoPacks()" title="Diagnosticar problemas de save">🔍 Diagnóstico</button>
       <button class="mini-btn accent" onclick="createPhotoPack()" style="padding:8px 16px;flex-shrink:0">＋ Novo pack</button>
     </div>
     <div class="photos-grid" id="photos-grid"></div>
@@ -1938,6 +1937,9 @@ window.doLogin=function(){const pwd=document.getElementById('login-pwd').value.t
 window.doLogout=function(){if(!confirm('Sair?'))return;localStorage.removeItem(SESSION_KEY);document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById('screen-login').classList.remove('hidden');};
 
 function initApp(){loadCache();loadCompareBin();state.ui.currentIdx=0;state.ui.filter='';state.config.theme={...DEFAULT_THEME};applyTheme();document.getElementById('loading').classList.add('hidden');renderFilters();buildCarousel();updateCounter();renderCompareBin();maybePulseHowToFab();switchTab('dashboard');const fbTO=setTimeout(()=>setSyncStatus('offline'),8000);loadFromFirestore().then(()=>{clearTimeout(fbTO);if(window.currentScreen==='screen-dashboard')renderDashboard();}).catch(()=>{clearTimeout(fbTO);setSyncStatus('offline');});}
+// Expose render functions to window so inline event handlers (onchange, onclick in HTML attributes)
+// can find them — module scope is not the global scope.
+window.renderPhotos=renderPhotos;
 
 window.exportData=function(){return window.exportBackup();};
 window.importData=function(input){if(!input.files[0])return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(!d.config||!d.looks)throw new Error();window.state=d;state.looks=migrateLooks(state.looks);state.config.outfits=normaliseOutfits(state.config.outfits);state.config.joias=normaliseSimple(state.config.joias,DEFAULT_JOIAS);state.config.sapatos=normaliseSimple(state.config.sapatos,DEFAULT_SAPATOS);applyTheme();renderFilters();buildCarousel();updateCounter();scheduleSave();showToast('⬆ Importado!');}catch(e){showToast('✗ Ficheiro inválido');}};r.readAsText(input.files[0]);input.value='';};
@@ -3646,7 +3648,6 @@ function renderPhotos(){
   else if(sortVal==='category')sorted.sort((a,b)=>{const ac=a.category||'',bc=b.category||'';if(!ac&&bc)return 1;if(ac&&!bc)return -1;return ac.localeCompare(bc)||(b.createdAt||0)-(a.createdAt||0);});
   else sorted.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)); // 'recent' default
   const allPacks=sorted;
-  // Populate filter dropdown options (idempotent — preserves selected value)
   const filterSel=document.getElementById('photos-filter');
   const filterVal=filterSel?filterSel.value:'';
   if(filterSel){
