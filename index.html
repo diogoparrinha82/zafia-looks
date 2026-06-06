@@ -1334,7 +1334,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc, onSnapshot, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const fbApp=initializeApp({apiKey:"AIzaSyAZZ-q7zM8gLZb8MMOL8Pj9zFeLLrtDAhk",authDomain:"book-claudya.firebaseapp.com",projectId:"book-claudya",storageBucket:"book-claudya.firebasestorage.app",messagingSenderId:"724090676677",appId:"1:724090676677:web:520ddb7efc45f839d917ac"});
 const db=getFirestore(fbApp);
@@ -1414,7 +1414,7 @@ function setSyncStatus(s){['sync-dot','sync-dot2'].forEach(id=>{const el=documen
 function catsToFS(cats){return cats.map(([name,n,t])=>({name,n,tutorials:t||[]}));}
 function catsFromFS(arr){if(!arr||!arr.length)return[];if(Array.isArray(arr[0]))return arr.map(c=>[c[0],c[1],c[2]||[]]);return arr.map(c=>[c.name,c.n,c.tutorials||[]]);}
 let saveTimer=null;
-function scheduleSave(){clearTimeout(saveTimer);setSyncStatus('syncing');saveTimer=setTimeout(doSave,1200);}
+function scheduleSave(){clearTimeout(saveTimer);setSyncStatus('syncing');saveTimer=setTimeout(doSave,3500);}
 let __doSaveInProgress=false;
 async function doSave(){
   // Prevent overlapping saves — debounce can race with manual save
@@ -1468,33 +1468,32 @@ async function doSave(){
         current.push(item);curSize+=sz;
       }
       if(current.length)chunks.push(current);
-      // STEP 0: read old meta to know how many chunks existed before.
-      // We must mark excess old chunks as stale BEFORE writing new ones, so that
-      // a mid-save failure can never leave stale chunks duplicating fresh content.
+      // Read old meta to know about old chunks (for cleanup within the same batch)
       let oldChunkCount=0;
       try{
         const oldMeta=await getDoc(base(prefix));
-        if(oldMeta.exists()){
-          const od=oldMeta.data();
-          oldChunkCount=od?.chunks||0;
-        }
+        if(oldMeta.exists())oldChunkCount=oldMeta.data()?.chunks||0;
       }catch(e){console.warn(`[saveChunked] ${prefix}: meta read failed (continuing):`,e?.message);}
-      // STEP 1: if new save has fewer chunks, mark the excess old chunks as stale FIRST.
-      // Sequentially, so we don't blow up the Firebase client queue.
-      if(oldChunkCount>chunks.length){
-        for(let i=chunks.length;i<oldChunkCount;i++){
-          try{await setDocT(base(`${prefix}_chunk_${i}`),{items:[],_stale:true});}
-          catch(e){console.warn(`[saveChunked] ${prefix}: pre-cleanup chunk_${i} failed:`,e?.message);}
-        }
-      }
-      // STEP 2: write all chunks STRICTLY SEQUENTIALLY.
-      for(let i=0;i<chunks.length;i++){
-        await setDocT(base(`${prefix}_chunk_${i}`),{items:chunks[i]});
-      }
-      // STEP 3: only after all chunks succeed, update the meta doc
+      // ATOMIC BATCH WRITE: chunks + meta + cleanup, all in one transaction.
+      // This is the fix for "resource-exhausted": instead of N writes filling the SDK queue,
+      // it's a single operation. Either all succeed (consistent) or all fail (state preserved).
       const writerTag=sessionStorage.getItem('aos_tab_id')||'unknown';
-      await setDocT(base(prefix),{chunked:true,chunks:chunks.length,ts:Date.now(),_writer:writerTag});
-      // No fire-and-forget cleanup — that was causing queue overflow.
+      const batch=writeBatch(db);
+      // Mark old excess chunks as stale (within the batch)
+      for(let i=chunks.length;i<oldChunkCount;i++){
+        batch.set(base(`${prefix}_chunk_${i}`),{items:[],_stale:true});
+      }
+      // Write all new chunks
+      for(let i=0;i<chunks.length;i++){
+        batch.set(base(`${prefix}_chunk_${i}`),{items:chunks[i]});
+      }
+      // Write meta last (within the batch)
+      batch.set(base(prefix),{chunked:true,chunks:chunks.length,ts:Date.now(),_writer:writerTag});
+      // Commit with timeout safety
+      await Promise.race([
+        batch.commit(),
+        new Promise((_,reject)=>setTimeout(()=>reject(new Error(`${prefix}: batch commit timeout (45s)`)),45000))
+      ]);
       // Report what was skipped (so the user knows)
       if(skipped.length){
         throw new Error(`${prefix}: ${skipped.length} item(s) não gravados — demasiado grandes: ${skipped.join(', ')}`);
