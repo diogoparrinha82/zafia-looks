@@ -1468,25 +1468,33 @@ async function doSave(){
         current.push(item);curSize+=sz;
       }
       if(current.length)chunks.push(current);
-      // STEP 1: write all chunks STRICTLY SEQUENTIALLY.
-      // Parallel writes fill the Firebase client queue and trigger resource-exhausted.
+      // STEP 0: read old meta to know how many chunks existed before.
+      // We must mark excess old chunks as stale BEFORE writing new ones, so that
+      // a mid-save failure can never leave stale chunks duplicating fresh content.
+      let oldChunkCount=0;
+      try{
+        const oldMeta=await getDoc(base(prefix));
+        if(oldMeta.exists()){
+          const od=oldMeta.data();
+          oldChunkCount=od?.chunks||0;
+        }
+      }catch(e){console.warn(`[saveChunked] ${prefix}: meta read failed (continuing):`,e?.message);}
+      // STEP 1: if new save has fewer chunks, mark the excess old chunks as stale FIRST.
+      // Sequentially, so we don't blow up the Firebase client queue.
+      if(oldChunkCount>chunks.length){
+        for(let i=chunks.length;i<oldChunkCount;i++){
+          try{await setDocT(base(`${prefix}_chunk_${i}`),{items:[],_stale:true});}
+          catch(e){console.warn(`[saveChunked] ${prefix}: pre-cleanup chunk_${i} failed:`,e?.message);}
+        }
+      }
+      // STEP 2: write all chunks STRICTLY SEQUENTIALLY.
       for(let i=0;i<chunks.length;i++){
         await setDocT(base(`${prefix}_chunk_${i}`),{items:chunks[i]});
       }
-      // STEP 2: only after all chunks succeed, update the meta doc
+      // STEP 3: only after all chunks succeed, update the meta doc
       const writerTag=sessionStorage.getItem('aos_tab_id')||'unknown';
       await setDocT(base(prefix),{chunked:true,chunks:chunks.length,ts:Date.now(),_writer:writerTag});
-      // STEP 3: cleanup stale chunks — only 8 ahead, fire-and-forget (don't block save).
-      // If cleanup fails, it's harmless — load checks _stale flag.
-      const CLEANUP_AHEAD=8;
-      const cleanupPromises=[];
-      for(let i=chunks.length;i<chunks.length+CLEANUP_AHEAD;i++){
-        cleanupPromises.push(setDocT(base(`${prefix}_chunk_${i}`),{items:[],_stale:true},15000).catch(e=>{
-          console.warn(`[saveChunked] ${prefix}: cleanup chunk_${i} failed (non-critical):`,e?.message);
-        }));
-      }
-      // Don't await — cleanup runs in background
-      Promise.all(cleanupPromises);
+      // No fire-and-forget cleanup — that was causing queue overflow.
       // Report what was skipped (so the user knows)
       if(skipped.length){
         throw new Error(`${prefix}: ${skipped.length} item(s) não gravados — demasiado grandes: ${skipped.join(', ')}`);
@@ -1542,7 +1550,20 @@ async function loadChunked(base,prefix){
   const chunkSnaps=await Promise.all(Array.from({length:meta.chunks},(_,i)=>getDoc(base(`${prefix}_chunk_${i}`))));
   const all=[];
   chunkSnaps.forEach(s=>{if(s.exists()){const d=s.data();if(!d._stale&&Array.isArray(d.items))all.push(...d.items);}});
-  return all;
+  // DEDUP: a partial-save failure can leave stale chunks pointing to old items
+  // that also appear (reorganised) in newly-written chunks. Dedup by id/num/name keeps the latest.
+  const seen=new Set();
+  const deduped=[];
+  for(const item of all){
+    const key=item?.id||item?.num||item?.name||JSON.stringify(item).slice(0,40);
+    if(seen.has(key))continue;
+    seen.add(key);
+    deduped.push(item);
+  }
+  if(deduped.length<all.length){
+    console.warn(`[loadChunked] ${prefix}: dedup removed ${all.length-deduped.length} duplicate(s)`);
+  }
+  return deduped;
 }
 async function loadFromFirestore(){
   try{
@@ -3468,6 +3489,17 @@ window.diagnosePhotoPacks=function(){
     });
     html+=`</div>`;
     // Action buttons
+    // Detect duplicates by id
+    const idCount={};
+    audit.forEach(a=>{if(a.pack.id){idCount[a.pack.id]=(idCount[a.pack.id]||0)+1;}});
+    const dupCount=Object.values(idCount).filter(c=>c>1).reduce((s,c)=>s+(c-1),0);
+    if(dupCount>0){
+      html+=`<div style="margin-top:18px;padding:14px;background:rgba(245,166,35,.08);border-left:3px solid #f5a623;border-radius:6px;">
+        <div style="font-family:'Inter Tight',sans-serif;font-size:.85rem;color:var(--c-text);margin-bottom:10px;font-weight:600;">⚠ ${dupCount} pack(s) duplicado(s) detectados</div>
+        <div style="font-size:.78rem;color:var(--c-text2);margin-bottom:10px;">Provavelmente vindos de saves anteriores que falharam a meio.</div>
+        <button onclick="dedupPhotoPacks()" style="background:#f5a623;color:#fff;border:none;border-radius:6px;padding:9px 16px;font-family:'Inter Tight',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;">Remover ${dupCount} duplicado(s)</button>
+      </div>`;
+    }
     if(broken.length){
       html+=`<div style="margin-top:18px;padding:14px;background:var(--c-card);border-radius:6px;">
         <div style="font-family:'Inter Tight',sans-serif;font-size:.85rem;color:var(--c-text);margin-bottom:10px;font-weight:600;">Acções disponíveis</div>
@@ -3495,6 +3527,33 @@ window.diagnosePhotoPacks=function(){
   console.log(`Warnings (near limit): ${warnings.length}`);
   warnings.forEach(a=>console.log(`  #${a.idx+1} "${a.pack.name||'(sem nome)'}" – ${fmtKB(a.jsonSize)}`));
   console.groupEnd();
+};
+window.dedupPhotoPacks=function(){
+  const before=(state.photoPacks||[]).length;
+  const seen=new Set();
+  const deduped=[];
+  // Keep first occurrence of each id (oldest by array order = oldest by creation, since we push to end)
+  // Actually prefer keeping the entry with most info — try the one with name+category set
+  const byId={};
+  (state.photoPacks||[]).forEach(p=>{
+    if(!p.id)return;
+    if(!byId[p.id])byId[p.id]=[];
+    byId[p.id].push(p);
+  });
+  Object.entries(byId).forEach(([id,arr])=>{
+    if(arr.length===1){deduped.push(arr[0]);return;}
+    // Multiple — keep the one with most info (name + category set)
+    const ranked=arr.map(p=>({p,score:(p.name?2:0)+(p.category?2:0)+((p.photos||[]).length||0)}));
+    ranked.sort((a,b)=>b.score-a.score);
+    deduped.push(ranked[0].p);
+  });
+  state.photoPacks=deduped;
+  const removed=before-deduped.length;
+  closeDiagnoseModal();
+  renderPhotos();
+  markPhotoPacksPending();
+  scheduleSave();
+  showToast(`${removed} duplicado(s) removido(s). Faz "Guardar alterações".`);
 };
 window.closeDiagnoseModal=function(){const o=document.getElementById('diag-ovl');if(o)o.remove();};
 window.deleteBrokenPacks=function(){
