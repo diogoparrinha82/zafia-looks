@@ -702,6 +702,13 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
   .photos-toolbar{padding:12px 14px;}
 }
 /* end PHOTOS SCREEN */
+.photos-save-fab{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);background:var(--c-accent);color:#fff;border:none;border-radius:999px;padding:12px 22px;font-family:'Inter Tight',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(22,24,20,.18);transition:all .2s;letter-spacing:-.005em;z-index:10;display:flex;align-items:center;gap:8px;}
+.photos-save-fab:hover{transform:translateX(-50%) translateY(-1px);box-shadow:0 6px 22px rgba(22,24,20,.24);}
+.photos-save-fab.pending::after{content:'';width:7px;height:7px;border-radius:50%;background:#f5a623;display:inline-block;}
+.photos-save-fab.saving{background:var(--c-text2);cursor:wait;pointer-events:none;}
+.photos-save-fab.saved{background:#3a7d3a;}
+.photos-save-fab.error{background:#C72A1C;}
+#screen-photos{position:relative;}
 .lightbox{position:fixed;inset:0;background:rgba(245,245,240,.96);z-index:999;display:none;align-items:center;justify-content:center;flex-direction:column;}
 .lightbox.show{display:flex;}
 .lightbox img{max-width:94vw;max-height:82vh;border-radius:10px;object-fit:contain;}
@@ -1244,12 +1251,19 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
       <select id="photos-filter" onchange="renderPhotos()" class="photos-filter-sel">
         <option value="">Todas as categorias</option>
       </select>
+      <select id="photos-sort" onchange="renderPhotos()" class="photos-filter-sel" title="Ordenação">
+        <option value="recent">Mais recente</option>
+        <option value="oldest">Mais antigo</option>
+        <option value="category">Categoria</option>
+        <option value="name">Nome A-Z</option>
+      </select>
       <input type="file" id="photos-bulk-inp" accept="image/*" multiple style="display:none" onchange="handlePhotoPackPick(this)">
       <button class="mini-btn accent" onclick="createPhotoPack()" style="padding:8px 16px;flex-shrink:0">＋ Novo pack</button>
     </div>
     <div class="photos-grid" id="photos-grid"></div>
-    <div style="height:20px"></div>
+    <div style="height:90px"></div>
   </div>
+  <button class="photos-save-fab" id="photos-save-fab" onclick="forceSavePhotos()">Guardar alterações</button>
 </div>
 
 <!-- DRAWER MENU -->
@@ -1470,6 +1484,11 @@ async function doSave(){
       showToast(`⚠️ Não guardou: ${firstReason}`);
     }else{
       saveCache(state);setSyncStatus('ok');
+      // Clear photoPacks pending flag if its save succeeded
+      if(typeof photoPacksPendingChanges!=='undefined'){
+        photoPacksPendingChanges=false;
+        if(typeof updatePhotoSaveFabState==='function')updatePhotoSaveFabState();
+      }
     }
   }catch(e){console.error('[doSave] catastrophic:',e);setSyncStatus('offline');showToast('⚠️ Erro ao guardar');}
 }
@@ -3318,9 +3337,58 @@ window.removeProductionCost=function(id){
 // ── PHOTO PACKS ──
 const PACK_PHOTO_MAX_DIM=700;
 const PACK_PHOTO_QUALITY=0.6;
+// Pending-changes tracker so the Save FAB can show state
+let photoPacksPendingChanges=false;
+function markPhotoPacksPending(){
+  photoPacksPendingChanges=true;
+  updatePhotoSaveFabState();
+}
+function updatePhotoSaveFabState(state){
+  const fab=document.getElementById('photos-save-fab');
+  if(!fab)return;
+  fab.classList.remove('pending','saving','saved','error');
+  if(state==='saving'){fab.classList.add('saving');fab.textContent='A guardar…';return;}
+  if(state==='saved'){fab.classList.add('saved');fab.textContent='✓ Guardado';return;}
+  if(state==='error'){fab.classList.add('error');fab.textContent='⚠ Erro · tentar de novo';return;}
+  // Default state
+  if(photoPacksPendingChanges){fab.classList.add('pending');fab.textContent='Guardar alterações';}
+  else fab.textContent='Guardar alterações';
+}
+window.forceSavePhotos=async function(){
+  updatePhotoSaveFabState('saving');
+  try{
+    // Cancel any pending debounced save and run directly
+    if(typeof saveTimer!=='undefined'&&saveTimer)clearTimeout(saveTimer);
+    await doSave();
+    // Check if photoPacks specifically failed by re-checking sync status
+    const dot=document.getElementById('sync-dot');
+    const ok=!dot||dot.className.indexOf('offline')===-1;
+    if(ok){
+      photoPacksPendingChanges=false;
+      updatePhotoSaveFabState('saved');
+      setTimeout(()=>updatePhotoSaveFabState(),2200);
+    }else{
+      updatePhotoSaveFabState('error');
+      setTimeout(()=>updatePhotoSaveFabState(),3500);
+    }
+  }catch(e){
+    console.error('[forceSavePhotos] failed:',e);
+    updatePhotoSaveFabState('error');
+    setTimeout(()=>updatePhotoSaveFabState(),3500);
+  }
+};
 function renderPhotos(){
   if(!Array.isArray(state.photoPacks))state.photoPacks=[];
-  const allPacks=[...state.photoPacks].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  if(typeof updatePhotoSaveFabState==='function')updatePhotoSaveFabState();
+  // Determine sort order
+  const sortSel=document.getElementById('photos-sort');
+  const sortVal=sortSel?sortSel.value:'recent';
+  const sorted=[...state.photoPacks];
+  if(sortVal==='oldest')sorted.sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+  else if(sortVal==='name')sorted.sort((a,b)=>{const an=(a.name||'').toLowerCase(),bn=(b.name||'').toLowerCase();if(!an&&bn)return 1;if(an&&!bn)return -1;return an.localeCompare(bn)||(b.createdAt||0)-(a.createdAt||0);});
+  else if(sortVal==='category')sorted.sort((a,b)=>{const ac=a.category||'',bc=b.category||'';if(!ac&&bc)return 1;if(ac&&!bc)return -1;return ac.localeCompare(bc)||(b.createdAt||0)-(a.createdAt||0);});
+  else sorted.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)); // 'recent' default
+  const allPacks=sorted;
   // Populate filter dropdown options (idempotent — preserves selected value)
   const filterSel=document.getElementById('photos-filter');
   const filterVal=filterSel?filterSel.value:'';
@@ -3426,6 +3494,7 @@ window.handlePhotoPackPick=async function(input){
       createdAt:Date.now()
     });
     renderPhotos();
+    markPhotoPacksPending();
     scheduleSave();
     showToast(`Pack criado · ${photos.length} ${photos.length===1?'foto':'fotos'}`);
   }catch(e){console.error(e);showToast('Erro ao processar fotos');}
@@ -3434,13 +3503,14 @@ window.updPhotoPackName=function(id,name){
   const p=state.photoPacks?.find(x=>x.id===id);
   if(!p)return;
   p.name=name;
+  markPhotoPacksPending();
   scheduleSave();
 };
 window.updPhotoPackCategory=function(id,cat){
   const p=state.photoPacks?.find(x=>x.id===id);
   if(!p)return;
   p.category=cat||'';
-  // Re-render so the chip color updates + filter dropdown counts update
+  markPhotoPacksPending();
   renderPhotos();
   scheduleSave();
 };
@@ -3448,12 +3518,12 @@ window.togglePackRetake=function(id){
   const p=state.photoPacks?.find(x=>x.id===id);
   if(!p)return;
   p.needsRetake=!p.needsRetake;
-  // Local DOM update without full re-render (avoids losing input focus / scroll position)
   const btn=document.querySelector(`.pp-card[data-id="${id}"] .pp-retake`);
   if(btn){
     btn.classList.toggle('on',p.needsRetake);
     btn.title=p.needsRetake?'Marcado para repetir':'Marcar para repetir';
   }
+  markPhotoPacksPending();
   scheduleSave();
 };
 // Add a photo to slot 0 (creates new pack from picker if pack has no photos)
@@ -3475,6 +3545,7 @@ window.addPhotoToPack=function(id,slot){
       // Ensure array is dense (no holes)
       p.photos=p.photos.filter(x=>x);
       renderPhotos();
+      markPhotoPacksPending();
       scheduleSave();
     }catch(e){console.error(e);showToast('Erro ao processar foto');}
   };
@@ -3493,6 +3564,7 @@ window.replacePackPhoto=function(id,slot){
       const photo=await compressImage(f,PACK_PHOTO_MAX_DIM,PACK_PHOTO_QUALITY);
       p.photos[slot]=photo;
       renderPhotos();
+      markPhotoPacksPending();
       scheduleSave();
     }catch(e){console.error(e);showToast('Erro ao processar foto');}
   };
@@ -3509,12 +3581,14 @@ window.removePackPhoto=function(id,slot){
     p.photos.splice(slot,1);
   }
   renderPhotos();
+  markPhotoPacksPending();
   scheduleSave();
 };
 window.removePhotoPack=function(id){
   if(!confirm('Eliminar este pack?'))return;
   state.photoPacks=(state.photoPacks||[]).filter(x=>x.id!==id);
   renderPhotos();
+  markPhotoPacksPending();
   scheduleSave();
 };
 // end PHOTO PACKS
