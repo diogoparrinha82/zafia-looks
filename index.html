@@ -1415,42 +1415,26 @@ function catsToFS(cats){return cats.map(([name,n,t])=>({name,n,tutorials:t||[]})
 function catsFromFS(arr){if(!arr||!arr.length)return[];if(Array.isArray(arr[0]))return arr.map(c=>[c[0],c[1],c[2]||[]]);return arr.map(c=>[c.name,c.n,c.tutorials||[]]);}
 let saveTimer=null;
 function scheduleSave(){clearTimeout(saveTimer);setSyncStatus('syncing');saveTimer=setTimeout(doSave,1200);}
+let __doSaveInProgress=false;
 async function doSave(){
+  // Prevent overlapping saves — debounce can race with manual save
+  if(__doSaveInProgress){console.warn('[doSave] already in progress, skipping');return;}
+  __doSaveInProgress=true;
   try{
     const base=n=>doc(db,'shared','data','docs',n);
-    // Wrap setDoc with timeout AND retry-on-transient-failure.
-    // Most Firestore write failures are transient (network blip, rate limit) and clear within seconds.
-    async function setDocT(ref,data,ms=30000,attempts=3){
-      let lastErr;
-      for(let i=0;i<attempts;i++){
-        try{
-          await Promise.race([
-            setDoc(ref,data),
-            new Promise((_,reject)=>setTimeout(()=>reject(new Error(`timeout (${ms/1000}s)`)),ms))
-          ]);
-          return; // success
-        }catch(e){
-          lastErr=e;
-          // Don't retry permission errors or invalid-argument — they won't fix themselves
-          const code=e?.code||'';
-          if(code==='permission-denied'||code==='invalid-argument'||code==='unauthenticated'){
-            throw e;
-          }
-          // Exponential backoff: 1s, 3s, 7s
-          if(i<attempts-1){
-            const wait=[1000,3000,7000][i]||1000;
-            console.warn(`[setDocT] attempt ${i+1}/${attempts} failed (${e?.code||e?.message}); retrying in ${wait}ms`);
-            await new Promise(r=>setTimeout(r,wait));
-          }
-        }
-      }
-      throw lastErr;
+    // Single setDoc with timeout. No internal retry — overlapping retries fill the
+    // Firestore client queue and trigger "resource-exhausted".
+    async function setDocT(ref,data,ms=30000){
+      return Promise.race([
+        setDoc(ref,data),
+        new Promise((_,reject)=>setTimeout(()=>reject(new Error(`timeout (${ms/1000}s)`)),ms))
+      ]);
     }
     // split array items into chunks that fit Firestore's 1MB/doc limit
-    // we aim for ~600KB per chunk to leave generous headroom
+    // 800KB target leaves enough headroom for JSON overhead; pre-validate caps at 900KB per item
     async function saveChunked(prefix,items){
-      const MAX_CHUNK_BYTES=600*1024;
-      const SAFETY_LIMIT=900*1024; // Firestore hard limit is 1MiB per doc; leave headroom
+      const MAX_CHUNK_BYTES=800*1024;
+      const SAFETY_LIMIT=900*1024;
       // For photoPacks: isolate oversized items instead of aborting the whole save.
       // Saving 48/49 packs is much better than saving 0/49.
       const skipped=[];
@@ -1466,7 +1450,6 @@ async function doSave(){
           return true;
         });
       }else{
-        // For other types: keep old strict behaviour (no quiet corruption of catalog data)
         for(let idx=0;idx<items.length;idx++){
           const item=items[idx];
           const sz=JSON.stringify(item).length;
@@ -1485,68 +1468,70 @@ async function doSave(){
         current.push(item);curSize+=sz;
       }
       if(current.length)chunks.push(current);
-      // STEP 1: write all chunks FIRST. If any fails, throw BEFORE touching the meta doc.
-      // This preserves the previous-good meta so the loader never points to missing chunks.
-      // Use small parallel batches (4 at a time) instead of all-at-once to avoid Firestore rate limits.
-      const BATCH_SIZE=4;
-      for(let i=0;i<chunks.length;i+=BATCH_SIZE){
-        const slice=chunks.slice(i,i+BATCH_SIZE);
-        await Promise.all(slice.map((ch,j)=>setDocT(base(`${prefix}_chunk_${i+j}`),{items:ch})));
+      // STEP 1: write all chunks STRICTLY SEQUENTIALLY.
+      // Parallel writes fill the Firebase client queue and trigger resource-exhausted.
+      for(let i=0;i<chunks.length;i++){
+        await setDocT(base(`${prefix}_chunk_${i}`),{items:chunks[i]});
       }
       // STEP 2: only after all chunks succeed, update the meta doc
       const writerTag=sessionStorage.getItem('aos_tab_id')||'unknown';
       await setDocT(base(prefix),{chunked:true,chunks:chunks.length,ts:Date.now(),_writer:writerTag});
-      // STEP 3: cleanup stale chunks beyond the current count (best-effort)
-      const cleanup=[];
-      for(let i=chunks.length;i<20;i++){cleanup.push(setDocT(base(`${prefix}_chunk_${i}`),{items:[],_stale:true},10000));}
-      try{await Promise.all(cleanup);}catch(e){console.warn(`[saveChunked] ${prefix}: cleanup partial fail (non-critical):`,e);}
+      // STEP 3: cleanup stale chunks — only 8 ahead, fire-and-forget (don't block save).
+      // If cleanup fails, it's harmless — load checks _stale flag.
+      const CLEANUP_AHEAD=8;
+      const cleanupPromises=[];
+      for(let i=chunks.length;i<chunks.length+CLEANUP_AHEAD;i++){
+        cleanupPromises.push(setDocT(base(`${prefix}_chunk_${i}`),{items:[],_stale:true},15000).catch(e=>{
+          console.warn(`[saveChunked] ${prefix}: cleanup chunk_${i} failed (non-critical):`,e?.message);
+        }));
+      }
+      // Don't await — cleanup runs in background
+      Promise.all(cleanupPromises);
       // Report what was skipped (so the user knows)
       if(skipped.length){
-        const msg=`${prefix}: ${skipped.length} item(s) não gravados — demasiado grandes: ${skipped.join(', ')}`;
-        // Throw a "soft" error: save did succeed for the others, but report so toast surfaces
-        throw new Error(msg);
+        throw new Error(`${prefix}: ${skipped.length} item(s) não gravados — demasiado grandes: ${skipped.join(', ')}`);
       }
     }
-    // Use allSettled so partial failures don't mask which component failed
+    // CRITICAL: serialize all top-level save operations.
+    // Running 9 saveChunked() in parallel multiplies queued writes and triggers resource-exhausted.
     const ops=[
-      {name:'config',p:setDocT(base('config'),{locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme,ts:Date.now()})},
-      {name:'outfits',p:saveChunked('outfits',state.config.outfits)},
-      {name:'joias',p:saveChunked('joias',state.config.joias||[])},
-      {name:'sapatos',p:saveChunked('sapatos',state.config.sapatos||[])},
-      {name:'scarves',p:saveChunked('scarves',state.config.scarves)},
-      {name:'models',p:saveChunked('models',state.config.models)},
-      {name:'locations',p:saveChunked('locations',state.config.locations||[])},
-      {name:'looks',p:saveChunked('looks',state.looks)},
-      {name:'photoPacks',p:saveChunked('photoPacks',state.photoPacks||[])},
-      {name:'team',p:setDocT(base('team'),{items:state.team,production:state.production||{costs:[]},ui:state.ui})}
+      {name:'config',fn:()=>setDocT(base('config'),{locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme,ts:Date.now()})},
+      {name:'outfits',fn:()=>saveChunked('outfits',state.config.outfits)},
+      {name:'joias',fn:()=>saveChunked('joias',state.config.joias||[])},
+      {name:'sapatos',fn:()=>saveChunked('sapatos',state.config.sapatos||[])},
+      {name:'scarves',fn:()=>saveChunked('scarves',state.config.scarves)},
+      {name:'models',fn:()=>saveChunked('models',state.config.models)},
+      {name:'locations',fn:()=>saveChunked('locations',state.config.locations||[])},
+      {name:'looks',fn:()=>saveChunked('looks',state.looks)},
+      {name:'photoPacks',fn:()=>saveChunked('photoPacks',state.photoPacks||[])},
+      {name:'team',fn:()=>setDocT(base('team'),{items:state.team,production:state.production||{costs:[]},ui:state.ui})}
     ];
-    const results=await Promise.allSettled(ops.map(o=>o.p));
     const failed=[];
     const reasons=[];
-    results.forEach((r,i)=>{
-      if(r.status==='rejected'){
-        const opName=ops[i].name;
-        console.error(`[doSave] ${opName} FAILED:`,r.reason);
-        failed.push(opName);
-        const code=r.reason?.code?` [${r.reason.code}]`:'';
-        const msg=r.reason?.message||String(r.reason);
-        reasons.push(`${opName}${code}: ${msg}`);
+    for(const op of ops){
+      try{
+        await op.fn();
+      }catch(e){
+        console.error(`[doSave] ${op.name} FAILED:`,e);
+        failed.push(op.name);
+        const code=e?.code?` [${e.code}]`:'';
+        const msg=e?.message||String(e);
+        reasons.push(`${op.name}${code}: ${msg}`);
       }
-    });
+    }
     if(failed.length){
       setSyncStatus('offline');
-      // Show the first reason directly so user knows what to fix
       const firstReason=reasons[0]||failed.join(', ');
       showToast(`⚠️ Não guardou: ${firstReason}`);
     }else{
       saveCache(state);setSyncStatus('ok');
-      // Clear photoPacks pending flag if its save succeeded
       if(typeof photoPacksPendingChanges!=='undefined'){
         photoPacksPendingChanges=false;
         if(typeof updatePhotoSaveFabState==='function')updatePhotoSaveFabState();
       }
     }
   }catch(e){console.error('[doSave] catastrophic:',e);setSyncStatus('offline');showToast('⚠️ Erro ao guardar');}
+  finally{__doSaveInProgress=false;}
 }
 async function loadChunked(base,prefix){
   const metaSnap=await getDoc(base(prefix));
@@ -3559,7 +3544,7 @@ window.recompressBigPacks=async function(){
 window.forceSavePhotos=async function(){
   updatePhotoSaveFabState('saving');
   // Top-level safety net: even if doSave somehow hangs, the UI never gets stuck
-  const HARD_TIMEOUT_MS=45000;
+  const HARD_TIMEOUT_MS=120000;
   let timedOut=false;
   const hardTimeout=new Promise(resolve=>setTimeout(()=>{timedOut=true;resolve('__timeout__');},HARD_TIMEOUT_MS));
   try{
