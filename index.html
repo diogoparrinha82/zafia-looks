@@ -1417,6 +1417,14 @@ function scheduleSave(){clearTimeout(saveTimer);setSyncStatus('syncing');saveTim
 async function doSave(){
   try{
     const base=n=>doc(db,'shared','data','docs',n);
+    // Wrap setDoc with a hard timeout so a stalled write never hangs the whole save.
+    // Firestore can occasionally hang on docs near the 1MiB limit or with flaky connectivity.
+    function setDocT(ref,data,ms=18000){
+      return Promise.race([
+        setDoc(ref,data),
+        new Promise((_,reject)=>setTimeout(()=>reject(new Error(`timeout (${ms/1000}s)`)),ms))
+      ]);
+    }
     // split array items into chunks that fit Firestore's 1MB/doc limit
     // we aim for ~600KB per chunk to leave generous headroom
     async function saveChunked(prefix,items){
@@ -1442,19 +1450,19 @@ async function doSave(){
       if(current.length)chunks.push(current);
       // STEP 1: write all chunks FIRST. If any fails, throw BEFORE touching the meta doc.
       // This preserves the previous-good meta so the loader never points to missing chunks.
-      const chunkWrites=chunks.map((ch,i)=>setDoc(base(`${prefix}_chunk_${i}`),{items:ch}));
+      const chunkWrites=chunks.map((ch,i)=>setDocT(base(`${prefix}_chunk_${i}`),{items:ch}));
       await Promise.all(chunkWrites);
       // STEP 2: only after all chunks succeed, update the meta doc
       const writerTag=sessionStorage.getItem('aos_tab_id')||'unknown';
-      await setDoc(base(prefix),{chunked:true,chunks:chunks.length,ts:Date.now(),_writer:writerTag});
+      await setDocT(base(prefix),{chunked:true,chunks:chunks.length,ts:Date.now(),_writer:writerTag});
       // STEP 3: cleanup stale chunks beyond the current count (best-effort)
       const cleanup=[];
-      for(let i=chunks.length;i<20;i++){cleanup.push(setDoc(base(`${prefix}_chunk_${i}`),{items:[],_stale:true}));}
+      for(let i=chunks.length;i<20;i++){cleanup.push(setDocT(base(`${prefix}_chunk_${i}`),{items:[],_stale:true},10000));}
       try{await Promise.all(cleanup);}catch(e){console.warn(`[saveChunked] ${prefix}: cleanup partial fail (non-critical):`,e);}
     }
     // Use allSettled so partial failures don't mask which component failed
     const ops=[
-      {name:'config',p:setDoc(base('config'),{locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme,ts:Date.now()})},
+      {name:'config',p:setDocT(base('config'),{locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme,ts:Date.now()})},
       {name:'outfits',p:saveChunked('outfits',state.config.outfits)},
       {name:'joias',p:saveChunked('joias',state.config.joias||[])},
       {name:'sapatos',p:saveChunked('sapatos',state.config.sapatos||[])},
@@ -1463,7 +1471,7 @@ async function doSave(){
       {name:'locations',p:saveChunked('locations',state.config.locations||[])},
       {name:'looks',p:saveChunked('looks',state.looks)},
       {name:'photoPacks',p:saveChunked('photoPacks',state.photoPacks||[])},
-      {name:'team',p:setDoc(base('team'),{items:state.team,production:state.production||{costs:[]},ui:state.ui})}
+      {name:'team',p:setDocT(base('team'),{items:state.team,production:state.production||{costs:[]},ui:state.ui})}
     ];
     const results=await Promise.allSettled(ops.map(o=>o.p));
     const failed=[];
@@ -3355,11 +3363,22 @@ function updatePhotoSaveFabState(state){
 }
 window.forceSavePhotos=async function(){
   updatePhotoSaveFabState('saving');
+  // Top-level safety net: even if doSave somehow hangs, the UI never gets stuck
+  const HARD_TIMEOUT_MS=45000;
+  let timedOut=false;
+  const hardTimeout=new Promise(resolve=>setTimeout(()=>{timedOut=true;resolve('__timeout__');},HARD_TIMEOUT_MS));
   try{
     // Cancel any pending debounced save and run directly
     if(typeof saveTimer!=='undefined'&&saveTimer)clearTimeout(saveTimer);
-    await doSave();
-    // Check if photoPacks specifically failed by re-checking sync status
+    const result=await Promise.race([doSave(),hardTimeout]);
+    if(timedOut||result==='__timeout__'){
+      console.error('[forceSavePhotos] HARD TIMEOUT after',HARD_TIMEOUT_MS,'ms');
+      updatePhotoSaveFabState('error');
+      showToast('⚠️ Save demorou demasiado. Verifica a ligação à internet.');
+      setTimeout(()=>updatePhotoSaveFabState(),4500);
+      return;
+    }
+    // Check if anything failed by re-checking sync status
     const dot=document.getElementById('sync-dot');
     const ok=!dot||dot.className.indexOf('offline')===-1;
     if(ok){
@@ -3368,12 +3387,13 @@ window.forceSavePhotos=async function(){
       setTimeout(()=>updatePhotoSaveFabState(),2200);
     }else{
       updatePhotoSaveFabState('error');
-      setTimeout(()=>updatePhotoSaveFabState(),3500);
+      setTimeout(()=>updatePhotoSaveFabState(),4500);
     }
   }catch(e){
     console.error('[forceSavePhotos] failed:',e);
     updatePhotoSaveFabState('error');
-    setTimeout(()=>updatePhotoSaveFabState(),3500);
+    showToast('⚠️ '+(e?.message||'Erro a guardar'));
+    setTimeout(()=>updatePhotoSaveFabState(),4500);
   }
 };
 function renderPhotos(){
