@@ -2150,7 +2150,8 @@ function buildCard(look){
   const tutorials=cat?.[2]||[];
   const tut=tutorialOf(look);
   const tPhoto=tut?.photo||'';const tName=tut?.name||'Tutorial';
-  const shootingPhoto=look.shootingPhoto||'';
+  // Location-photo cell: derives from the selected location, with optional per-look override
+  const locPhotoSrc=locationPhotoFor(look); // {url, custom} or null
   const status=look.status||'';
   const curSlide=outfitSlideIdx[look.num]||0;
   const curScarfSlide=scarfSlideIdx[look.num]||0;
@@ -2256,7 +2257,7 @@ function buildCard(look){
       <div class="photo-cell">${outfitCellHtml}</div>
       ${multiCell(scarfSlides,'Lenço','🧣',false,curScarfSlide,'slideScarf','scarf:'+look.num)}
       ${photoCell(tPhoto,tName,true,tutBadge(tut,'lg'))}
-      ${shootingPhoto?`<div class="photo-cell"><img src="${shootingPhoto}" onclick="openLb('${shootingPhoto}','Look final #${look.num}')"><div class="photo-cell-lbl">Look final</div><button class="shoot-cell-rm" onclick="event.stopPropagation();removeShootingPhoto(${look.num})" title="Remover">✕</button><button class="shoot-cell-replace" onclick="event.stopPropagation();pickShootingPhoto(${look.num})" title="Substituir">↻</button></div>`:`<div class="photo-cell" onclick="pickShootingPhoto(${look.num})" style="cursor:pointer"><div class="photo-cell-ph"><span class="icon">📸</span><span>Look final</span></div></div>`}
+      ${locPhotoSrc?`<div class="photo-cell"><img src="${locPhotoSrc.url}" onclick="openLb('${locPhotoSrc.url}','Local · Look #${look.num}')"><div class="photo-cell-lbl">Local${locPhotoSrc.custom?' (custom)':''}</div><button class="shoot-cell-replace" onclick="event.stopPropagation();pickLocationPhotoOverride(${look.num})" title="${locPhotoSrc.custom?'Substituir':'Carregar foto personalizada'}">↻</button>${locPhotoSrc.custom?`<button class="shoot-cell-rm" onclick="event.stopPropagation();removeLocationPhotoOverride(${look.num})" title="Voltar à foto da locação">✕</button>`:''}</div>`:`<div class="photo-cell" onclick="pickLocationPhotoOverride(${look.num})" style="cursor:pointer"><div class="photo-cell-ph"><span class="icon">📍</span><span>${look.locationId?'Sem foto · clica para upload':'Selecciona local abaixo'}</span></div></div>`}
     </div>
     <div class="card-fields">
       ${pickBtn('outfit','Roupa',look.outfit,'outfits',false,'👗')}
@@ -2425,6 +2426,8 @@ window.updLookLocation=function(num,val){
   else if(val.startsWith('cat:')){l.location=val.slice(4);l.locationId='';}
   scheduleSave();
   refreshCardLocHeader(num);
+  // Update the "Local" photo cell as well (it depends on the assigned location)
+  if(typeof rebuildLocCell==='function')rebuildLocCell(num);
 };
 window.duplicateLook=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;const src=state.looks[idx];const parentNum=src.extra?src.parentNum:src.num;const maxNum=state.looks.reduce((m,l)=>Math.max(m,l.num),0);const newNum=Math.max(101,maxNum+1);const copy={category:src.category,outfit:toArr(src.outfit).slice(),scarf:toArr(src.scarf).slice(),joias:toArr(src.joias).slice(),sapatos:src.sapatos||'',model:'',location:src.location||'',locationId:src.locationId||'',tutorialIdx:src.tutorialIdx||0,status:'',shootingPhoto:'',notes:'',done:false,num:newNum,extra:true,parentNum};state.looks.splice(idx+1,0,copy);scheduleSave();const fl=filteredLooks();const newIdx=fl.findIndex(x=>x.num===newNum);if(newIdx>=0)state.ui.currentIdx=newIdx;renderFilters();buildCarousel();updateCounter();};
 window.deleteLook=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;const l=state.looks[idx];let confirmMsg;if(l.extra){confirmMsg=`Apagar esta variação?\n\nLook #${l.num} · variação de #${l.parentNum} · ${l.category}${l.model?' · '+l.model:''}`;}else{const isOriginal=l.num>=1&&l.num<=100;const heading=isOriginal?'⚠ Vais eliminar um look ORIGINAL (1-100)\n\nEste é um look estrutural da fase 1. A eliminação é permanente.':'Eliminar este look?';confirmMsg=`${heading}\n\nLook #${l.num} · ${l.category||'sem categoria'}${l.model?' · '+l.model:''}\n\nConfirmar?`;}if(!confirm(confirmMsg))return;state.looks.splice(idx,1);scheduleSave();state.ui.currentIdx=Math.max(0,Math.min(idx,state.looks.length-1));renderFilters();buildCarousel();updateCounter();if(window.currentScreen==='screen-shooting')renderShooting();if(window.currentScreen==='screen-gallery')renderGallery();};
@@ -2452,6 +2455,59 @@ function rebuildTutorialCell(num){
 
 // ── STATUS ──
 window.cycleStatus=function(num){const l=state.looks.find(x=>x.num===num);if(!l)return;if(!l.status||l.status===''){const input=document.createElement('input');input.type='file';input.accept='image/*';input.capture='environment';input.onchange=async e=>{if(!e.target.files[0])return;const c=await compressImage(e.target.files[0],900,0.8);l.shootingPhoto=c;l.status='shooting';scheduleSave();rebuildShootingCell(num);updateStatusBtn(num);updateCounter();};input.click();}else if(l.status==='shooting'){l.status='done';l.done=true;scheduleSave();updateStatusBtn(num);updateCounter();}else if(l.status==='done'){if(confirm('Reabrir?')){l.status='';l.done=false;scheduleSave();updateStatusBtn(num);updateCounter();}}};
+// Resolve which photo to show in the "Local" card cell.
+// Priority: per-look custom override (locationPhotoOverride) > photo on the assigned location.
+// Returns {url, custom} or null when neither exists.
+function locationPhotoFor(look){
+  if(look.locationPhotoOverride)return{url:look.locationPhotoOverride,custom:true};
+  if(look.locationId){
+    const L=(state.config.locations||[]).find(x=>x.id===look.locationId);
+    if(L&&L.photo)return{url:L.photo,custom:false};
+  }
+  return null;
+}
+window.pickLocationPhotoOverride=function(num){
+  const l=state.looks.find(x=>x.num===num);
+  if(!l)return;
+  const input=document.createElement('input');
+  input.type='file';
+  input.accept='image/*';
+  input.onchange=async e=>{
+    if(!e.target.files[0])return;
+    try{
+      const c=await compressImage(e.target.files[0],900,0.8);
+      l.locationPhotoOverride=c;
+      scheduleSave();
+      rebuildLocCell(num);
+    }catch(err){console.error(err);showToast('Erro ao processar foto');}
+  };
+  input.click();
+};
+window.removeLocationPhotoOverride=function(num){
+  const l=state.looks.find(x=>x.num===num);
+  if(!l||!l.locationPhotoOverride)return;
+  if(!confirm('Remover foto personalizada e voltar à foto da locação?'))return;
+  l.locationPhotoOverride='';
+  scheduleSave();
+  rebuildLocCell(num);
+};
+// Re-render only the 4th cell of one card so it picks up the new image without losing focus/scroll.
+function rebuildLocCell(num){
+  const fl=filteredLooks();
+  const idx=fl.findIndex(x=>x.num===num);
+  if(idx<0)return;
+  const cardEl=document.getElementById('carousel-track')?.children[idx];
+  if(!cardEl)return;
+  const look=fl[idx];
+  const cells=cardEl.querySelectorAll('.card-photo-grid .photo-cell');
+  if(!cells[3])return;
+  const lp=locationPhotoFor(look);
+  if(lp){
+    cells[3].outerHTML=`<div class="photo-cell"><img src="${lp.url}" onclick="openLb('${lp.url}','Local · Look #${look.num}')"><div class="photo-cell-lbl">Local${lp.custom?' (custom)':''}</div><button class="shoot-cell-replace" onclick="event.stopPropagation();pickLocationPhotoOverride(${look.num})" title="${lp.custom?'Substituir':'Carregar foto personalizada'}">↻</button>${lp.custom?`<button class="shoot-cell-rm" onclick="event.stopPropagation();removeLocationPhotoOverride(${look.num})" title="Voltar à foto da locação">✕</button>`:''}</div>`;
+  }else{
+    cells[3].outerHTML=`<div class="photo-cell" onclick="pickLocationPhotoOverride(${look.num})" style="cursor:pointer"><div class="photo-cell-ph"><span class="icon">📍</span><span>${look.locationId?'Sem foto · clica para upload':'Selecciona local abaixo'}</span></div></div>`;
+  }
+}
 window.pickShootingPhoto=function(num){const l=state.looks.find(x=>x.num===num);if(!l)return;const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=async e=>{if(!e.target.files[0])return;const c=await compressImage(e.target.files[0],900,0.8);l.shootingPhoto=c;if(!l.status||l.status==='')l.status='shooting';scheduleSave();rebuildShootingCell(num);updateStatusBtn(num);updateCounter();if(shView&&shView.mode==='shootday')renderShootDay(shView.id);};input.click();};
 window.removeShootingPhoto=function(num){const l=state.looks.find(x=>x.num===num);if(!l||!l.shootingPhoto)return;if(!confirm('Remover a foto do look final?'))return;l.shootingPhoto='';if(l.status==='shooting'){l.status='';l.done=false;}scheduleSave();rebuildShootingCell(num);updateStatusBtn(num);updateCounter();if(shView&&shView.mode==='shootday')renderShootDay(shView.id);};
 function rebuildShootingCell(num){const fl=filteredLooks();const idx=fl.findIndex(x=>x.num===num);if(idx<0)return;const cardEl=document.getElementById('carousel-track').children[idx];if(!cardEl)return;const look=fl[idx];const cells=cardEl.querySelectorAll('.card-photo-grid .photo-cell');if(cells[3]){const sp=look.shootingPhoto;if(sp){cells[3].outerHTML=`<div class="photo-cell"><img src="${sp}" onclick="openLb('${sp}','Look final #${look.num}')"><div class="photo-cell-lbl">Look final</div><button class="shoot-cell-rm" onclick="event.stopPropagation();removeShootingPhoto(${look.num})" title="Remover">✕</button><button class="shoot-cell-replace" onclick="event.stopPropagation();pickShootingPhoto(${look.num})" title="Substituir">↻</button></div>`;}else{cells[3].outerHTML=`<div class="photo-cell" onclick="pickShootingPhoto(${look.num})" style="cursor:pointer"><div class="photo-cell-ph"><span class="icon">📸</span><span>Look final</span></div></div>`;}}};
