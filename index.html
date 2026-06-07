@@ -1484,27 +1484,26 @@ function catsFromFS(arr){if(!arr||!arr.length)return[];if(Array.isArray(arr[0]))
 let saveTimer=null;
 function scheduleSave(){clearTimeout(saveTimer);setSyncStatus('syncing');saveTimer=setTimeout(doSave,3500);}
 let __doSaveInProgress=false;
+let __savePendingAgain=false;
+// Per-section snapshot of what was last successfully written, so we only re-upload
+// sections that actually changed. Populated after the initial load.
+let lastSavedJSON={};
 async function doSave(){
-  // Prevent overlapping saves — debounce can race with manual save
-  if(__doSaveInProgress){console.warn('[doSave] already in progress, skipping');return;}
+  // If a save is already running, don't drop this request — flag it so we run again after.
+  // (Previously this returned early and silently lost edits made during a long save.)
+  if(__doSaveInProgress){__savePendingAgain=true;return;}
   __doSaveInProgress=true;
   try{
     const base=n=>doc(db,'shared','data','docs',n);
-    // Single setDoc with timeout. No internal retry — overlapping retries fill the
-    // Firestore client queue and trigger "resource-exhausted".
     async function setDocT(ref,data,ms=30000){
       return Promise.race([
         setDoc(ref,data),
         new Promise((_,reject)=>setTimeout(()=>reject(new Error(`timeout (${ms/1000}s)`)),ms))
       ]);
     }
-    // split array items into chunks that fit Firestore's 1MB/doc limit
-    // 800KB target leaves enough headroom for JSON overhead; pre-validate caps at 900KB per item
     async function saveChunked(prefix,items){
       const MAX_CHUNK_BYTES=800*1024;
       const SAFETY_LIMIT=900*1024;
-      // For photoPacks: isolate oversized items instead of aborting the whole save.
-      // Saving 48/49 packs is much better than saving 0/49.
       const skipped=[];
       if(prefix==='photoPacks'){
         items=items.filter((item,idx)=>{
@@ -1512,22 +1511,19 @@ async function doSave(){
           if(sz>SAFETY_LIMIT){
             const label=item?.name?`"${item.name}"`:`#${idx+1}`;
             skipped.push(`${label} (${Math.round(sz/1024)}KB)`);
-            console.warn(`[saveChunked] photoPacks: skipping oversized pack ${label} – ${Math.round(sz/1024)}KB`);
             return false;
           }
           return true;
         });
       }else{
         for(let idx=0;idx<items.length;idx++){
-          const item=items[idx];
-          const sz=JSON.stringify(item).length;
+          const sz=JSON.stringify(items[idx]).length;
           if(sz>SAFETY_LIMIT){
-            const label=item?.name?` "${item.name}"`:` #${idx+1}`;
+            const label=items[idx]?.name?` "${items[idx].name}"`:` #${idx+1}`;
             throw new Error(`${prefix}: item${label} tem ${Math.round(sz/1024)}KB (limite ${SAFETY_LIMIT/1024}KB)`);
           }
         }
       }
-      // Build chunks
       const chunks=[];
       let current=[],curSize=0;
       for(const item of items){
@@ -1536,77 +1532,63 @@ async function doSave(){
         current.push(item);curSize+=sz;
       }
       if(current.length)chunks.push(current);
-      // Read old meta to know about old chunks (for cleanup within the same batch)
       let oldChunkCount=0;
-      try{
-        const oldMeta=await getDoc(base(prefix));
-        if(oldMeta.exists())oldChunkCount=oldMeta.data()?.chunks||0;
-      }catch(e){console.warn(`[saveChunked] ${prefix}: meta read failed (continuing):`,e?.message);}
-      // ATOMIC BATCH WRITE: chunks + meta + cleanup, all in one transaction.
-      // This is the fix for "resource-exhausted": instead of N writes filling the SDK queue,
-      // it's a single operation. Either all succeed (consistent) or all fail (state preserved).
+      try{const oldMeta=await getDoc(base(prefix));if(oldMeta.exists())oldChunkCount=oldMeta.data()?.chunks||0;}catch(e){}
       const writerTag=sessionStorage.getItem('aos_tab_id')||'unknown';
       const batch=writeBatch(db);
-      // Mark old excess chunks as stale (within the batch)
-      for(let i=chunks.length;i<oldChunkCount;i++){
-        batch.set(base(`${prefix}_chunk_${i}`),{items:[],_stale:true});
-      }
-      // Write all new chunks
-      for(let i=0;i<chunks.length;i++){
-        batch.set(base(`${prefix}_chunk_${i}`),{items:chunks[i]});
-      }
-      // Write meta last (within the batch)
+      for(let i=chunks.length;i<oldChunkCount;i++)batch.set(base(`${prefix}_chunk_${i}`),{items:[],_stale:true});
+      for(let i=0;i<chunks.length;i++)batch.set(base(`${prefix}_chunk_${i}`),{items:chunks[i]});
       batch.set(base(prefix),{chunked:true,chunks:chunks.length,ts:Date.now(),_writer:writerTag});
-      // Commit with timeout safety
-      await Promise.race([
-        batch.commit(),
-        new Promise((_,reject)=>setTimeout(()=>reject(new Error(`${prefix}: batch commit timeout (45s)`)),45000))
-      ]);
-      // Report what was skipped (so the user knows)
-      if(skipped.length){
-        throw new Error(`${prefix}: ${skipped.length} item(s) não gravados — demasiado grandes: ${skipped.join(', ')}`);
-      }
+      await Promise.race([batch.commit(),new Promise((_,reject)=>setTimeout(()=>reject(new Error(`${prefix}: batch commit timeout (45s)`)),45000))]);
+      if(skipped.length)throw new Error(`${prefix}: ${skipped.length} item(s) não gravados — demasiado grandes: ${skipped.join(', ')}`);
     }
-    // CRITICAL: serialize all top-level save operations.
-    // Running 9 saveChunked() in parallel multiplies queued writes and triggers resource-exhausted.
+    const writerTagOp=sessionStorage.getItem('aos_tab_id')||'unknown';
+    // Each op carries a `snap` = serialized current data. We compare against lastSavedJSON
+    // and skip ops whose data is byte-for-byte identical to what we last wrote.
+    const configData={locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme};
+    const teamData={items:state.team,production:state.production||{costs:[]},ui:state.ui};
     const ops=[
-      {name:'config',fn:()=>setDocT(base('config'),{locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme,ts:Date.now()})},
-      {name:'outfits',fn:()=>saveChunked('outfits',state.config.outfits)},
-      {name:'joias',fn:()=>saveChunked('joias',state.config.joias||[])},
-      {name:'sapatos',fn:()=>saveChunked('sapatos',state.config.sapatos||[])},
-      {name:'scarves',fn:()=>saveChunked('scarves',state.config.scarves)},
-      {name:'models',fn:()=>saveChunked('models',state.config.models)},
-      {name:'locations',fn:()=>saveChunked('locations',state.config.locations||[])},
-      {name:'looks',fn:()=>saveChunked('looks',state.looks)},
-      {name:'photoPacks',fn:()=>saveChunked('photoPacks',state.photoPacks||[])},
-      {name:'team',fn:()=>setDocT(base('team'),{items:state.team,production:state.production||{costs:[]},ui:state.ui})}
+      {name:'config',snap:JSON.stringify(configData),fn:()=>setDocT(base('config'),{...configData,ts:Date.now(),_writer:writerTagOp})},
+      {name:'outfits',snap:JSON.stringify(state.config.outfits),fn:()=>saveChunked('outfits',state.config.outfits)},
+      {name:'joias',snap:JSON.stringify(state.config.joias||[]),fn:()=>saveChunked('joias',state.config.joias||[])},
+      {name:'sapatos',snap:JSON.stringify(state.config.sapatos||[]),fn:()=>saveChunked('sapatos',state.config.sapatos||[])},
+      {name:'scarves',snap:JSON.stringify(state.config.scarves),fn:()=>saveChunked('scarves',state.config.scarves)},
+      {name:'models',snap:JSON.stringify(state.config.models),fn:()=>saveChunked('models',state.config.models)},
+      {name:'locations',snap:JSON.stringify(state.config.locations||[]),fn:()=>saveChunked('locations',state.config.locations||[])},
+      {name:'looks',snap:JSON.stringify(state.looks),fn:()=>saveChunked('looks',state.looks)},
+      {name:'photoPacks',snap:JSON.stringify(state.photoPacks||[]),fn:()=>saveChunked('photoPacks',state.photoPacks||[])},
+      {name:'team',snap:JSON.stringify(teamData),fn:()=>setDocT(base('team'),{...teamData,ts:Date.now(),_writer:writerTagOp})}
     ];
     const failed=[];
     const reasons=[];
+    let savedCount=0;
     for(const op of ops){
+      // Skip sections that are unchanged since the last successful save — huge speed-up.
+      if(lastSavedJSON[op.name]===op.snap)continue;
       try{
         await op.fn();
+        lastSavedJSON[op.name]=op.snap; // mark as saved only on success
+        savedCount++;
       }catch(e){
         console.error(`[doSave] ${op.name} FAILED:`,e);
         failed.push(op.name);
         const code=e?.code?` [${e.code}]`:'';
-        const msg=e?.message||String(e);
-        reasons.push(`${op.name}${code}: ${msg}`);
+        reasons.push(`${op.name}${code}: ${e?.message||String(e)}`);
       }
     }
     if(failed.length){
       setSyncStatus('offline');
-      const firstReason=reasons[0]||failed.join(', ');
-      showToast(`⚠️ Não guardou: ${firstReason}`);
+      showToast(`⚠️ Não guardou: ${reasons[0]||failed.join(', ')}`);
     }else{
       saveCache(state);setSyncStatus('ok');
-      if(typeof photoPacksPendingChanges!=='undefined'){
-        photoPacksPendingChanges=false;
-        if(typeof updatePhotoSaveFabState==='function')updatePhotoSaveFabState();
-      }
+      if(typeof photoPacksPendingChanges!=='undefined'){photoPacksPendingChanges=false;if(typeof updatePhotoSaveFabState==='function')updatePhotoSaveFabState();}
     }
   }catch(e){console.error('[doSave] catastrophic:',e);setSyncStatus('offline');showToast('⚠️ Erro ao guardar');}
-  finally{__doSaveInProgress=false;}
+  finally{
+    __doSaveInProgress=false;
+    // If edits arrived while we were saving, run another save now so nothing is lost.
+    if(__savePendingAgain){__savePendingAgain=false;setTimeout(doSave,200);}
+  }
 }
 async function loadChunked(base,prefix){
   const metaSnap=await getDoc(base(prefix));
@@ -1694,6 +1676,21 @@ async function loadFromFirestore(){
     }
     pruneOrphanReferences();
     ensureDefaultCategories();
+    // Baseline the per-section snapshots so the next save only writes what actually changed.
+    try{
+      lastSavedJSON={
+        config:JSON.stringify({locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme}),
+        outfits:JSON.stringify(state.config.outfits),
+        joias:JSON.stringify(state.config.joias||[]),
+        sapatos:JSON.stringify(state.config.sapatos||[]),
+        scarves:JSON.stringify(state.config.scarves),
+        models:JSON.stringify(state.config.models),
+        locations:JSON.stringify(state.config.locations||[]),
+        looks:JSON.stringify(state.looks),
+        photoPacks:JSON.stringify(state.photoPacks||[]),
+        team:JSON.stringify({items:state.team,production:state.production||{costs:[]},ui:state.ui})
+      };
+    }catch(e){lastSavedJSON={};}
     applyTheme();renderFilters();buildCarousel();updateCounter();setSyncStatus('ok');saveCache(state);
     startRemoteWatch();
     setLoadProgress(100,'Sincronizado ✓');
@@ -1774,8 +1771,8 @@ function startRemoteWatch(){
   if(remoteWatchActive)return;
   remoteWatchActive=true;
   const myTag=sessionStorage.getItem('aos_tab_id')||'unknown';
-  const watched=['looks','locations','outfits','scarves','models','joias','sapatos','photoPacks'];
-  const labels={looks:'Looks',locations:'Locações',outfits:'Roupas',scarves:'Lenços',models:'Modelos',joias:'Jóias',sapatos:'Sapatos',photoPacks:'Fotos'};
+  const watched=['looks','locations','outfits','scarves','models','joias','sapatos','photoPacks','config','team'];
+  const labels={looks:'Looks',locations:'Locações',outfits:'Roupas',scarves:'Lenços',models:'Modelos',joias:'Jóias',sapatos:'Sapatos',photoPacks:'Fotos',config:'Configuração',team:'Equipa'};
   // Track timestamps observed at watch-start (so we don't fire for "current" state)
   const seenTs={};
   watched.forEach(prefix=>{
@@ -2037,7 +2034,15 @@ function showBackupReminder(days){
 window.doLogin=function(){const pwd=document.getElementById('login-pwd').value.trim();if(pwd===ACCESS_PASSWORD){localStorage.setItem(SESSION_KEY,'1');document.getElementById('screen-login').classList.add('hidden');initApp();startPresence();}else{document.getElementById('login-err').textContent='⛔ Senha incorrecta.';document.getElementById('login-pwd').value='';}};
 window.doLogout=function(){if(!confirm('Sair?'))return;localStorage.removeItem(SESSION_KEY);document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById('screen-login').classList.remove('hidden');};
 
-function initApp(){loadCache();loadCompareBin();state.ui.currentIdx=0;state.ui.filter='';state.config.theme={...DEFAULT_THEME};applyTheme();document.getElementById('loading').classList.add('hidden');renderFilters();buildCarousel();updateCounter();renderCompareBin();maybePulseHowToFab();switchTab('dashboard');
+function initApp(){
+// CRITICAL: generate per-tab id BEFORE any save or remote-watch runs.
+// Otherwise both saves and watches default to 'unknown' as the writer tag, which
+// makes every device treat all remote updates as its own — breaking cross-device sync.
+if(!sessionStorage.getItem('aos_tab_id')){
+  const id=(crypto&&crypto.randomUUID)?crypto.randomUUID():('tab_'+Date.now()+'_'+Math.random().toString(36).slice(2,9));
+  sessionStorage.setItem('aos_tab_id',id);
+}
+loadCache();loadCompareBin();state.ui.currentIdx=0;state.ui.filter='';state.config.theme={...DEFAULT_THEME};applyTheme();document.getElementById('loading').classList.add('hidden');renderFilters();buildCarousel();updateCounter();renderCompareBin();maybePulseHowToFab();switchTab('dashboard');
 // Initial status reflects browser network state, not assumed offline
 if(navigator.onLine===false)setSyncStatus('offline');
 else setSyncStatus('syncing');
