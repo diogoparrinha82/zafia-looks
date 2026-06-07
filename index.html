@@ -2462,13 +2462,29 @@ function locationPhotoFor(look){
   if(look.locationPhotoOverride)return{url:look.locationPhotoOverride,custom:true};
   if(look.locationId){
     const L=(state.config.locations||[]).find(x=>x.id===look.locationId);
-    if(L&&L.photo)return{url:L.photo,custom:false};
+    if(L){
+      // Defensive: accept any reasonable field name in case of legacy/migrated data
+      const url=L.photoUrl||L.photo||L.image||L.heroUrl||L.hero||null;
+      if(url)return{url,custom:false};
+      console.warn(`[locationPhotoFor] Location "${L.name}" found but no photo field. Available keys:`,Object.keys(L));
+    }else{
+      console.warn(`[locationPhotoFor] locationId "${look.locationId}" not found in state.config.locations`);
+    }
   }
   return null;
 }
 window.pickLocationPhotoOverride=function(num){
   const l=state.looks.find(x=>x.num===num);
   if(!l)return;
+  // If no location selected, prompt user to pick one first — uploading without context
+  // creates an orphan override that won't help anyone.
+  if(!l.locationId){
+    showToast('Selecciona primeiro o local no menu em baixo.');
+    return;
+  }
+  const L=(state.config.locations||[]).find(x=>x.id===l.locationId);
+  if(!L){showToast('Locação não encontrada');return;}
+  const hasLocPhoto=!!L.photoUrl;
   const input=document.createElement('input');
   input.type='file';
   input.accept='image/*';
@@ -2476,9 +2492,19 @@ window.pickLocationPhotoOverride=function(num){
     if(!e.target.files[0])return;
     try{
       const c=await compressImage(e.target.files[0],900,0.8);
-      l.locationPhotoOverride=c;
-      scheduleSave();
-      rebuildLocCell(num);
+      if(!hasLocPhoto){
+        // First photo for this location — set it on the location itself so all looks here benefit
+        L.photoUrl=c;
+        scheduleSave();
+        showToast(`Foto adicionada a "${L.name}". Visível em todos os looks deste local.`);
+        // Affects multiple cards — rebuild the whole carousel
+        buildCarousel();
+      }else{
+        // Location already has a photo → create a per-look override (custom for this look only)
+        l.locationPhotoOverride=c;
+        scheduleSave();
+        rebuildLocCell(num);
+      }
     }catch(err){console.error(err);showToast('Erro ao processar foto');}
   };
   input.click();
