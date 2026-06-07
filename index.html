@@ -32,6 +32,11 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--c-done);}
 .sync-dot.syncing{background:var(--c-accent);animation:blink 1s infinite;}
 .sync-dot.offline{background:#C72A1C;}
+/* Initial-load progress strip — thin bar at top of viewport, à la YouTube/GitHub */
+.load-progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--c-accent),var(--c-accent2));width:0%;z-index:9999;transition:width .35s ease-out,opacity .4s ease-out;box-shadow:0 0 6px rgba(90,102,72,.5);pointer-events:none;}
+.load-progress.done{opacity:0;}
+.load-progress-label{position:fixed;top:8px;left:14px;background:rgba(22,24,20,.88);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:14px;z-index:9999;opacity:0;transition:opacity .3s ease-out;pointer-events:none;}
+.load-progress-label.visible{opacity:1;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
 
 .screen{position:absolute;inset:0;display:flex;flex-direction:column;}
@@ -104,7 +109,8 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .drawer-item.on::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:2px;height:18px;background:var(--c-accent);}
 .drawer-item-num{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--c-text3);}
 .drawer-foot{padding:16px 22px calc(20px + var(--safe-bottom));border-top:1px solid var(--c-border);display:flex;align-items:center;justify-content:space-between;}
-.drawer-foot-sync{display:flex;align-items:center;gap:6px;font-size:.7rem;color:var(--c-text3);}
+.drawer-foot-sync{display:flex;align-items:center;gap:6px;font-size:.7rem;color:var(--c-text3);cursor:pointer;padding:4px 6px;border-radius:4px;}
+.drawer-foot-sync:hover{background:var(--c-card);}
 .looks-title{font-family:'Inter Tight',sans-serif;font-size:1.05rem;color:var(--c-text);font-weight:600;letter-spacing:-0.015em;flex:1;}
 .looks-counter{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text3);}
 .looks-progress{height:2px;background:var(--c-border);margin:0 16px 6px;border-radius:999px;position:relative;overflow:hidden;flex-shrink:0;}
@@ -334,6 +340,12 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .sub-panel.on{display:block;}
 
 .cfg-field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+.loc-bucket-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--c-card);border-radius:6px;margin-bottom:6px;}
+.loc-bucket-row input.loc-bucket-name{flex:1;background:transparent;border:none;font-family:'Inter Tight',sans-serif;font-size:.88rem;color:var(--c-text);padding:4px 0;min-width:0;}
+.loc-bucket-row input.loc-bucket-name:focus{outline:none;background:var(--c-bg);padding:4px 8px;border-radius:4px;}
+.loc-bucket-row input.loc-bucket-count{width:60px;text-align:center;background:var(--c-bg);border:1px solid var(--c-border);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--c-text);padding:5px 4px;}
+.loc-bucket-row .loc-bucket-rm{background:transparent;border:none;color:var(--c-text3);cursor:pointer;font-size:.95rem;padding:4px 7px;border-radius:4px;flex-shrink:0;}
+.loc-bucket-row .loc-bucket-rm:hover{background:rgba(199,42,28,.08);color:#C72A1C;}
 .cfg-field:last-child{margin-bottom:0;}
 .cfg-lbl{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--c-text3);font-weight:500;letter-spacing:.16em;text-transform:uppercase;}
 .cfg-inp{width:100%;padding:10px 12px;border:1.5px solid var(--c-border);border-radius:var(--radius-sm);background:var(--c-surface);color:var(--c-text);font-family:'Inter Tight',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;}
@@ -1115,12 +1127,9 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
     <div class="cfg-section" id="cs-locs">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-locs')"><div><div class="cfg-section-title">Locais</div></div><span class="cfg-chevron">▾</span></div>
       <div class="cfg-section-body" style="padding:14px 16px;">
-        <div class="cfg-grid-3">
-          <div class="cfg-field"><label class="cfg-lbl">Estúdio</label><input class="cfg-inp num" type="number" min="0" id="loc-studio" value="30" oninput="state.config.locs.studio=parseInt(this.value)||0;updateLocHint();scheduleSave()"></div>
-          <div class="cfg-field"><label class="cfg-lbl">PT Ext.</label><input class="cfg-inp num" type="number" min="0" id="loc-pt" value="30" oninput="state.config.locs.pt=parseInt(this.value)||0;updateLocHint();scheduleSave()"></div>
-          <div class="cfg-field"><label class="cfg-lbl">CV Ext.</label><input class="cfg-inp num" type="number" min="0" id="loc-cv" value="40" oninput="state.config.locs.cv=parseInt(this.value)||0;updateLocHint();scheduleSave()"></div>
-        </div>
-        <div class="cfg-hint" id="loc-hint">Total: <strong>100</strong> / 100</div>
+        <div id="loc-buckets-list"></div>
+        <button class="mini-btn" style="width:100%;margin-top:10px;border:1.5px dashed var(--c-border);background:transparent" onclick="addLocBucket()">＋ Adicionar área</button>
+        <div class="cfg-hint" id="loc-hint" style="margin-top:10px">Total: <strong>0</strong> looks</div>
       </div>
     </div>
     <div class="cfg-section" id="cs-cats">
@@ -1282,7 +1291,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
     <button class="drawer-item" id="drw-photos" onclick="switchTab('photos');closeDrawer()">Fotos</button>
   </nav>
   <div class="drawer-foot">
-    <div class="drawer-foot-sync"><div class="sync-dot" id="sync-dot"></div><span id="sync-txt">sync</span></div>
+    <div class="drawer-foot-sync" onclick="recheckSync()" title="Click para verificar ligação"><div class="sync-dot" id="sync-dot"></div><span id="sync-txt">sync</span></div>
     <button class="drawer-item" style="padding:0;font-size:.7rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.1em;" onclick="doLogout()">Sair</button>
   </div>
 </aside>
@@ -1360,7 +1369,7 @@ const COLOR_LABELS={bg:'Fundo',surface:'Superfície',card:'Cards',accent:'Destaq
 
 window.state={
   config:{
-    locs:{studio:30,pt:30,cv:40},
+    locs:[{id:'studio',name:'Portugal – Estúdio',count:30},{id:'pt',name:'Portugal – Exterior',count:30},{id:'cv',name:'Cabo Verde – Exterior',count:40}],
     cats:JSON.parse(JSON.stringify(DEFAULT_CATS)),
     outfits:DEFAULT_OUTFITS.map(n=>({name:n,photo:'',pieces:[]})),
     joias:DEFAULT_JOIAS.map(n=>({name:n,photo:''})),
@@ -1404,10 +1413,70 @@ function saveCache(d){try{const l={...d,config:{...d.config,outfits:d.config.out
 function toArr(v){if(Array.isArray(v))return v.filter(Boolean);if(v==null||v==='')return [];return [v];}
 function migrateLooks(looks){return (looks||[]).map(l=>({...l,outfit:toArr(l.outfit),scarf:toArr(l.scarf),joias:toArr(l.joias),locationId:l.locationId||'',extra:!!l.extra,parentNum:l.parentNum||null}));}
 
-function loadCache(){try{const c=localStorage.getItem(CACHE_KEY);if(c){const d=JSON.parse(c);if(d.config){state.config={...state.config,...d.config};state.config.outfits=normaliseOutfits(state.config.outfits);state.config.joias=normaliseSimple(state.config.joias,DEFAULT_JOIAS);state.config.sapatos=normaliseSimple(state.config.sapatos,DEFAULT_SAPATOS);}if(d.looks)state.looks=migrateLooks(d.looks);if(d.team)state.team=d.team;if(d.production&&Array.isArray(d.production.costs))state.production={costs:d.production.costs};if(Array.isArray(d.photoPacks))state.photoPacks=d.photoPacks;if(d.ui){const {currentIdx,filter,...restUi}=d.ui;state.ui={...state.ui,...restUi};}}}catch(e){}if(state.ui.galleryView==='sheets')state.ui.galleryView='grid';}
+function loadCache(){try{const c=localStorage.getItem(CACHE_KEY);if(c){const d=JSON.parse(c);if(d.config){state.config={...state.config,...d.config};state.config.outfits=normaliseOutfits(state.config.outfits);state.config.joias=normaliseSimple(state.config.joias,DEFAULT_JOIAS);state.config.sapatos=normaliseSimple(state.config.sapatos,DEFAULT_SAPATOS);const ml=typeof migrateLocs==='function'?migrateLocs(state.config.locs):null;if(ml)state.config.locs=ml;}if(d.looks)state.looks=migrateLooks(d.looks);if(d.team)state.team=d.team;if(d.production&&Array.isArray(d.production.costs))state.production={costs:d.production.costs};if(Array.isArray(d.photoPacks))state.photoPacks=d.photoPacks;if(d.ui){const {currentIdx,filter,...restUi}=d.ui;state.ui={...state.ui,...restUi};}}}catch(e){}if(state.ui.galleryView==='sheets')state.ui.galleryView='grid';}
 
 // ── SYNC ──
-function setSyncStatus(s){['sync-dot','sync-dot2'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.className='sync-dot'+(s==='syncing'?' syncing':s==='offline'?' offline':'');});const txt=s==='syncing'?'a guardar…':s==='offline'?'offline':'guardado';['sync-txt','sync-txt2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=txt;});}
+function setSyncStatus(s){
+  // If the browser knows we're offline, force the offline state regardless
+  if(typeof navigator!=='undefined'&&navigator.onLine===false)s='offline';
+  ['sync-dot','sync-dot2'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.className='sync-dot'+(s==='syncing'?' syncing':s==='offline'?' offline':'');});
+  const txt=s==='syncing'?'a guardar…':s==='offline'?'offline':'guardado';
+  ['sync-txt','sync-txt2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=txt;});
+}
+// Initial-load progress indicator. Shows a thin strip at the top of the viewport plus
+// an optional pill label with current sync stage. Auto-removes once complete.
+function setLoadProgress(pct,label){
+  let bar=document.getElementById('load-progress');
+  let lbl=document.getElementById('load-progress-label');
+  if(!bar){
+    bar=document.createElement('div');
+    bar.id='load-progress';
+    bar.className='load-progress';
+    document.body.appendChild(bar);
+  }
+  if(!lbl){
+    lbl=document.createElement('div');
+    lbl.id='load-progress-label';
+    lbl.className='load-progress-label';
+    document.body.appendChild(lbl);
+  }
+  bar.style.width=Math.min(100,Math.max(0,pct))+'%';
+  if(label){lbl.textContent=label;lbl.classList.add('visible');}
+  if(pct>=100){
+    setTimeout(()=>{
+      bar.classList.add('done');
+      lbl.classList.remove('visible');
+      setTimeout(()=>{if(bar.parentNode)bar.remove();if(lbl.parentNode)lbl.remove();},500);
+    },300);
+  }
+}
+// Reflect actual connectivity changes immediately. Browser fires these when the
+// connection comes back or goes away; the sticky-offline state is the main complaint.
+if(typeof window!=='undefined'){
+  window.addEventListener('online',()=>{
+    // Network came back. If we have pending changes, schedule a fresh save;
+    // otherwise just clear the stale "offline" indicator.
+    if(typeof photoPacksPendingChanges!=='undefined'&&photoPacksPendingChanges)scheduleSave();
+    else setSyncStatus('ok');
+  });
+  window.addEventListener('offline',()=>setSyncStatus('offline'));
+}
+// Manual recheck: clicking the sync badge attempts to recover from a stuck "offline" state.
+window.recheckSync=function(){
+  if(navigator.onLine===false){
+    showToast('Sem ligação à internet');
+    setSyncStatus('offline');
+    return;
+  }
+  // Online: trigger a save if there are pending changes, otherwise mark OK
+  if(typeof photoPacksPendingChanges!=='undefined'&&photoPacksPendingChanges){
+    showToast('A guardar alterações pendentes…');
+    scheduleSave();
+  }else{
+    setSyncStatus('ok');
+    showToast('Ligação OK');
+  }
+};
 
 // ── FIRESTORE ──
 function catsToFS(cats){return cats.map(([name,n,t])=>({name,n,tutorials:t||[]}));}
@@ -1563,24 +1632,55 @@ async function loadChunked(base,prefix){
   }
   return deduped;
 }
+// Migrate old fixed-shape locs object to dynamic array.
+// Old: {studio:30, pt:30, cv:40} → New: [{id,name,count},...]
+function migrateLocs(raw){
+  if(raw==null)return null;
+  if(Array.isArray(raw))return raw.map(b=>({id:b.id||('b-'+Math.random().toString(36).slice(2,8)),name:b.name||'Sem nome',count:typeof b.count==='number'?b.count:0}));
+  if(typeof raw==='object'){
+    const labelMap={studio:'Portugal – Estúdio',pt:'Portugal – Exterior',cv:'Cabo Verde – Exterior'};
+    const order=['studio','pt','cv'];
+    const arr=[];
+    order.forEach(k=>{if(typeof raw[k]==='number')arr.push({id:k,name:labelMap[k]||k,count:raw[k]});});
+    // any other keys (defensive)
+    Object.keys(raw).forEach(k=>{if(!order.includes(k)&&typeof raw[k]==='number')arr.push({id:k,name:k,count:raw[k]});});
+    return arr.length?arr:null;
+  }
+  return null;
+}
 async function loadFromFirestore(){
   try{
     const base=n=>doc(db,'shared','data','docs',n);
-    const [cfgSnap,teamSnap,outfits,joias,sapatos,scarves,models,locations,looks,photoPacks]=await Promise.all([
-      getDoc(base('config')),
-      getDoc(base('team')),
-      loadChunked(base,'outfits'),
-      loadChunked(base,'joias'),
-      loadChunked(base,'sapatos'),
-      loadChunked(base,'scarves'),
-      loadChunked(base,'models'),
-      loadChunked(base,'locations'),
-      loadChunked(base,'looks'),
-      loadChunked(base,'photoPacks')
-    ]);
+    setLoadProgress(3,'A iniciar sincronização…');
+    // Each section loads in parallel (fast) but reports completion individually (visible progress).
+    const sections=[
+      {name:'cfgSnap',label:'Configuração',fn:()=>getDoc(base('config'))},
+      {name:'teamSnap',label:'Equipa',fn:()=>getDoc(base('team'))},
+      {name:'outfits',label:'Roupas',fn:()=>loadChunked(base,'outfits')},
+      {name:'joias',label:'Jóias',fn:()=>loadChunked(base,'joias')},
+      {name:'sapatos',label:'Sapatos',fn:()=>loadChunked(base,'sapatos')},
+      {name:'scarves',label:'Lenços',fn:()=>loadChunked(base,'scarves')},
+      {name:'models',label:'Modelos',fn:()=>loadChunked(base,'models')},
+      {name:'locations',label:'Locais',fn:()=>loadChunked(base,'locations')},
+      {name:'looks',label:'Looks',fn:()=>loadChunked(base,'looks')},
+      {name:'photoPacks',label:'Fotos',fn:()=>loadChunked(base,'photoPacks')}
+    ];
+    const total=sections.length;
+    let done=0;
+    const results={};
+    await Promise.all(sections.map(s=>s.fn().then(r=>{
+      results[s.name]=r;
+      done++;
+      // Reserve last 10% for the post-load processing step
+      const pct=3+Math.round((done/total)*87);
+      setLoadProgress(pct,`Sincronizando · ${s.label} (${done}/${total})`);
+    })));
+    const cfgSnap=results.cfgSnap,teamSnap=results.teamSnap;
+    const {outfits,joias,sapatos,scarves,models,locations,looks,photoPacks}=results;
+    setLoadProgress(93,'A aplicar dados…');
     if(!cfgSnap.exists()&&looks===null){state.looks=genLooks();state.team=defaultTeam();doSave();}
     else{
-      if(cfgSnap.exists()){const c=cfgSnap.data();state.config.locs=c.locs||state.config.locs;state.config.cats=catsFromFS(c.cats)||state.config.cats;}
+      if(cfgSnap.exists()){const c=cfgSnap.data();state.config.locs=migrateLocs(c.locs)||state.config.locs;state.config.cats=catsFromFS(c.cats)||state.config.cats;}
       state.config.theme={...DEFAULT_THEME};
       if(outfits!==null)state.config.outfits=normaliseOutfits(outfits);
       if(joias!==null)state.config.joias=normaliseSimple(joias,DEFAULT_JOIAS);
@@ -1596,7 +1696,8 @@ async function loadFromFirestore(){
     ensureDefaultCategories();
     applyTheme();renderFilters();buildCarousel();updateCounter();setSyncStatus('ok');saveCache(state);
     startRemoteWatch();
-  }catch(e){console.error('Firebase:',e);setSyncStatus('offline');}
+    setLoadProgress(100,'Sincronizado ✓');
+  }catch(e){console.error('Firebase:',e);setSyncStatus('offline');setLoadProgress(100);}
 }
 // Ensure essential categories exist; idempotent, only adds if missing.
 // Tolerates singular/plural variants — won't duplicate.
@@ -1936,7 +2037,13 @@ function showBackupReminder(days){
 window.doLogin=function(){const pwd=document.getElementById('login-pwd').value.trim();if(pwd===ACCESS_PASSWORD){localStorage.setItem(SESSION_KEY,'1');document.getElementById('screen-login').classList.add('hidden');initApp();startPresence();}else{document.getElementById('login-err').textContent='⛔ Senha incorrecta.';document.getElementById('login-pwd').value='';}};
 window.doLogout=function(){if(!confirm('Sair?'))return;localStorage.removeItem(SESSION_KEY);document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById('screen-login').classList.remove('hidden');};
 
-function initApp(){loadCache();loadCompareBin();state.ui.currentIdx=0;state.ui.filter='';state.config.theme={...DEFAULT_THEME};applyTheme();document.getElementById('loading').classList.add('hidden');renderFilters();buildCarousel();updateCounter();renderCompareBin();maybePulseHowToFab();switchTab('dashboard');const fbTO=setTimeout(()=>setSyncStatus('offline'),8000);loadFromFirestore().then(()=>{clearTimeout(fbTO);if(window.currentScreen==='screen-dashboard')renderDashboard();}).catch(()=>{clearTimeout(fbTO);setSyncStatus('offline');});}
+function initApp(){loadCache();loadCompareBin();state.ui.currentIdx=0;state.ui.filter='';state.config.theme={...DEFAULT_THEME};applyTheme();document.getElementById('loading').classList.add('hidden');renderFilters();buildCarousel();updateCounter();renderCompareBin();maybePulseHowToFab();switchTab('dashboard');
+// Initial status reflects browser network state, not assumed offline
+if(navigator.onLine===false)setSyncStatus('offline');
+else setSyncStatus('syncing');
+// Generous 30s timeout for the initial Firestore load (9MB of photoPacks may take longer than 8s)
+const fbTO=setTimeout(()=>{if(navigator.onLine===false)setSyncStatus('offline');},30000);
+loadFromFirestore().then(()=>{clearTimeout(fbTO);if(window.currentScreen==='screen-dashboard')renderDashboard();setSyncStatus('ok');}).catch(()=>{clearTimeout(fbTO);setSyncStatus('offline');});}
 // Expose render functions to window so inline event handlers (onchange, onclick in HTML attributes)
 // can find them — module scope is not the global scope.
 window.renderPhotos=renderPhotos;
@@ -2162,7 +2269,7 @@ function buildCard(look){
       <div class="field-row"><div class="field-lbl">Notas</div><input class="field-inp" type="text" value="${esc(look.notes||'')}" placeholder="Adicionar nota…" onchange="updLookField(${look.num},'notes',this.value)"></div>
       <div class="card-actions-row">
         <button class="card-dup-btn" onclick="duplicateLook(${look.num})">⎘ Duplicar</button>
-        ${look.extra?`<button class="card-dup-btn danger" onclick="deleteLook(${look.num})">🗑 Apagar variação</button>`:''}
+        <button class="card-dup-btn danger" onclick="deleteLook(${look.num})">🗑 ${look.extra?'Apagar variação':'Eliminar look'}</button>
       </div>
     </div>`;
   return card;
@@ -2320,7 +2427,7 @@ window.updLookLocation=function(num,val){
   refreshCardLocHeader(num);
 };
 window.duplicateLook=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;const src=state.looks[idx];const parentNum=src.extra?src.parentNum:src.num;const maxNum=state.looks.reduce((m,l)=>Math.max(m,l.num),0);const newNum=Math.max(101,maxNum+1);const copy={category:src.category,outfit:toArr(src.outfit).slice(),scarf:toArr(src.scarf).slice(),joias:toArr(src.joias).slice(),sapatos:src.sapatos||'',model:'',location:src.location||'',locationId:src.locationId||'',tutorialIdx:src.tutorialIdx||0,status:'',shootingPhoto:'',notes:'',done:false,num:newNum,extra:true,parentNum};state.looks.splice(idx+1,0,copy);scheduleSave();const fl=filteredLooks();const newIdx=fl.findIndex(x=>x.num===newNum);if(newIdx>=0)state.ui.currentIdx=newIdx;renderFilters();buildCarousel();updateCounter();};
-window.deleteLook=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;const l=state.looks[idx];if(!l.extra){alert('Só é possível apagar looks duplicados. Os 100 originais não podem ser eliminados.');return;}const desc=`Look #${l.num} · variação de #${l.parentNum} · ${l.category}${l.model?' · '+l.model:''}`;if(!confirm(`Apagar esta variação?\n\n${desc}`))return;state.looks.splice(idx,1);scheduleSave();state.ui.currentIdx=Math.max(0,Math.min(idx,state.looks.length-1));renderFilters();buildCarousel();updateCounter();};
+window.deleteLook=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;const l=state.looks[idx];let confirmMsg;if(l.extra){confirmMsg=`Apagar esta variação?\n\nLook #${l.num} · variação de #${l.parentNum} · ${l.category}${l.model?' · '+l.model:''}`;}else{const isOriginal=l.num>=1&&l.num<=100;const heading=isOriginal?'⚠ Vais eliminar um look ORIGINAL (1-100)\n\nEste é um look estrutural da fase 1. A eliminação é permanente.':'Eliminar este look?';confirmMsg=`${heading}\n\nLook #${l.num} · ${l.category||'sem categoria'}${l.model?' · '+l.model:''}\n\nConfirmar?`;}if(!confirm(confirmMsg))return;state.looks.splice(idx,1);scheduleSave();state.ui.currentIdx=Math.max(0,Math.min(idx,state.looks.length-1));renderFilters();buildCarousel();updateCounter();if(window.currentScreen==='screen-shooting')renderShooting();if(window.currentScreen==='screen-gallery')renderGallery();};
 function refreshCardLocHeader(num){const fl=filteredLooks();const idx=fl.findIndex(x=>x.num===num);if(idx<0)return;const cardEl=document.getElementById('carousel-track').children[idx];if(!cardEl)return;const numEl=cardEl.querySelector('.card-num');if(!numEl)return;const look=fl[idx];const locMatch=look.locationId?(state.config.locations||[]).find(L=>L.id===look.locationId):null;const locName=locMatch?locMatch.name:'';numEl.innerHTML=`Look #${look.num}${look.extra&&look.parentNum?` <span class="card-extra-tag">var. de #${look.parentNum}</span>`:''}${locName?` · <span class="card-locname">${esc(locName)}</span>`:''}`;}
 
 // reposition on resize (card width changes between mobile and desktop)
@@ -2566,9 +2673,6 @@ function renderCompareColumn(l){
 
 // ── CONFIG ──
 function renderConfig(){
-  document.getElementById('loc-studio').value=state.config.locs.studio;
-  document.getElementById('loc-pt').value=state.config.locs.pt;
-  document.getElementById('loc-cv').value=state.config.locs.cv;
   updateLocHint();
   // backup status
   const bs=document.getElementById('backup-status');
@@ -2843,7 +2947,54 @@ window.removeItemAt=function(type,cid,i,icon){if(!state.config[type]||!state.con
 window.addTutorial=function(ci){if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2].push({name:'',photo:''});renderConfig();};
 window.removeTutorial=function(ci,ti){state.config.cats[ci][2].splice(ti,1);scheduleSave();renderConfig();};
 window.handleTutorialPhoto=async function(ci,ti,input){if(!input.files[0])return;const f=input.files[0];const m=(f.name||'').match(/\d+/);const tutNum=m?parseInt(m[0],10):null;const c=await compressImage(f,600,0.7);if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2][ti].photo=c;if(tutNum!==null&&!isNaN(tutNum))state.config.cats[ci][2][ti].num=tutNum;scheduleSave();renderConfig();buildCarousel();};
-window.updateLocHint=function(){const s=parseInt(document.getElementById('loc-studio').value)||0;const p=parseInt(document.getElementById('loc-pt').value)||0;const c=parseInt(document.getElementById('loc-cv').value)||0;const h=document.getElementById('loc-hint');h.innerHTML=`Total: <strong>${s+p+c}</strong> / 100`;h.className='cfg-hint'+((s+p+c)!==100?' err':'');};
+window.updateLocHint=function(){
+  if(!Array.isArray(state.config.locs))state.config.locs=[];
+  const list=document.getElementById('loc-buckets-list');
+  if(list){
+    list.innerHTML=state.config.locs.map((b,i)=>`<div class="loc-bucket-row" data-id="${esc(b.id||'')}">
+      <input class="loc-bucket-name" type="text" value="${esc(b.name||'')}" placeholder="Nome da área…" oninput="updLocBucketName('${esc(b.id||'')}',this.value)">
+      <input class="loc-bucket-count" type="number" min="0" value="${b.count||0}" oninput="updLocBucketCount('${esc(b.id||'')}',this.value)" title="Número de looks">
+      <button class="loc-bucket-rm" onclick="removeLocBucket('${esc(b.id||'')}')" title="Remover">✕</button>
+    </div>`).join('');
+  }
+  const total=state.config.locs.reduce((s,b)=>s+(parseInt(b.count,10)||0),0);
+  const h=document.getElementById('loc-hint');
+  if(h)h.innerHTML=`Total: <strong>${total}</strong> look${total!==1?'s':''}`;
+};
+window.addLocBucket=function(){
+  if(!Array.isArray(state.config.locs))state.config.locs=[];
+  const newId='b-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6);
+  state.config.locs.push({id:newId,name:'',count:0});
+  updateLocHint();
+  scheduleSave();
+  // Focus the new name input for immediate typing
+  setTimeout(()=>{const row=document.querySelector(`.loc-bucket-row[data-id="${newId}"] .loc-bucket-name`);if(row)row.focus();},30);
+};
+window.removeLocBucket=function(id){
+  const b=(state.config.locs||[]).find(x=>x.id===id);
+  if(!b)return;
+  if(!confirm(`Remover "${b.name||'(sem nome)'}"?`))return;
+  state.config.locs=state.config.locs.filter(x=>x.id!==id);
+  updateLocHint();
+  scheduleSave();
+};
+window.updLocBucketName=function(id,name){
+  const b=(state.config.locs||[]).find(x=>x.id===id);
+  if(!b)return;
+  b.name=name;
+  scheduleSave();
+  // Don't re-render to preserve cursor position in the input
+};
+window.updLocBucketCount=function(id,val){
+  const b=(state.config.locs||[]).find(x=>x.id===id);
+  if(!b)return;
+  b.count=Math.max(0,parseInt(val,10)||0);
+  // Update total only (don't re-render the whole list)
+  const total=state.config.locs.reduce((s,bb)=>s+(parseInt(bb.count,10)||0),0);
+  const h=document.getElementById('loc-hint');
+  if(h)h.innerHTML=`Total: <strong>${total}</strong> look${total!==1?'s':''}`;
+  scheduleSave();
+};
 window.updateCatHint=function(){const t=state.config.cats.reduce((s,[,n])=>s+n,0);const h=document.getElementById('cat-hint');h.innerHTML=`Total: <strong>${t}</strong> / 100`;h.className='cfg-hint'+(t!==100?' err':'');};
 window.regenerateFromCats=function(){const ct=state.config.cats.reduce((s,[,n])=>s+n,0);if(ct!==100){alert(`Total de categorias: ${ct}. Deve ser 100 para gerar os looks.`);return;}const extras=(state.looks||[]).filter(l=>l.extra).length;if(state.looks&&state.looks.length&&!confirm(`Vai gerar uma nova lista de looks vazia. As atribuições actuais (roupa, modelo, local, lenço, jóias, sapatos, fotos de shooting) serão perdidas${extras?` e as ${extras} variação${extras!==1?'ões':''} extra também serão removida${extras!==1?'s':''}`:''}. Continuar?`))return;state.looks=genLooksEmpty();state.ui.currentIdx=0;state.ui.filter='';scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');};
 
@@ -3236,7 +3387,7 @@ function renderShootingDetail(id){const L=(state.config.locations||[]).find(x=>x
 </div>
 <div class="sh-looks-head">
   <h2>Looks</h2>
-  <div class="r"><span>${assignedLooks.length} look${assignedLooks.length!==1?'s':''} programado${assignedLooks.length!==1?'s':''}</span><button class="add-btn" onclick="openLookPicker('${id}')">＋ Novo look</button></div>
+  <div class="r"><span>${assignedLooks.length} look${assignedLooks.length!==1?'s':''} programado${assignedLooks.length!==1?'s':''}</span><button class="add-btn" onclick="openCreateLooksModal('${id}')">＋ Criar looks</button><button class="add-btn" onclick="openLookPicker('${id}')">＋ Atribuir existente</button></div>
 </div>
 <div class="sh-look-grid">${assignedLooks.length?assignedLooks.map(l=>renderShootingLookItem(l)).join(''):`<div class="sh-empty" style="padding:40px 10px;grid-column:1/-1"><div style="font-family:'Inter Tight',sans-serif;font-size:.95rem;color:var(--c-text2)">Sem looks atribuídos a esta locação</div><div style="margin-top:6px;font-size:.75rem">Toca em "＋ Novo look" para começar.</div></div>`}</div>
 <div class="sh-foot"><div class="l">Lookbook · Editorial Interno</div><div class="c"><span class="aos-inline" style="color:var(--c-text2)"><span class="aos-mark"><svg viewBox="0 0 60 60" width="18" height="18" aria-hidden="true"><g fill="currentColor"><rect x="10.5" y="8" width="1" height="44"/><rect x="13" y="8" width="1.8" height="44"/><rect x="16.3" y="8" width="2.8" height="44"/><rect x="20.6" y="8" width="4" height="44"/><rect x="26.1" y="8" width="5.8" height="44"/><rect x="33.4" y="8" width="8.2" height="44"/><rect x="43.1" y="8" width="11.5" height="44"/></g></svg></span><span class="aos-wordmark" style="font-size:13px"><span class="aos-ser">Art of</span><span class="aos-gap"></span><span class="aos-san">Scarves</span></span></span></div><div class="r">${esc(fmtDateLong(L.date))} · ${esc(fmtTimeLabel(L.timeStart,L.timeEnd))}</div></div>`;}
@@ -3296,6 +3447,74 @@ window.saveLocationFromModal=function(id){const name=document.getElementById('lm
 // Look picker (add looks to a location)
 window.openLookPicker=function(locId){const L=(state.config.locations||[]).find(x=>x.id===locId);if(!L)return;const roster=(L.models||[]);const candidates=state.looks.filter(l=>{if(l.locationId)return false;if(l.location&&l.location!==L.category)return false;if(roster.length&&l.model&&!roster.includes(l.model))return false;return true;});const assignedHere=looksForLocation(locId);const itemsHtml=candidates.length?candidates.map(l=>{const oName=toArr(l.outfit)[0]||'—';const oPhoto=photoOf('outfits',oName);const firstScarf=toArr(l.scarf)[0]||'';const sPhoto=photoOf('scarves',firstScarf);const mPhoto=photoOf('models',l.model);const tut=tutorialOf(l);const tPhoto=tut?.photo||'';const thumb=(p,icon,contain,extra)=>`<div class="sh-picker-thumb${contain?' contain':''}">${p?`<img src="${p}" alt="">`:`<div class="sh-picker-thumb-ph">${icon}</div>`}${extra||''}</div>`;return `<div class="sh-picker-item" onclick="assignLookToLocation(${l.num},'${locId}')"><div class="sh-picker-num">№${String(l.num).padStart(2,'0')}</div><div class="sh-picker-thumbs">${thumb(oPhoto,'👗',false)}${thumb(sPhoto,'🧣',false)}${thumb(mPhoto,'👤',false)}${thumb(tPhoto,'📋',true,tutBadge(tut,'sm'))}</div><div class="sh-picker-info"><div class="sh-picker-out">${esc(oName)} · ${esc(l.model||'sem modelo')}</div><div class="sh-picker-meta">${esc(l.category)}</div></div></div>`;}).join(''):`<div class="sh-empty" style="padding:30px 10px"><div style="font-family:'Inter Tight',sans-serif;font-size:.9rem;color:var(--c-text2)">Sem looks disponíveis</div><div style="margin-top:6px;font-size:.72rem">Categoria "${esc(L.category)}"${roster.length?` · elenco: ${roster.map(esc).join(', ')}`:''} · ainda não atribuídos.</div></div>`;const filterNote=roster.length?`<div class="pin-sub" style="margin-top:-4px;color:var(--c-text3);font-size:.7rem">A mostrar apenas looks com modelos do elenco: ${roster.map(esc).join(', ')} (ou sem modelo definido)</div>`:'';const html=`<div class="pin-card" style="max-width:480px;padding:20px"><div class="pin-title">Adicionar look · ${esc(L.name)}</div><div class="pin-sub">${candidates.length} disponível${candidates.length!==1?'eis':''} · ${assignedHere.length} já atribuído${assignedHere.length!==1?'s':''}</div>${filterNote}<div class="sh-picker-list">${itemsHtml}</div><div class="pin-actions" style="margin-top:14px"><button class="pin-btn" onclick="closeLocationModal()">Fechar</button></div></div>`;const ovl=document.getElementById('loc-modal-ovl');ovl.innerHTML=html;ovl.classList.add('open');};
 window.assignLookToLocation=function(num,locId){const l=state.looks.find(x=>x.num===num);const L=(state.config.locations||[]).find(x=>x.id===locId);if(!l||!L)return;l.locationId=locId;if(L.category)l.location=L.category;scheduleSave();buildCarousel();if(shView.mode==='detail'&&shView.id===locId)renderShootingDetail(locId);openLookPicker(locId);};
+// Open modal asking how many new looks (and optional category) to create for this location
+window.openCreateLooksModal=function(locId){
+  const L=(state.config.locations||[]).find(x=>x.id===locId);
+  if(!L)return;
+  const cats=(state.config.cats||[]).map(([n])=>n);
+  const catOpts=`<option value="">— Sem categoria —</option>`+cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  const html=`<div class="pin-card" style="max-width:420px;padding:24px">
+    <div class="pin-title">Criar looks novos · ${esc(L.name)}</div>
+    <div class="pin-sub" style="margin-bottom:18px">Cria looks vazios atribuídos a esta locação. Podes editar cada um depois (modelo, roupa, lenço, etc.).</div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <label style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text3)">Quantos looks</span>
+        <input type="number" id="cl-count" min="1" max="100" value="5" style="padding:10px 12px;border:1.5px solid var(--c-border);border-radius:4px;font-family:'Inter Tight',sans-serif;font-size:.95rem;background:var(--c-bg);color:var(--c-text)">
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--c-text3)">Categoria (opcional)</span>
+        <select id="cl-cat" style="padding:10px 12px;border:1.5px solid var(--c-border);border-radius:4px;font-family:'Inter Tight',sans-serif;font-size:.95rem;background:var(--c-bg);color:var(--c-text)">${catOpts}</select>
+        <span style="font-size:.72rem;color:var(--c-text3)">Se deixares em branco, podes definir individualmente em cada look.</span>
+      </label>
+    </div>
+    <div class="pin-actions" style="margin-top:22px;gap:10px;display:flex;justify-content:flex-end">
+      <button class="pin-btn" onclick="closeLocationModal()">Cancelar</button>
+      <button class="pin-btn primary" onclick="createLooksForLocation('${locId}')" style="background:var(--c-accent);color:#fff">Criar</button>
+    </div>
+  </div>`;
+  const ovl=document.getElementById('loc-modal-ovl');
+  ovl.innerHTML=html;
+  ovl.classList.add('open');
+  // Focus the count input
+  setTimeout(()=>{const inp=document.getElementById('cl-count');if(inp)inp.focus();},50);
+};
+window.createLooksForLocation=function(locId){
+  const L=(state.config.locations||[]).find(x=>x.id===locId);
+  if(!L)return;
+  const countInp=document.getElementById('cl-count');
+  const catSel=document.getElementById('cl-cat');
+  const count=Math.max(1,Math.min(100,parseInt(countInp?.value||'1',10)||1));
+  const category=catSel?.value||'';
+  // Find next available number — max+1, minimum 101 to preserve original 1-100 numbering
+  const maxNum=state.looks.reduce((m,l)=>Math.max(m,l.num||0),0);
+  let nextNum=Math.max(101,maxNum+1);
+  const created=[];
+  for(let i=0;i<count;i++){
+    state.looks.push({
+      num:nextNum+i,
+      category:category||'',
+      outfit:[],
+      scarf:[],
+      joias:[],
+      sapatos:'',
+      model:'',
+      location:L.category||'',
+      locationId:locId,
+      tutorialIdx:0,
+      status:'',
+      shootingPhoto:'',
+      notes:'',
+      extra:false,
+      parentNum:null
+    });
+    created.push(nextNum+i);
+  }
+  scheduleSave();
+  closeLocationModal();
+  renderShootingDetail(locId);
+  buildCarousel();
+  showToast(`${count} look${count>1?'s':''} criado${count>1?'s':''} (#${created[0]}${count>1?`–#${created[count-1]}`:''})`);
+};
 
 // ── EQUIPA ──
 function renderTeam(){renderGrandTotal();document.getElementById('team-cards').innerHTML=state.team.map(m=>renderMemberCard(m)).join('');renderProductionCosts();renderPresence();}
