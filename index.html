@@ -1488,6 +1488,8 @@ let __savePendingAgain=false;
 // Per-section snapshot of what was last successfully written, so we only re-upload
 // sections that actually changed. Populated after the initial load.
 let lastSavedJSON={};
+// Per-pack snapshot (id → serialized pack) for one-doc-per-pack photoPacks storage.
+let lastSavedPacks={};
 async function doSave(){
   // If a save is already running, don't drop this request — flag it so we run again after.
   // (Previously this returned early and silently lost edits made during a long save.)
@@ -1542,6 +1544,50 @@ async function doSave(){
       await Promise.race([batch.commit(),new Promise((_,reject)=>setTimeout(()=>reject(new Error(`${prefix}: batch commit timeout (45s)`)),45000))]);
       if(skipped.length)throw new Error(`${prefix}: ${skipped.length} item(s) não gravados — demasiado grandes: ${skipped.join(', ')}`);
     }
+    // Save photoPacks as individual documents — only the ones that changed.
+    // This is the core fix: editing one pack writes ~150KB, not the whole 9MB.
+    async function savePhotoPacks(){
+      const packs=state.photoPacks||[];
+      const col=(id)=>doc(db,'shared','data','photoPacks_items',id);
+      const SAFETY_LIMIT=900*1024;
+      const skipped=[];
+      const currentIds=new Set();
+      // Figure out which packs are new/changed
+      const toWrite=[];
+      for(const p of packs){
+        if(!p.id)p.id='pp-'+Date.now()+'-'+Math.random().toString(36).slice(2,6);
+        currentIds.add(p.id);
+        const snap=JSON.stringify(p);
+        if(snap.length>SAFETY_LIMIT){skipped.push(p.name?`"${p.name}"`:p.id);continue;}
+        if(lastSavedPacks[p.id]!==snap)toWrite.push({p,snap});
+      }
+      // Figure out which packs were deleted (in lastSaved but no longer present)
+      const toDelete=Object.keys(lastSavedPacks).filter(id=>!currentIds.has(id));
+      // Write changed packs in small batches (max 20 ops/batch keeps well under limits)
+      const writerTag=sessionStorage.getItem('aos_tab_id')||'unknown';
+      const BATCH=10;
+      for(let i=0;i<toWrite.length;i+=BATCH){
+        const slice=toWrite.slice(i,i+BATCH);
+        const batch=writeBatch(db);
+        slice.forEach(({p})=>batch.set(col(p.id),p));
+        await Promise.race([batch.commit(),new Promise((_,rej)=>setTimeout(()=>rej(new Error('photoPacks: batch timeout (30s)')),30000))]);
+        // Mark these as saved only after the batch commits
+        slice.forEach(({p,snap})=>{lastSavedPacks[p.id]=snap;});
+      }
+      // Delete removed packs
+      for(let i=0;i<toDelete.length;i+=BATCH){
+        const slice=toDelete.slice(i,i+BATCH);
+        const batch=writeBatch(db);
+        slice.forEach(id=>batch.delete(col(id)));
+        await Promise.race([batch.commit(),new Promise((_,rej)=>setTimeout(()=>rej(new Error('photoPacks: delete timeout (30s)')),30000))]);
+        slice.forEach(id=>{delete lastSavedPacks[id];});
+      }
+      // Update the meta doc so the remote watcher can detect changes from other devices
+      if(toWrite.length||toDelete.length){
+        await setDocT(doc(db,'shared','data','docs','photoPacks'),{itemsCol:true,count:packs.length,ts:Date.now(),_writer:writerTag});
+      }
+      if(skipped.length)throw new Error(`photoPacks: ${skipped.length} pack(s) demasiado grandes não gravados: ${skipped.join(', ')}`);
+    }
     const writerTagOp=sessionStorage.getItem('aos_tab_id')||'unknown';
     // Each op carries a `snap` = serialized current data. We compare against lastSavedJSON
     // and skip ops whose data is byte-for-byte identical to what we last wrote.
@@ -1556,18 +1602,19 @@ async function doSave(){
       {name:'models',snap:JSON.stringify(state.config.models),fn:()=>saveChunked('models',state.config.models)},
       {name:'locations',snap:JSON.stringify(state.config.locations||[]),fn:()=>saveChunked('locations',state.config.locations||[])},
       {name:'looks',snap:JSON.stringify(state.looks),fn:()=>saveChunked('looks',state.looks)},
-      {name:'photoPacks',snap:JSON.stringify(state.photoPacks||[]),fn:()=>saveChunked('photoPacks',state.photoPacks||[])},
+      {name:'photoPacks',snap:null,fn:()=>savePhotoPacks()},
       {name:'team',snap:JSON.stringify(teamData),fn:()=>setDocT(base('team'),{...teamData,ts:Date.now(),_writer:writerTagOp})}
     ];
     const failed=[];
     const reasons=[];
     let savedCount=0;
     for(const op of ops){
-      // Skip sections that are unchanged since the last successful save — huge speed-up.
-      if(lastSavedJSON[op.name]===op.snap)continue;
+      // Sections with snap:null manage their own per-item dirty tracking (e.g. photoPacks).
+      // Sections with a snapshot are skipped when unchanged since the last successful save.
+      if(op.snap!==null&&lastSavedJSON[op.name]===op.snap)continue;
       try{
         await op.fn();
-        lastSavedJSON[op.name]=op.snap; // mark as saved only on success
+        if(op.snap!==null)lastSavedJSON[op.name]=op.snap; // mark saved (snapshot-based sections only)
         savedCount++;
       }catch(e){
         console.error(`[doSave] ${op.name} FAILED:`,e);
@@ -1630,6 +1677,34 @@ function migrateLocs(raw){
   }
   return null;
 }
+// ── PHOTO PACKS: one-document-per-pack storage ──
+// Each pack lives at shared/data/photoPacks_items/{id}. This means editing one pack
+// writes ~150KB (just that pack), never the whole 9MB. Fixes resource-exhausted for good.
+let __photoPacksMigrating=false;
+async function loadPhotoPacks(){
+  try{
+    const col=collection(db,'shared','data','photoPacks_items');
+    const snap=await getDocs(col);
+    if(!snap.empty){
+      const packs=[];
+      snap.forEach(d=>{const data=d.data();if(data&&!data._deleted)packs.push(data);});
+      packs.sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+      __photoPacksMigrating=false;
+      return packs;
+    }
+    // Empty subcollection → fall back to the legacy chunked format (one-time migration source)
+    const legacy=await loadChunked(n=>doc(db,'shared','data','docs',n),'photoPacks');
+    if(legacy&&legacy.length){
+      console.log(`[photoPacks] Migrating ${legacy.length} packs from legacy chunked format.`);
+      __photoPacksMigrating=true; // force first save to persist into the new subcollection
+      return legacy;
+    }
+    __photoPacksMigrating=false;
+    return null;
+  }catch(e){console.warn('[loadPhotoPacks] failed, falling back to legacy:',e?.message);
+    try{return await loadChunked(n=>doc(db,'shared','data','docs',n),'photoPacks');}catch(_){return null;}
+  }
+}
 async function loadFromFirestore(){
   try{
     const base=n=>doc(db,'shared','data','docs',n);
@@ -1645,7 +1720,7 @@ async function loadFromFirestore(){
       {name:'models',label:'Modelos',fn:()=>loadChunked(base,'models')},
       {name:'locations',label:'Locais',fn:()=>loadChunked(base,'locations')},
       {name:'looks',label:'Looks',fn:()=>loadChunked(base,'looks')},
-      {name:'photoPacks',label:'Fotos',fn:()=>loadChunked(base,'photoPacks')}
+      {name:'photoPacks',label:'Fotos',fn:()=>loadPhotoPacks()}
     ];
     const total=sections.length;
     let done=0;
@@ -1687,10 +1762,19 @@ async function loadFromFirestore(){
         models:JSON.stringify(state.config.models),
         locations:JSON.stringify(state.config.locations||[]),
         looks:JSON.stringify(state.looks),
-        photoPacks:JSON.stringify(state.photoPacks||[]),
         team:JSON.stringify({items:state.team,production:state.production||{costs:[]},ui:state.ui})
       };
-    }catch(e){lastSavedJSON={};}
+      // Baseline per-pack tracker so the first save only writes changed packs.
+      // EXCEPTION: if we just migrated from the legacy format, leave it empty so the
+      // first save persists every pack into the new subcollection.
+      lastSavedPacks={};
+      if(!__photoPacksMigrating){
+        (state.photoPacks||[]).forEach(p=>{if(p&&p.id)lastSavedPacks[p.id]=JSON.stringify(p);});
+      }else{
+        console.log('[photoPacks] Will write all packs to new subcollection on next save.');
+        scheduleSave(); // trigger migration write
+      }
+    }catch(e){lastSavedJSON={};lastSavedPacks={};}
     applyTheme();renderFilters();buildCarousel();updateCounter();setSyncStatus('ok');saveCache(state);
     startRemoteWatch();
     setLoadProgress(100,'Sincronizado ✓');
