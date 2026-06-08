@@ -1643,9 +1643,25 @@ async function loadChunked(base,prefix){
   const meta=metaSnap.data();
   // backward compat: old format stored items directly in prefix doc
   if(!meta.chunked)return meta.items||[];
-  const chunkSnaps=await Promise.all(Array.from({length:meta.chunks},(_,i)=>getDoc(base(`${prefix}_chunk_${i}`))));
+  const expectedChunks=meta.chunks||0;
+  const chunkSnaps=await Promise.all(Array.from({length:expectedChunks},(_,i)=>getDoc(base(`${prefix}_chunk_${i}`))));
   const all=[];
-  chunkSnaps.forEach(s=>{if(s.exists()){const d=s.data();if(!d._stale&&Array.isArray(d.items))all.push(...d.items);}});
+  let missing=0;
+  chunkSnaps.forEach((s,i)=>{
+    if(!s.exists()){
+      // A non-stale chunk the meta promised is missing. This is a partial/failed read —
+      // returning here would silently DROP items and a later save would persist the loss.
+      missing++;
+      return;
+    }
+    const d=s.data();
+    if(d._stale)return; // intentionally retired chunk — fine to skip
+    if(Array.isArray(d.items))all.push(...d.items);
+  });
+  if(missing>0){
+    // Fail loudly. The caller keeps the previous (cache) data instead of overwriting with a hole.
+    throw new Error(`${prefix}: ${missing}/${expectedChunks} chunk(s) em falta — leitura parcial, a abortar para não corromper`);
+  }
   // DEDUP: a partial-save failure can leave stale chunks pointing to old items
   // that also appear (reorganised) in newly-written chunks. Dedup by id/num/name keeps the latest.
   const seen=new Set();
@@ -1735,19 +1751,54 @@ async function loadFromFirestore(){
     const cfgSnap=results.cfgSnap,teamSnap=results.teamSnap;
     const {outfits,joias,sapatos,scarves,models,locations,looks,photoPacks}=results;
     setLoadProgress(93,'A aplicar dados…');
+    // ── SHRINK GUARD ──
+    // Count embedded photos (any "photo" key, at any depth) in a value.
+    function countPhotos(v){
+      let n=0;
+      (function walk(x){
+        if(!x)return;
+        if(Array.isArray(x)){x.forEach(walk);return;}
+        if(typeof x==='object'){for(const k in x){if(k==='photo'&&typeof x[k]==='string'&&x[k].length>0)n++;else walk(x[k]);}}
+      })(v);
+      return n;
+    }
+    // Decide whether to accept incoming data or keep what we already have (from cache).
+    // If incoming has drastically fewer photos than current, it's almost certainly a
+    // bad/partial read — keep the cache to avoid persisting a loss, and warn.
+    const shrinkWarnings=[];
+    function accept(label,incoming,current){
+      if(incoming===null||incoming===undefined)return current; // nothing loaded → keep
+      const inP=countPhotos(incoming),curP=countPhotos(current);
+      // Only guard when there's meaningful current content and a big drop (>40% of photos gone).
+      if(curP>=5&&inP<curP*0.6){
+        shrinkWarnings.push(`${label}: ${curP}→${inP} fotos`);
+        console.warn(`[shrink-guard] ${label}: incoming has ${inP} photos vs ${curP} cached — KEEPING cache.`);
+        return current;
+      }
+      return incoming;
+    }
     if(!cfgSnap.exists()&&looks===null){state.looks=genLooks();state.team=defaultTeam();doSave();}
     else{
-      if(cfgSnap.exists()){const c=cfgSnap.data();state.config.locs=migrateLocs(c.locs)||state.config.locs;state.config.cats=catsFromFS(c.cats)||state.config.cats;}
+      if(cfgSnap.exists()){
+        const c=cfgSnap.data();
+        state.config.locs=migrateLocs(c.locs)||state.config.locs;
+        // Guard the cats/tutorials too — tutorial photos live here.
+        const incomingCats=catsFromFS(c.cats);
+        state.config.cats=accept('Tutoriais',incomingCats,state.config.cats)||state.config.cats;
+      }
       state.config.theme={...DEFAULT_THEME};
-      if(outfits!==null)state.config.outfits=normaliseOutfits(outfits);
-      if(joias!==null)state.config.joias=normaliseSimple(joias,DEFAULT_JOIAS);
-      if(sapatos!==null)state.config.sapatos=normaliseSimple(sapatos,DEFAULT_SAPATOS);
-      if(scarves!==null)state.config.scarves=scarves;
-      if(models!==null)state.config.models=models;
-      if(locations!==null)state.config.locations=locations;
-      if(looks!==null)state.looks=migrateLooks(looks);
-      if(photoPacks!==null)state.photoPacks=Array.isArray(photoPacks)?photoPacks:[];
+      if(outfits!==null)state.config.outfits=normaliseOutfits(accept('Roupas',outfits,state.config.outfits));
+      if(joias!==null)state.config.joias=normaliseSimple(accept('Jóias',joias,state.config.joias),DEFAULT_JOIAS);
+      if(sapatos!==null)state.config.sapatos=normaliseSimple(accept('Sapatos',sapatos,state.config.sapatos),DEFAULT_SAPATOS);
+      if(scarves!==null)state.config.scarves=accept('Lenços',scarves,state.config.scarves);
+      if(models!==null)state.config.models=accept('Modelos',models,state.config.models);
+      if(locations!==null)state.config.locations=accept('Locais',locations,state.config.locations);
+      if(looks!==null)state.looks=migrateLooks(accept('Looks',looks,state.looks));
+      if(photoPacks!==null)state.photoPacks=Array.isArray(photoPacks)?accept('Fotos',photoPacks,state.photoPacks):state.photoPacks;
       if(teamSnap.exists()){state.team=teamSnap.data().items||[];const prod=teamSnap.data().production;if(prod&&Array.isArray(prod.costs))state.production={costs:prod.costs};if(teamSnap.data().ui){const {currentIdx,filter,...restUi}=teamSnap.data().ui;state.ui={...state.ui,...restUi};}}
+    }
+    if(shrinkWarnings.length){
+      setTimeout(()=>showToast(`⚠️ Leitura suspeita — mantido cache em: ${shrinkWarnings.join(' · ')}. Não gravar até verificar.`),800);
     }
     pruneOrphanReferences();
     ensureDefaultCategories();
