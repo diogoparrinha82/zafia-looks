@@ -1480,9 +1480,24 @@ window.recheckSync=function(){
 
 // ── FIRESTORE ──
 function tutId(){return 't-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+// Firestore rejects `undefined` anywhere (objects AND arrays). A JSON round-trip removes
+// undefined object keys and converts undefined array slots to null — fully Firestore-safe.
+function stripUndef(v){try{return JSON.parse(JSON.stringify(v));}catch(e){return v;}}
 function ensureTutorialIds(){(state.config.cats||[]).forEach(c=>{(c[2]||[]).forEach(t=>{if(t&&!t.id)t.id=tutId();});});}
 // config stays LIGHT: tutorial photos are stored separately (chunked) to avoid the 1MiB doc cap.
-function catsToFS(cats){return cats.map(([name,n,t])=>({name,n,tutorials:(t||[]).map(x=>({id:x.id,n:x.n,name:x.name||''}))}));}
+// Firestore rejects any `undefined` field value, so every field is coerced to a safe default.
+function catsToFS(cats){
+  return (cats||[]).map(c=>{
+    const name=c[0]??'';
+    const n=Number.isFinite(c[1])?c[1]:0;
+    const tutorials=(c[2]||[]).map(x=>({
+      id:x.id||tutId(),
+      n:(x.n===undefined||x.n===null)?null:x.n,
+      name:x.name||''
+    }));
+    return {name,n,tutorials};
+  });
+}
 function catsFromFS(arr){if(!arr||!arr.length)return[];if(Array.isArray(arr[0]))return arr.map(c=>[c[0],c[1],(c[2]||[]).map(x=>({id:x.id,n:x.n,name:x.name||'',photo:x.photo||''}))]);return arr.map(c=>[c.name,c.n,(c.tutorials||[]).map(x=>({id:x.id,n:x.n,name:x.name||'',photo:x.photo||''}))]);}
 // Collect/scatter tutorial photos for separate chunked storage.
 function collectTutorialPhotos(){const out=[];(state.config.cats||[]).forEach(c=>{(c[2]||[]).forEach(t=>{if(t&&t.id&&t.photo)out.push({id:t.id,photo:t.photo});});});return out;}
@@ -1597,11 +1612,11 @@ async function doSave(){
     const writerTagOp=sessionStorage.getItem('aos_tab_id')||'unknown';
     // Each op carries a `snap` = serialized current data. We compare against lastSavedJSON
     // and skip ops whose data is byte-for-byte identical to what we last wrote.
-    const configData={locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme};
+    const configData=stripUndef({locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme});
     const tutPhotos=collectTutorialPhotos();
-    const teamData={items:state.team,production:state.production||{costs:[]},ui:state.ui};
+    const teamData=stripUndef({items:state.team,production:state.production||{costs:[]},ui:state.ui});
     const ops=[
-      {name:'config',snap:JSON.stringify(configData),fn:()=>setDocT(base('config'),{...configData,ts:Date.now(),_writer:writerTagOp})},
+      {name:'config',snap:JSON.stringify(configData),fn:()=>setDocT(base('config'),stripUndef({...configData,ts:Date.now(),_writer:writerTagOp}))},
       {name:'tutorialPhotos',snap:JSON.stringify(tutPhotos),fn:()=>saveChunked('tutorialPhotos',tutPhotos)},
       {name:'outfits',snap:JSON.stringify(state.config.outfits),fn:()=>saveChunked('outfits',state.config.outfits)},
       {name:'joias',snap:JSON.stringify(state.config.joias||[]),fn:()=>saveChunked('joias',state.config.joias||[])},
@@ -1611,7 +1626,7 @@ async function doSave(){
       {name:'locations',snap:JSON.stringify(state.config.locations||[]),fn:()=>saveChunked('locations',state.config.locations||[])},
       {name:'looks',snap:JSON.stringify(state.looks),fn:()=>saveChunked('looks',state.looks)},
       {name:'photoPacks',snap:null,fn:()=>savePhotoPacks()},
-      {name:'team',snap:JSON.stringify(teamData),fn:()=>setDocT(base('team'),{...teamData,ts:Date.now(),_writer:writerTagOp})}
+      {name:'team',snap:JSON.stringify(teamData),fn:()=>setDocT(base('team'),stripUndef({...teamData,ts:Date.now(),_writer:writerTagOp}))}
     ];
     const failed=[];
     const reasons=[];
