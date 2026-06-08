@@ -1134,7 +1134,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
     </div>
     <div class="cfg-section" id="cs-cats">
       <div class="cfg-section-hdr" onclick="toggleCS('cs-cats')"><div><div class="cfg-section-title">Categorias & Tutoriais</div></div><span class="cfg-chevron">▾</span></div>
-      <div class="cfg-section-body" style="padding:14px 16px;"><div id="cat-inputs"></div><div class="cfg-hint" id="cat-hint">Total: <strong>0</strong> / 100</div>
+      <div class="cfg-section-body" style="padding:14px 16px;"><div id="cat-inputs"></div><div class="cfg-hint" id="cat-hint">Total de looks definido: <strong>0</strong></div>
         <button class="mini-btn accent" style="width:100%;margin-top:10px" onclick="regenerateFromCats()">▶ Aplicar e Gerar Looks</button>
         <p style="text-align:center;font-size:.65rem;color:var(--c-text3);margin-top:6px">Cria uma nova lista de looks vazios para preencher</p>
       </div>
@@ -1479,8 +1479,14 @@ window.recheckSync=function(){
 };
 
 // ── FIRESTORE ──
-function catsToFS(cats){return cats.map(([name,n,t])=>({name,n,tutorials:t||[]}));}
-function catsFromFS(arr){if(!arr||!arr.length)return[];if(Array.isArray(arr[0]))return arr.map(c=>[c[0],c[1],c[2]||[]]);return arr.map(c=>[c.name,c.n,c.tutorials||[]]);}
+function tutId(){return 't-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function ensureTutorialIds(){(state.config.cats||[]).forEach(c=>{(c[2]||[]).forEach(t=>{if(t&&!t.id)t.id=tutId();});});}
+// config stays LIGHT: tutorial photos are stored separately (chunked) to avoid the 1MiB doc cap.
+function catsToFS(cats){return cats.map(([name,n,t])=>({name,n,tutorials:(t||[]).map(x=>({id:x.id,n:x.n,name:x.name||''}))}));}
+function catsFromFS(arr){if(!arr||!arr.length)return[];if(Array.isArray(arr[0]))return arr.map(c=>[c[0],c[1],(c[2]||[]).map(x=>({id:x.id,n:x.n,name:x.name||'',photo:x.photo||''}))]);return arr.map(c=>[c.name,c.n,(c.tutorials||[]).map(x=>({id:x.id,n:x.n,name:x.name||'',photo:x.photo||''}))]);}
+// Collect/scatter tutorial photos for separate chunked storage.
+function collectTutorialPhotos(){const out=[];(state.config.cats||[]).forEach(c=>{(c[2]||[]).forEach(t=>{if(t&&t.id&&t.photo)out.push({id:t.id,photo:t.photo});});});return out;}
+function applyTutorialPhotos(list){if(!list||!list.length)return;const map={};list.forEach(x=>{if(x&&x.id)map[x.id]=x.photo;});(state.config.cats||[]).forEach(c=>{(c[2]||[]).forEach(t=>{if(t&&t.id&&map[t.id])t.photo=map[t.id];});});}
 let saveTimer=null;
 function scheduleSave(){clearTimeout(saveTimer);setSyncStatus('syncing');saveTimer=setTimeout(doSave,3500);}
 let __doSaveInProgress=false;
@@ -1592,9 +1598,11 @@ async function doSave(){
     // Each op carries a `snap` = serialized current data. We compare against lastSavedJSON
     // and skip ops whose data is byte-for-byte identical to what we last wrote.
     const configData={locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme};
+    const tutPhotos=collectTutorialPhotos();
     const teamData={items:state.team,production:state.production||{costs:[]},ui:state.ui};
     const ops=[
       {name:'config',snap:JSON.stringify(configData),fn:()=>setDocT(base('config'),{...configData,ts:Date.now(),_writer:writerTagOp})},
+      {name:'tutorialPhotos',snap:JSON.stringify(tutPhotos),fn:()=>saveChunked('tutorialPhotos',tutPhotos)},
       {name:'outfits',snap:JSON.stringify(state.config.outfits),fn:()=>saveChunked('outfits',state.config.outfits)},
       {name:'joias',snap:JSON.stringify(state.config.joias||[]),fn:()=>saveChunked('joias',state.config.joias||[])},
       {name:'sapatos',snap:JSON.stringify(state.config.sapatos||[]),fn:()=>saveChunked('sapatos',state.config.sapatos||[])},
@@ -1736,6 +1744,7 @@ async function loadFromFirestore(){
       {name:'models',label:'Modelos',fn:()=>loadChunked(base,'models')},
       {name:'locations',label:'Locais',fn:()=>loadChunked(base,'locations')},
       {name:'looks',label:'Looks',fn:()=>loadChunked(base,'looks')},
+      {name:'tutPhotos',label:'Fotos tutoriais',fn:()=>loadChunked(base,'tutorialPhotos')},
       {name:'photoPacks',label:'Fotos',fn:()=>loadPhotoPacks()}
     ];
     const total=sections.length;
@@ -1749,7 +1758,7 @@ async function loadFromFirestore(){
       setLoadProgress(pct,`Sincronizando · ${s.label} (${done}/${total})`);
     })));
     const cfgSnap=results.cfgSnap,teamSnap=results.teamSnap;
-    const {outfits,joias,sapatos,scarves,models,locations,looks,photoPacks}=results;
+    const {outfits,joias,sapatos,scarves,models,locations,looks,photoPacks,tutPhotos}=results;
     setLoadProgress(93,'A aplicar dados…');
     // ── SHRINK GUARD ──
     // Count embedded photos (any "photo" key, at any depth) in a value.
@@ -1782,15 +1791,26 @@ async function loadFromFirestore(){
       if(cfgSnap.exists()){
         const c=cfgSnap.data();
         state.config.locs=migrateLocs(c.locs)||state.config.locs;
-        // Guard the cats/tutorials too — tutorial photos live here.
+        // config is now LIGHT (no tutorial photos). Accept cats as-is.
         const incomingCats=catsFromFS(c.cats);
-        state.config.cats=accept('Tutoriais',incomingCats,state.config.cats)||state.config.cats;
+        if(incomingCats&&incomingCats.length)state.config.cats=incomingCats;
       }
       // Respect a saved theme; only fill missing keys from the default.
       if(cfgSnap.exists()&&cfgSnap.data().theme&&typeof cfgSnap.data().theme==='object'){
         state.config.theme={...DEFAULT_THEME,...cfgSnap.data().theme};
       }else{
         state.config.theme={...DEFAULT_THEME};
+      }
+      ensureTutorialIds();
+      // Reattach tutorial photos from their separate (chunked) store, with shrink guard.
+      if(tutPhotos!==null&&Array.isArray(tutPhotos)){
+        const curTut=collectTutorialPhotos().length;
+        if(curTut>=5&&tutPhotos.length<curTut*0.6){
+          shrinkWarnings.push(`Tutoriais: ${curTut}→${tutPhotos.length} fotos`);
+          console.warn(`[shrink-guard] tutorialPhotos: ${tutPhotos.length} vs ${curTut} cached — KEEPING cache.`);
+        }else{
+          applyTutorialPhotos(tutPhotos);
+        }
       }
       if(outfits!==null)state.config.outfits=normaliseOutfits(accept('Roupas',outfits,state.config.outfits));
       if(joias!==null)state.config.joias=normaliseSimple(accept('Jóias',joias,state.config.joias),DEFAULT_JOIAS);
@@ -1807,10 +1827,15 @@ async function loadFromFirestore(){
     }
     pruneOrphanReferences();
     ensureDefaultCategories();
+    ensureTutorialIds();
+    // Detect legacy migration: config still carried tutorial photos but the separate
+    // tutorialPhotos store was empty. Force a save so they migrate out of config.
+    const __tutMigrating=(tutPhotos===null||(Array.isArray(tutPhotos)&&!tutPhotos.length))&&collectTutorialPhotos().length>0;
     // Baseline the per-section snapshots so the next save only writes what actually changed.
     try{
       lastSavedJSON={
         config:JSON.stringify({locs:state.config.locs,cats:catsToFS(state.config.cats),theme:state.config.theme}),
+        tutorialPhotos:__tutMigrating?'__force__':JSON.stringify(collectTutorialPhotos()),
         outfits:JSON.stringify(state.config.outfits),
         joias:JSON.stringify(state.config.joias||[]),
         sapatos:JSON.stringify(state.config.sapatos||[]),
@@ -1820,6 +1845,7 @@ async function loadFromFirestore(){
         looks:JSON.stringify(state.looks),
         team:JSON.stringify({items:state.team,production:state.production||{costs:[]},ui:state.ui})
       };
+      if(__tutMigrating){console.log(`[tutorialPhotos] Migrating ${collectTutorialPhotos().length} tutorial photo(s) out of config.`);scheduleSave();}
       // Baseline per-pack tracker so the first save only writes changed packs.
       // EXCEPTION: if we just migrated from the legacy format, leave it empty so the
       // first save persists every pack into the new subcollection.
@@ -1831,7 +1857,7 @@ async function loadFromFirestore(){
         scheduleSave(); // trigger migration write
       }
     }catch(e){lastSavedJSON={};lastSavedPacks={};}
-    applyTheme();renderFilters();buildCarousel();updateCounter();setSyncStatus('ok');saveCache(state);
+    migrateAccentColor();applyTheme();renderFilters();buildCarousel();updateCounter();setSyncStatus('ok');saveCache(state);
     startRemoteWatch();
     setLoadProgress(100,'Sincronizado ✓');
   }catch(e){console.error('Firebase:',e);setSyncStatus('offline');setLoadProgress(100);}
@@ -2182,7 +2208,7 @@ if(!sessionStorage.getItem('aos_tab_id')){
   const id=(crypto&&crypto.randomUUID)?crypto.randomUUID():('tab_'+Date.now()+'_'+Math.random().toString(36).slice(2,9));
   sessionStorage.setItem('aos_tab_id',id);
 }
-loadCache();loadCompareBin();state.ui.currentIdx=0;state.ui.filter='';state.config.theme={...DEFAULT_THEME,...(state.config.theme||{})};applyTheme();document.getElementById('loading').classList.add('hidden');renderFilters();buildCarousel();updateCounter();renderCompareBin();maybePulseHowToFab();switchTab('dashboard');
+loadCache();loadCompareBin();state.ui.currentIdx=0;state.ui.filter='';state.config.theme={...DEFAULT_THEME,...(state.config.theme||{})};migrateAccentColor();applyTheme();document.getElementById('loading').classList.add('hidden');renderFilters();buildCarousel();updateCounter();renderCompareBin();maybePulseHowToFab();switchTab('dashboard');
 // Initial status reflects browser network state, not assumed offline
 if(navigator.onLine===false)setSyncStatus('offline');
 else setSyncStatus('syncing');
@@ -2197,6 +2223,17 @@ window.exportData=function(){return window.exportBackup();};
 window.importData=function(input){if(!input.files[0])return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(!d.config||!d.looks)throw new Error();window.state=d;state.looks=migrateLooks(state.looks);state.config.outfits=normaliseOutfits(state.config.outfits);state.config.joias=normaliseSimple(state.config.joias,DEFAULT_JOIAS);state.config.sapatos=normaliseSimple(state.config.sapatos,DEFAULT_SAPATOS);applyTheme();renderFilters();buildCarousel();updateCounter();scheduleSave();showToast('⬆ Importado!');}catch(e){showToast('✗ Ficheiro inválido');}};r.readAsText(input.files[0]);input.value='';};
 
 // ── THEME ──
+function migrateAccentColor(){
+  // One-time migration: rewrite the legacy olive/gold accent to the new blue so devices
+  // with an old saved theme update automatically (without needing the colour picker).
+  const LEGACY=['#5A6648','#5a6648','#b48c28','#B48C28'];
+  const NEW='#113af0';
+  const th=state.config.theme||{};
+  let changed=false;
+  if(LEGACY.includes(th.accent)){th.accent=NEW;changed=true;}
+  if(LEGACY.includes(th.done)){th.done=NEW;changed=true;}
+  if(changed){state.config.theme=th;saveCache(state);scheduleSave();}
+}
 function applyTheme(){const th=state.config.theme,r=document.documentElement;r.style.setProperty('--c-bg',th.bg);r.style.setProperty('--c-surface',th.surface);r.style.setProperty('--c-card',th.card);r.style.setProperty('--c-accent',th.accent);r.style.setProperty('--c-accent2',th.accent2||'#E8D5A3');r.style.setProperty('--c-text',th.text);r.style.setProperty('--c-done',th.done);document.querySelector('meta[name=theme-color]').content=th.bg;}
 window.resetColors=function(){state.config.theme={...DEFAULT_THEME};applyTheme();renderColorGrid();scheduleSave();};
 function renderColorGrid(){const th=state.config.theme;document.getElementById('color-grid').innerHTML=Object.keys(DEFAULT_THEME).map(key=>`<div class="color-field"><div class="cfg-lbl">${COLOR_LABELS[key]}</div><div class="color-picker-wrap" onclick="document.getElementById('cp-${key}').click()"><div class="color-swatch" style="background:${th[key]}"></div><span class="color-hex">${th[key]}</span><input type="color" class="color-picker" id="cp-${key}" value="${th[key]}" oninput="state.config.theme['${key}']=this.value;applyTheme();this.previousElementSibling.previousElementSibling.style.background=this.value;this.previousElementSibling.textContent=this.value;scheduleSave()"></div></div>`).join('');}
@@ -2575,7 +2612,7 @@ window.updLookLocation=function(num,val){
   if(typeof rebuildLocCell==='function')rebuildLocCell(num);
 };
 window.duplicateLook=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;const src=state.looks[idx];const parentNum=src.extra?src.parentNum:src.num;const maxNum=state.looks.reduce((m,l)=>Math.max(m,l.num),0);const newNum=Math.max(101,maxNum+1);const copy={category:src.category,outfit:toArr(src.outfit).slice(),scarf:toArr(src.scarf).slice(),joias:toArr(src.joias).slice(),sapatos:src.sapatos||'',model:'',location:src.location||'',locationId:src.locationId||'',tutorialIdx:src.tutorialIdx||0,status:'',shootingPhoto:'',notes:'',done:false,num:newNum,extra:true,parentNum};state.looks.splice(idx+1,0,copy);scheduleSave();const fl=filteredLooks();const newIdx=fl.findIndex(x=>x.num===newNum);if(newIdx>=0)state.ui.currentIdx=newIdx;renderFilters();buildCarousel();updateCounter();};
-window.deleteLook=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;const l=state.looks[idx];let confirmMsg;if(l.extra){confirmMsg=`Apagar esta variação?\n\nLook #${l.num} · variação de #${l.parentNum} · ${l.category}${l.model?' · '+l.model:''}`;}else{const isOriginal=l.num>=1&&l.num<=100;const heading=isOriginal?'⚠ Vais eliminar um look ORIGINAL (1-100)\n\nEste é um look estrutural da fase 1. A eliminação é permanente.':'Eliminar este look?';confirmMsg=`${heading}\n\nLook #${l.num} · ${l.category||'sem categoria'}${l.model?' · '+l.model:''}\n\nConfirmar?`;}if(!confirm(confirmMsg))return;state.looks.splice(idx,1);scheduleSave();state.ui.currentIdx=Math.max(0,Math.min(idx,state.looks.length-1));renderFilters();buildCarousel();updateCounter();if(window.currentScreen==='screen-shooting')renderShooting();if(window.currentScreen==='screen-gallery')renderGallery();};
+window.deleteLook=function(num){const idx=state.looks.findIndex(x=>x.num===num);if(idx<0)return;const l=state.looks[idx];let confirmMsg;if(l.extra){confirmMsg=`Apagar esta variação?\n\nLook #${l.num} · variação de #${l.parentNum} · ${l.category}${l.model?' · '+l.model:''}`;}else{const heading='Eliminar este look?';confirmMsg=`${heading}\n\nLook #${l.num} · ${l.category||'sem categoria'}${l.model?' · '+l.model:''}\n\nConfirmar?`;}if(!confirm(confirmMsg))return;state.looks.splice(idx,1);scheduleSave();state.ui.currentIdx=Math.max(0,Math.min(idx,state.looks.length-1));renderFilters();buildCarousel();updateCounter();if(window.currentScreen==='screen-shooting')renderShooting();if(window.currentScreen==='screen-gallery')renderGallery();};
 function refreshCardLocHeader(num){const fl=filteredLooks();const idx=fl.findIndex(x=>x.num===num);if(idx<0)return;const cardEl=document.getElementById('carousel-track').children[idx];if(!cardEl)return;const numEl=cardEl.querySelector('.card-num');if(!numEl)return;const look=fl[idx];const locMatch=look.locationId?(state.config.locations||[]).find(L=>L.id===look.locationId):null;const locName=locMatch?locMatch.name:'';numEl.innerHTML=`Look #${look.num}${look.extra&&look.parentNum?` <span class="card-extra-tag">var. de #${look.parentNum}</span>`:''}${locName?` · <span class="card-locname">${esc(locName)}</span>`:''}`;}
 
 // reposition on resize (card width changes between mobile and desktop)
@@ -3171,7 +3208,7 @@ if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded'
 window.removeItem=function(type,cid){if(state.config[type]&&state.config[type].length>1){state.config[type].pop();renderSimpleItems(type,cid);}};
 window.removeItemAt=function(type,cid,i,icon){if(!state.config[type]||!state.config[type][i])return;const it=state.config[type][i];const label=it.name||'este item';if(!confirm(`Eliminar "${label}"?`))return;state.config[type].splice(i,1);scheduleSave();renderSimpleItems(type,cid,icon);buildCarousel();};
 
-window.addTutorial=function(ci){if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2].push({name:'',photo:''});renderConfig();};
+window.addTutorial=function(ci){if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2].push({id:tutId(),name:'',photo:''});renderConfig();scheduleSave();};
 window.removeTutorial=function(ci,ti){state.config.cats[ci][2].splice(ti,1);scheduleSave();renderConfig();};
 window.handleTutorialPhoto=async function(ci,ti,input){if(!input.files[0])return;const f=input.files[0];const m=(f.name||'').match(/\d+/);const tutNum=m?parseInt(m[0],10):null;const c=await compressImage(f,600,0.7);if(!state.config.cats[ci][2])state.config.cats[ci][2]=[];state.config.cats[ci][2][ti].photo=c;if(tutNum!==null&&!isNaN(tutNum))state.config.cats[ci][2][ti].num=tutNum;scheduleSave();renderConfig();buildCarousel();};
 window.updateLocHint=function(){
@@ -3222,8 +3259,8 @@ window.updLocBucketCount=function(id,val){
   if(h)h.innerHTML=`Total: <strong>${total}</strong> look${total!==1?'s':''}`;
   scheduleSave();
 };
-window.updateCatHint=function(){const t=state.config.cats.reduce((s,[,n])=>s+n,0);const h=document.getElementById('cat-hint');h.innerHTML=`Total: <strong>${t}</strong> / 100`;h.className='cfg-hint'+(t!==100?' err':'');};
-window.regenerateFromCats=function(){const ct=state.config.cats.reduce((s,[,n])=>s+n,0);if(ct!==100){alert(`Total de categorias: ${ct}. Deve ser 100 para gerar os looks.`);return;}const extras=(state.looks||[]).filter(l=>l.extra).length;if(state.looks&&state.looks.length&&!confirm(`Vai gerar uma nova lista de looks vazia. As atribuições actuais (roupa, modelo, local, lenço, jóias, sapatos, fotos de shooting) serão perdidas${extras?` e as ${extras} variação${extras!==1?'ões':''} extra também serão removida${extras!==1?'s':''}`:''}. Continuar?`))return;state.looks=genLooksEmpty();state.ui.currentIdx=0;state.ui.filter='';scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');};
+window.updateCatHint=function(){const t=state.config.cats.reduce((s,[,n])=>s+n,0);const h=document.getElementById('cat-hint');if(!h)return;h.innerHTML=`Total de looks definido: <strong>${t}</strong>`;h.className='cfg-hint';};
+window.regenerateFromCats=function(){const ct=state.config.cats.reduce((s,[,n])=>s+n,0);if(ct<1){alert('Define pelo menos 1 look nas categorias para gerar a lista.');return;}const extras=(state.looks||[]).filter(l=>l.extra).length;if(state.looks&&state.looks.length&&!confirm(`Vai gerar uma nova lista de ${ct} look${ct!==1?'s':''} vazia. As atribuições actuais (roupa, modelo, local, lenço, jóias, sapatos, fotos de shooting) serão perdidas${extras?` e as ${extras} variação${extras!==1?'ões':''} extra também serão removida${extras!==1?'s':''}`:''}. Continuar?`))return;state.looks=genLooksEmpty();state.ui.currentIdx=0;state.ui.filter='';scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');};
 
 // ─── SHOOTING MODULE ───
 const SH_CAT_LABELS={'Portugal – Estúdio':'PT · Estúdio','Portugal – Exterior':'PT · Exterior','Cabo Verde – Exterior':'CV · Exterior'};
@@ -3712,9 +3749,9 @@ window.createLooksForLocation=function(locId){
   const catSel=document.getElementById('cl-cat');
   const count=Math.max(1,Math.min(100,parseInt(countInp?.value||'1',10)||1));
   const category=catSel?.value||'';
-  // Find next available number — max+1, minimum 101 to preserve original 1-100 numbering
+  // Next available number — continues after the highest existing look (no fixed 100 base).
   const maxNum=state.looks.reduce((m,l)=>Math.max(m,l.num||0),0);
-  let nextNum=Math.max(101,maxNum+1);
+  let nextNum=maxNum+1;
   const created=[];
   for(let i=0;i<count;i++){
     state.looks.push({
