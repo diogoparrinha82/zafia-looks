@@ -1139,7 +1139,8 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
       <div class="cfg-section-hdr" onclick="toggleCS('cs-cats')"><div><div class="cfg-section-title">Categorias & Tutoriais</div></div><span class="cfg-chevron">▾</span></div>
       <div class="cfg-section-body" style="padding:14px 16px;"><div id="cat-inputs"></div><div class="cfg-hint" id="cat-hint">Total de looks definido: <strong>0</strong></div>
         <button class="mini-btn accent" style="width:100%;margin-top:10px" onclick="regenerateFromCats()">▶ Aplicar e Gerar Looks</button>
-        <p style="text-align:center;font-size:.65rem;color:var(--c-text3);margin-top:6px">Cria uma nova lista de looks vazios para preencher</p>
+        <button class="mini-btn" style="width:100%;margin-top:8px" onclick="redistributeTutorials()">↻ Redistribuir tutoriais pelos looks atuais</button>
+        <p style="text-align:center;font-size:.65rem;color:var(--c-text3);margin-top:6px">Gerar cria uma lista nova (apaga atribuições). Redistribuir só repõe os tutoriais, mantendo o resto.</p>
       </div>
     </div>
 
@@ -2267,12 +2268,13 @@ function genLooks(){
   const sp=shuf([...scarves,...scarves,...scarves,...scarves,...scarves,...scarves].map(s=>s.name),r);
   const oNames=outfits.map(o=>o.name),mNames=models.map(m=>m.name);
   let li=0,si=0;const byCat=[];
-  for(const[cat,count]of cats){
+  for(const[cat,count,tuts]of cats){
     if(!count){byCat.push([]);continue;}
+    const nTuts=(tuts||[]).length;
     const pairs=[];for(const o of oNames)for(const m of mNames)pairs.push([o,m]);
     const sel=shuf(pairs,r).slice(0,Math.min(count,pairs.length));
     while(sel.length<count){const ex=shuf(pairs,r);for(const p of ex){if(sel.length>=count)break;sel.push(p);}}
-    byCat.push(sel.slice(0,count).map(([outfit,model])=>({category:cat,outfit:[outfit],scarf:[sp[si++%sp.length]],location:locPool[li++%locPool.length],model,joias:[],sapatos:'',done:false,status:'',shootingPhoto:'',notes:'',tutorialIdx:0})));
+    byCat.push(sel.slice(0,count).map(([outfit,model],k)=>({category:cat,outfit:[outfit],scarf:[sp[si++%sp.length]],location:locPool[li++%locPool.length],model,joias:[],sapatos:'',done:false,status:'',shootingPhoto:'',notes:'',tutorialIdx:nTuts?(k%nTuts):0})));
   }
   const flat=[];const ml=Math.max(...byCat.map(c=>c.length));
   for(let i=0;i<ml;i++)for(const cl of byCat)if(i<cl.length)flat.push(cl[i]);
@@ -2281,7 +2283,10 @@ function genLooks(){
 function genLooksEmpty(){
   const{cats}=state.config;
   const total=cats.reduce((s,[,n])=>s+n,0);if(!total)return[];
-  const byCat=cats.map(([cat,count])=>Array.from({length:count},()=>({category:cat,outfit:[],scarf:[],location:'',model:'',joias:[],sapatos:'',done:false,status:'',shootingPhoto:'',notes:'',tutorialIdx:0})));
+  const byCat=cats.map(([cat,count,tuts])=>{
+    const nTuts=(tuts||[]).length;
+    return Array.from({length:count},(_,k)=>({category:cat,outfit:[],scarf:[],location:'',model:'',joias:[],sapatos:'',done:false,status:'',shootingPhoto:'',notes:'',tutorialIdx:nTuts?(k%nTuts):0}));
+  });
   const flat=[];const ml=Math.max(...byCat.map(c=>c.length));
   for(let i=0;i<ml;i++)for(const cl of byCat)if(i<cl.length)flat.push(cl[i]);
   return flat.map((l,i)=>({...l,num:i+1}));
@@ -3279,6 +3284,26 @@ window.updLocBucketCount=function(id,val){
 };
 window.updateCatHint=function(){const t=state.config.cats.reduce((s,[,n])=>s+n,0);const h=document.getElementById('cat-hint');if(!h)return;h.innerHTML=`Total de looks definido: <strong>${t}</strong>`;h.className='cfg-hint';};
 window.regenerateFromCats=function(){const ct=state.config.cats.reduce((s,[,n])=>s+n,0);if(ct<1){alert('Define pelo menos 1 look nas categorias para gerar a lista.');return;}const extras=(state.looks||[]).filter(l=>l.extra).length;if(state.looks&&state.looks.length&&!confirm(`Vai gerar uma nova lista de ${ct} look${ct!==1?'s':''} vazia. As atribuições actuais (roupa, modelo, local, lenço, jóias, sapatos, fotos de shooting) serão perdidas${extras?` e as ${extras} variação${extras!==1?'ões':''} extra também serão removida${extras!==1?'s':''}`:''}. Continuar?`))return;state.looks=genLooksEmpty();state.ui.currentIdx=0;state.ui.filter='';scheduleSave();renderFilters();buildCarousel();updateCounter();switchTab('looks');};
+window.redistributeTutorials=function(){
+  if(!state.looks||!state.looks.length){alert('Ainda não há looks para redistribuir.');return;}
+  // Map category name → number of tutorials available
+  const tutCount={};
+  state.config.cats.forEach(([cat,,tuts])=>{tutCount[cat]=(tuts||[]).length;});
+  if(!confirm('Redistribuir os tutoriais por todos os looks (1º tutorial ao 1º look da categoria, 2º ao 2º, etc.)? As restantes atribuições mantêm-se.'))return;
+  // Counter per category to assign sequentially, in look order
+  const seen={};
+  let changed=0;
+  state.looks.forEach(l=>{
+    const n=tutCount[l.category]||0;
+    if(!n)return; // category has no tutorials
+    const k=seen[l.category]||0;
+    const newIdx=k%n;
+    if(l.tutorialIdx!==newIdx){l.tutorialIdx=newIdx;changed++;}
+    seen[l.category]=k+1;
+  });
+  scheduleSave();renderFilters();buildCarousel();updateCounter();
+  showToast(`✓ Tutoriais redistribuídos (${changed} look${changed!==1?'s':''} actualizado${changed!==1?'s':''})`);
+};
 
 // ─── SHOOTING MODULE ───
 const SH_CAT_LABELS={'Portugal – Estúdio':'PT · Estúdio','Portugal – Exterior':'PT · Exterior','Cabo Verde – Exterior':'CV · Exterior'};
