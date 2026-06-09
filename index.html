@@ -266,6 +266,10 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .a4-item-photo{width:44mm;height:58mm;background:#f5f5f5;border-radius:2mm;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid #e5e5e5;}
 .a4-item-photo img{max-width:100%;max-height:100%;width:auto;height:auto;display:block;object-fit:contain;}
 .a4-item-name{font-size:3mm;color:#333;text-align:center;line-height:1.2;font-weight:500;width:44mm;word-wrap:break-word;}
+.a4-items-block.big{gap:12mm;}
+.a4-items-block.big .a4-item{width:90mm;gap:3mm;}
+.a4-items-block.big .a4-item-photo{width:90mm;height:118mm;}
+.a4-items-block.big .a4-item-name{width:90mm;font-size:4.2mm;}
 .a4-notes{font-size:3.2mm;color:#444;font-style:italic;padding:2.5mm 3.5mm;background:#fafafa;border-left:2.5px solid #ddd;border-radius:1mm;margin-top:3mm;}
 .a4-footer{margin-top:auto;padding-top:2.5mm;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:2.8mm;color:#999;}
 
@@ -2839,7 +2843,7 @@ function buildA4Sheet(look){
         ${status?`<div class="a4-status-pill" style="background:${statusBg}">${statusLbl}</div>`:''}
       </div>
     </div>
-    <div class="a4-items-block">
+    <div class="a4-items-block${allItems.length&&allItems.length<=2?' big':''}">
       ${allItems.length?allItems.map(it=>`<div class="a4-item"><div class="a4-item-photo"><img src="${it.photo}"></div><div class="a4-item-name">${esc(it.name)}</div></div>`).join(''):'<div style="color:#aaa;font-style:italic;font-size:3mm;padding:10mm;text-align:center">Sem itens configurados para este look</div>'}
     </div>
     ${look.notes?`<div class="a4-notes">${esc(look.notes)}</div>`:''}
