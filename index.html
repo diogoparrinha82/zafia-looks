@@ -1336,7 +1336,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 <div class="screen hidden" id="screen-editora">
   <div class="nav-bar">
     <button class="menu-btn" id="ed-menu-btn" onclick="openDrawer()" aria-label="Menu"><span></span><span></span><span></span></button>
-    <div><div class="nav-title">Editora</div></div>
+    <div><div class="nav-title">Publisher</div></div>
     <button class="nav-btn" id="ed-logout-btn" onclick="doLogout()" style="color:#C72A1C;display:none">Sair</button>
     <button class="nav-btn" id="ed-export-btn" onclick="exportEditoraDossier()" title="Exportar dossier HTML">⬇</button>
   </div>
@@ -2355,128 +2355,142 @@ loadFromFirestore().then(()=>{clearTimeout(fbTO);if(window.currentScreen==='scre
 // Expose render functions to window so inline event handlers (onchange, onclick in HTML attributes)
 // can find them — module scope is not the global scope.
 window.renderPhotos=renderPhotos;
-// ══════ EDITORA ══════
-const ED_FIELDS=['title','pdfUrl','psdUrl','hiresUrl','tutNum','titleChars','intro','steps'];
-function edEntry(num){
+// ══════ EDITORA (Publisher area — pack-based, English UI) ══════
+const ED_FIELDS=['title','pdfUrl','psdUrl','hiresUrl','hiresUrl2','titleChars','intro','steps'];
+let __edSort=localStorage.getItem('aos_ed_sort')||'id';
+function edEntry(packId){
   if(!Array.isArray(state.editora))state.editora=[];
-  let e=state.editora.find(x=>x.num===num);
-  if(!e){e={num,title:'',pdfUrl:'',psdUrl:'',hiresUrl:'',tutNum:'',titleChars:'',intro:'',steps:'',packId:''};state.editora.push(e);}
+  let e=state.editora.find(x=>x.packId===packId);
+  if(!e){e={packId,title:'',pdfUrl:'',psdUrl:'',hiresUrl:'',hiresUrl2:'',titleChars:'',intro:'',steps:'',photo:''};state.editora.push(e);}
   return e;
 }
-function edPackForLook(look){
-  const e=(state.editora||[]).find(x=>x.num===look.num);
-  const packs=state.photoPacks||[];
-  if(e&&e.packId){const p=packs.find(p=>p.id===e.packId);if(p)return p;}
-  // auto-match: pack name contains the look number as a standalone number
-  const rx=new RegExp('(^|\\D)'+look.num+'(\\D|$)');
-  return packs.find(p=>rx.test(p.name||''))||null;
-}
 function edFilled(e){if(!e)return 0;return ED_FIELDS.reduce((n,f)=>n+((e[f]||'').toString().trim()?1:0),0);}
-let __edOpenNum=null;
+function edSortedPacks(){
+  const packs=[...(state.photoPacks||[])];
+  if(__edSort==='category')packs.sort((a,b)=>(a.category||'').localeCompare(b.category||'')||String(a.name||'').localeCompare(String(b.name||''),undefined,{numeric:true}));
+  else packs.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),undefined,{numeric:true}));
+  return packs;
+}
+let __edOpenPack=null;
+window.setEdSort=function(v){__edSort=v;localStorage.setItem('aos_ed_sort',v);renderEditora();};
 window.renderEditora=function(){
   const ro=isEditoraRole();
   const menuBtn=document.getElementById('ed-menu-btn');const outBtn=document.getElementById('ed-logout-btn');
   if(menuBtn)menuBtn.style.display=ro?'none':'';
   if(outBtn)outBtn.style.display=ro?'':'none';
   const host=document.getElementById('editora-content');if(!host)return;
-  if(__edOpenNum!==null){renderEditoraDetail(host,__edOpenNum,ro);return;}
-  const looks=[...(state.looks||[])].sort((a,b)=>(a.num||0)-(b.num||0));
-  const totalFields=looks.length*ED_FIELDS.length;
-  let filled=0;looks.forEach(l=>{filled+=edFilled((state.editora||[]).find(x=>x.num===l.num));});
-  const cards=looks.map(l=>{
-    const pack=edPackForLook(l);
-    const ph=pack&&pack.photos&&pack.photos[0]||'';
-    const e=(state.editora||[]).find(x=>x.num===l.num);
+  if(__edOpenPack!==null){renderEditoraDetail(host,__edOpenPack,ro);return;}
+  const packs=edSortedPacks();
+  const totalFields=packs.length*ED_FIELDS.length;
+  let filled=0;packs.forEach(p=>{filled+=edFilled((state.editora||[]).find(x=>x.packId===p.id));});
+  const cards=packs.map(p=>{
+    const e=(state.editora||[]).find(x=>x.packId===p.id);
+    const ph=(e&&e.photo)||(p.photos&&p.photos[0])||'';
     const n=edFilled(e);
     const st=n>=ED_FIELDS.length?'done':(n>0?'part':'empty');
-    const stLbl=n>=ED_FIELDS.length?'✓ completo':`${n}/${ED_FIELDS.length}`;
-    return `<div class="ed-card" onclick="openEditoraLook(${l.num})">
+    const stLbl=n>=ED_FIELDS.length?'✓ complete':`${n}/${ED_FIELDS.length}`;
+    const cc=CAT_COLORS[catColorIdx(p.category)]||'#888';
+    return `<div class="ed-card" onclick="openEditoraPack('${esc(p.id)}')">
       ${ph?`<img class="ed-card-img" src="${ph}" alt="">`:`<div class="ed-card-ph">📷</div>`}
       <span class="ed-card-state${st==='done'?' done':''}">${stLbl}</span>
-      <div class="ed-card-body"><div class="ed-card-num">LOOK #${l.num} · ${esc(l.category||'')}</div><div class="ed-card-title">${esc((e&&e.title)||(pack?pack.name:'')||'—')}</div></div>
+      <div class="ed-card-body"><div class="ed-card-num">TUTORIAL ${esc(p.name||'—')}</div><div class="ed-card-title">${esc((e&&e.title)||'—')}</div>${p.category?`<span class="gallery-cell-cat" style="background:${cc}22;color:${cc};display:inline-block;margin-top:5px">${esc(p.category)}</span>`:''}</div>
     </div>`;
   }).join('');
   host.innerHTML=`
     <div class="ed-toolbar">
-      <div class="ed-progress">${ro?`${looks.length} looks`:`Preenchido: ${filled}/${totalFields} campos`}</div>
-      ${ro?'':`<button class="mini-btn" style="margin-left:auto" onclick="exportEditoraDossier()">⬇ Exportar dossier</button>`}
+      <div class="ed-progress">${ro?`${packs.length} tutorials`:`Filled: ${filled}/${totalFields} fields · ${packs.length} tutorials`}</div>
+      <select class="photos-filter-sel" onchange="setEdSort(this.value)" style="margin-left:auto">
+        <option value="id"${__edSort==='id'?' selected':''}>Sort · Tutorial ID</option>
+        <option value="category"${__edSort==='category'?' selected':''}>Sort · Category</option>
+      </select>
+      ${ro?'':`<button class="mini-btn" onclick="exportEditoraDossier()">⬇ Export dossier</button>`}
     </div>
     <div class="ed-grid">${cards}</div>`;
 };
-window.openEditoraLook=function(num){__edOpenNum=num;renderEditora();const sc=document.getElementById('editora-scroll');if(sc)sc.scrollTop=0;};
-window.closeEditoraLook=function(){__edOpenNum=null;renderEditora();};
-function renderEditoraDetail(host,num,ro){
-  const look=(state.looks||[]).find(l=>l.num===num);if(!look){__edOpenNum=null;renderEditora();return;}
-  const e=edEntry(num);
-  const pack=edPackForLook(look);
-  const ph=pack&&pack.photos&&pack.photos[0]||'';
-  const packs=state.photoPacks||[];
+window.openEditoraPack=function(id){__edOpenPack=id;renderEditora();const sc=document.getElementById('editora-scroll');if(sc)sc.scrollTop=0;};
+window.closeEditoraLook=function(){__edOpenPack=null;renderEditora();};
+function renderEditoraDetail(host,packId,ro){
+  const pack=(state.photoPacks||[]).find(p=>p.id===packId);if(!pack){__edOpenPack=null;renderEditora();return;}
+  const e=edEntry(packId);
+  const ph=(e.photo)||(pack.photos&&pack.photos[0])||'';
+  const cc=CAT_COLORS[catColorIdx(pack.category)]||'#888';
+  const catPill=pack.category?`<span class="gallery-cell-cat" style="background:${cc}22;color:${cc}">${esc(pack.category)}</span>`:'';
   const linkBtn=(url,lbl,icon)=>url?`<a class="ed-link-btn" href="${esc(url)}" target="_blank" rel="noopener">${icon} ${lbl}</a>`:'';
   if(ro){
     host.innerHTML=`<div class="ed-detail">
-      <button class="ed-back" onclick="closeEditoraLook()">← VOLTAR À GALERIA</button>
+      <button class="ed-back" onclick="closeEditoraLook()">← BACK TO GALLERY</button>
       <div class="ed-detail-head">
         ${ph?`<div class="ed-detail-photo"><img src="${ph}"></div>`:''}
         <div style="flex:1;min-width:240px">
           ${e.title?`<h2 style="margin:0 0 4px;font-size:1.3rem;letter-spacing:-.01em">${esc(e.title)}</h2>`:''}
-          <div class="ed-card-num" style="margin-bottom:12px">LOOK #${num} · ${esc(look.category||'')}${e.tutNum?` · TUTORIAL ${esc(e.tutNum)}`:''}</div>
-          ${e.titleChars?`<div class="ed-field"><label>Info técnica</label><div class="ed-ro-text">${esc(e.titleChars)}</div></div>`:''}
-          <div class="ed-links-row">${linkBtn(e.pdfUrl,'Desenho tutorial (PDF)','📄')}${linkBtn(e.psdUrl,'Photoshop','🎨')}${linkBtn(e.hiresUrl,'Foto alta resolução','🖼')}</div>
+          <div class="ed-card-num" style="margin-bottom:8px">TUTORIAL ${esc(pack.name||'—')}</div>
+          <div style="margin-bottom:12px">${catPill}</div>
+          ${e.titleChars?`<div class="ed-field"><label>Technical info</label><div class="ed-ro-text">${esc(e.titleChars)}</div></div>`:''}
+          <div class="ed-links-row">${linkBtn(e.pdfUrl,'Tutorial drawing (PDF)','📄')}${linkBtn(e.psdUrl,'Photoshop file','🎨')}${linkBtn(e.hiresUrl,'High-res photo 1','🖼')}${linkBtn(e.hiresUrl2,'High-res photo 2','🖼')}</div>
         </div>
       </div>
-      ${e.intro?`<div class="ed-field"><label>Introdução ao look</label><div class="ed-ro-text">${esc(e.intro)}</div></div>`:''}
-      ${e.steps?`<div class="ed-field"><label>Descritivo do look</label><div class="ed-ro-text">${esc(e.steps)}</div></div>`:''}
+      ${e.intro?`<div class="ed-field"><label>Introduction</label><div class="ed-ro-text">${esc(e.intro)}</div></div>`:''}
+      ${e.steps?`<div class="ed-field"><label>Step-by-step description</label><div class="ed-ro-text">${esc(e.steps)}</div></div>`:''}
     </div>`;
     return;
   }
-  const packOpts=['<option value="">— auto (por número no nome) —</option>'].concat(packs.map(p=>`<option value="${esc(p.id)}"${e.packId===p.id?' selected':''}>${esc(p.name||p.id)}</option>`)).join('');
   host.innerHTML=`<div class="ed-detail">
-    <button class="ed-back" onclick="closeEditoraLook()">← VOLTAR À GALERIA</button>
+    <button class="ed-back" onclick="closeEditoraLook()">← BACK TO GALLERY</button>
     <div class="ed-detail-head">
-      ${ph?`<div class="ed-detail-photo"><img src="${ph}"></div>`:`<div class="ed-detail-photo"><div class="ed-card-ph">📷</div></div>`}
+      <div style="flex-shrink:0">
+        <div class="ed-detail-photo">${ph?`<img src="${ph}">`:`<div class="ed-card-ph">📷</div>`}</div>
+        <input type="file" id="ed-photo-inp" accept="image/*,.heic,.heif" style="display:none" onchange="updEdPhoto('${esc(packId)}',this)">
+        <button class="mini-btn" style="width:200px;margin-top:8px" onclick="document.getElementById('ed-photo-inp').click()">📷 Change photo</button>
+      </div>
       <div style="flex:1;min-width:240px">
-        <div class="ed-card-num" style="margin-bottom:10px">LOOK #${num} · ${esc(look.category||'')}</div>
-        <div class="ed-field"><label>Pack de foto associado</label><select class="photos-filter-sel" style="width:100%" onchange="updEd(${num},'packId',this.value)">${packOpts}</select></div>
-        <div class="ed-field"><label>4 · Número do tutorial</label><input type="text" value="${esc(e.tutNum||'')}" onchange="updEd(${num},'tutNum',this.value)"></div>
+        <div class="ed-card-num" style="margin-bottom:4px">TUTORIAL ${esc(pack.name||'—')}</div>
+        <div style="margin-bottom:14px">${catPill}</div>
+        <div class="ed-field"><label>Look name / title</label><input type="text" value="${esc(e.title||'')}" onchange="updEd('${esc(packId)}','title',this.value)"></div>
+        <div class="ed-field"><label>Category</label><input type="text" value="${esc(pack.category||'')}" disabled style="opacity:.6"></div>
       </div>
     </div>
-    <div class="ed-field"><label>Nome / Título do look</label><input type="text" value="${esc(e.title||'')}" onchange="updEd(${num},'title',this.value)"></div>
-    <div class="ed-field"><label>Categoria do look</label><input type="text" value="${esc(look.category||'')}" disabled style="opacity:.6"></div>
-    <div class="ed-field"><label>Info técnica (tamanhos dos lenços)</label><textarea style="min-height:70px" onchange="updEd(${num},'titleChars',this.value)">${esc(e.titleChars||'')}</textarea></div>
-    <div class="ed-field"><label>Introdução ao look</label><textarea onchange="updEd(${num},'intro',this.value)">${esc(e.intro||'')}</textarea></div>
-    <div class="ed-field"><label>Descritivo do look (passo a passo)</label><textarea style="min-height:170px" onchange="updEd(${num},'steps',this.value)">${esc(e.steps||'')}</textarea></div>
-    <div class="ed-field"><label>Link · Desenho tutorial PDF</label><input type="url" placeholder="https://…" value="${esc(e.pdfUrl||'')}" onchange="updEd(${num},'pdfUrl',this.value)"></div>
-    <div class="ed-field"><label>Link · Ficheiro Photoshop</label><input type="url" placeholder="https://…" value="${esc(e.psdUrl||'')}" onchange="updEd(${num},'psdUrl',this.value)"></div>
-    <div class="ed-field"><label>Link · Foto alta resolução</label><input type="url" placeholder="https://…" value="${esc(e.hiresUrl||'')}" onchange="updEd(${num},'hiresUrl',this.value)"></div>
+    <div class="ed-field"><label>Technical info (scarf sizes)</label><textarea style="min-height:70px" onchange="updEd('${esc(packId)}','titleChars',this.value)">${esc(e.titleChars||'')}</textarea></div>
+    <div class="ed-field"><label>Introduction</label><textarea onchange="updEd('${esc(packId)}','intro',this.value)">${esc(e.intro||'')}</textarea></div>
+    <div class="ed-field"><label>Step-by-step description</label><textarea style="min-height:170px" onchange="updEd('${esc(packId)}','steps',this.value)">${esc(e.steps||'')}</textarea></div>
+    <div class="ed-field"><label>Link · Tutorial drawing PDF</label><input type="url" placeholder="https://…" value="${esc(e.pdfUrl||'')}" onchange="updEd('${esc(packId)}','pdfUrl',this.value)"></div>
+    <div class="ed-field"><label>Link · Photoshop file</label><input type="url" placeholder="https://…" value="${esc(e.psdUrl||'')}" onchange="updEd('${esc(packId)}','psdUrl',this.value)"></div>
+    <div class="ed-field"><label>Link · High-res photo 1</label><input type="url" placeholder="https://…" value="${esc(e.hiresUrl||'')}" onchange="updEd('${esc(packId)}','hiresUrl',this.value)"></div>
+    <div class="ed-field"><label>Link · High-res photo 2 (optional)</label><input type="url" placeholder="https://…" value="${esc(e.hiresUrl2||'')}" onchange="updEd('${esc(packId)}','hiresUrl2',this.value)"></div>
   </div>`;
 }
-window.updEd=function(num,field,val){const e=edEntry(num);e[field]=val;scheduleSave();};
+window.updEd=function(packId,field,val){const e=edEntry(packId);e[field]=val;scheduleSave();};
+window.updEdPhoto=async function(packId,input){
+  if(!input.files[0])return;
+  const c=await compressImage(input.files[0],600,0.7);
+  if(!c)return;
+  const e=edEntry(packId);e.photo=c;scheduleSave();renderEditora();
+};
 window.exportEditoraDossier=function(){
-  const looks=[...(state.looks||[])].sort((a,b)=>(a.num||0)-(b.num||0));
-  if(!looks.length){alert('Não há looks.');return;}
-  const secs=looks.map(l=>{
-    const e=(state.editora||[]).find(x=>x.num===l.num)||{};
-    const pack=edPackForLook(l);const ph=pack&&pack.photos&&pack.photos[0]||'';
+  const packs=edSortedPacks();
+  if(!packs.length){alert('No tutorials to export.');return;}
+  const secs=packs.map(p=>{
+    const e=(state.editora||[]).find(x=>x.packId===p.id)||{};
+    const ph=(e.photo)||(p.photos&&p.photos[0])||'';
     const link=(u,t)=>u?`<a href="${u}" target="_blank" style="display:inline-block;margin:4px 10px 4px 0;padding:9px 14px;border:1px solid #ddd;border-radius:4px;color:#113af0;text-decoration:none;font-weight:600;font-size:14px">${t}</a>`:'';
     const txt=(t,ttl)=>t?`<h4 style="margin:16px 0 6px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#888">${ttl}</h4><div style="white-space:pre-wrap;font-size:15px;line-height:1.6">${t.replace(/</g,'&lt;')}</div>`:'';
     return `<section style="padding:28px 0;border-bottom:1px solid #eee;display:flex;gap:24px;flex-wrap:wrap">
       <div style="width:220px;flex-shrink:0">${ph?`<img src="${ph}" style="width:100%;border-radius:6px">`:''}</div>
       <div style="flex:1;min-width:280px">
         ${e.title?`<h2 style="margin:0 0 2px;font-size:22px">${e.title.replace(/</g,'&lt;')}</h2>`:''}
-        <div style="font-family:monospace;font-size:12px;color:#999">LOOK #${l.num} · ${(l.category||'').toUpperCase()}${e.tutNum?` · TUTORIAL ${e.tutNum}`:''}</div>
-        ${txt(e.titleChars,'Info técnica')}
-        ${txt(e.intro,'Introdução ao look')}${txt(e.steps,'Descritivo do look')}
-        <div style="margin:12px 0">${link(e.pdfUrl,'📄 Desenho tutorial (PDF)')}${link(e.psdUrl,'🎨 Photoshop')}${link(e.hiresUrl,'🖼 Foto alta resolução')}</div>
+        <div style="font-family:monospace;font-size:12px;color:#999">TUTORIAL ${(p.name||'').toString().replace(/</g,'&lt;')} · ${(p.category||'').toUpperCase()}</div>
+        ${txt(e.titleChars,'Technical info')}
+        ${txt(e.intro,'Introduction')}${txt(e.steps,'Step-by-step description')}
+        <div style="margin:12px 0">${link(e.pdfUrl,'📄 Tutorial drawing (PDF)')}${link(e.psdUrl,'🎨 Photoshop file')}${link(e.hiresUrl,'🖼 High-res photo 1')}${link(e.hiresUrl2,'🖼 High-res photo 2')}</div>
       </div>
     </section>`;
   }).join('');
-  const html=`<!DOCTYPE html><html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Art of Scarves · Dossier Editora</title></head>
+  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Art of Scarves · Publisher Dossier</title></head>
   <body style="font-family:-apple-system,'Inter Tight',sans-serif;color:#161814;max-width:960px;margin:0 auto;padding:40px 24px">
-  <h1 style="font-size:28px;margin-bottom:2px">Art of Scarves</h1><p style="color:#888;margin-top:0">Dossier para a editora · Claudya Moreira · ${new Date().toLocaleDateString('pt-PT')}</p>
+  <h1 style="font-size:28px;margin-bottom:2px">Art of Scarves</h1><p style="color:#888;margin-top:0">Publisher dossier · Claudya Moreira · ${new Date().toLocaleDateString('en-GB')}</p>
   ${secs}</body></html>`;
   const blob=new Blob([html],{type:'text/html'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`art-of-scarves-dossier-${Date.now()}.html`;a.click();URL.revokeObjectURL(a.href);
-  showToast('✓ Dossier exportado');
+  showToast('✓ Dossier exported');
 };
 
 
