@@ -310,7 +310,8 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .ed-link-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border:1px solid var(--c-border);border-radius:var(--radius-sm);background:var(--c-surface);font-size:.8rem;font-weight:600;color:var(--c-text);text-decoration:none;transition:border-color .15s;}
 .ed-link-btn:hover{border-color:var(--c-accent);color:var(--c-accent);}
 .ed-ro-text{white-space:pre-wrap;font-size:.88rem;line-height:1.6;color:var(--c-text);background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-sm);padding:12px 14px;}
-.ed-back{background:none;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.1em;color:var(--c-text2);padding:8px 0;}
+.ed-back{position:fixed;top:70px;left:16px;z-index:40;background:var(--c-bg);border:1px solid var(--c-border);border-radius:999px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.1em;color:var(--c-text);padding:10px 16px;box-shadow:0 2px 10px rgba(0,0,0,.08);}
+.ed-back:hover{border-color:var(--c-accent);color:var(--c-accent);}
 .a4-notes{font-size:3.2mm;color:#444;font-style:italic;padding:2.5mm 3.5mm;background:#fafafa;border-left:2.5px solid #ddd;border-radius:1mm;margin-top:3mm;}
 .a4-footer{margin-top:auto;padding-top:2.5mm;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:2.8mm;color:#999;}
 
@@ -2358,7 +2359,9 @@ loadFromFirestore().then(()=>{clearTimeout(fbTO);if(window.currentScreen==='scre
 // can find them — module scope is not the global scope.
 window.renderPhotos=renderPhotos;
 // ══════ EDITORA (Publisher area — pack-based, English UI) ══════
-const ED_FIELDS=['title','pdfUrl','psdUrl','hiresUrl','hiresUrl2','titleChars','intro','steps'];
+const ED_CAT_EN={'Acessório':'Accessory','Acessorio':'Accessory','Cabelo':'Hair','Pescoço':'Neck','Pescoco':'Neck','Saia':'Skirt','Saias':'Skirts','Vestido':'Dress','Vestidos':'Dresses','Embrulho':'Wrap','Mala':'Bag','Tops':'Tops','Top':'Top','Cover Up':'Cover Up','Elevate Style':'Elevate Style'};
+function edCatEn(c){if(!c)return '';return ED_CAT_EN[c]||ED_CAT_EN[(c||'').trim()]||c;}
+const ED_FIELDS=['title','pdfUrl','psdUrl','hiresUrl','titleChars','intro','steps']; // hiresUrl2 is optional
 let __edSort=localStorage.getItem('aos_ed_sort')||'id';
 function edEntry(packId){
   if(!Array.isArray(state.editora))state.editora=[];
@@ -2398,7 +2401,7 @@ window.renderEditora=function(){
         <span class="ed-card-id">${esc(p.name||'')}</span>
         <span class="ed-card-state${st==='done'?' done':''}">${stLbl}</span>
       </div>
-      <div class="ed-card-body"><div class="ed-card-title">${esc((e&&e.title)||'—')}</div>${p.category?`<span class="ed-cat-pill" style="background:${cc}">${esc(p.category)}</span>`:''}</div>
+      <div class="ed-card-body"><div class="ed-card-title">${esc((e&&e.title)||'—')}</div>${p.category?`<span class="ed-cat-pill" style="background:${cc}">${esc(edCatEn(p.category))}</span>`:''}</div>
     </div>`;
   }).join('');
   host.innerHTML=`
@@ -2419,7 +2422,7 @@ function renderEditoraDetail(host,packId,ro){
   const e=edEntry(packId);
   const ph=(e.photo)||(pack.photos&&pack.photos[0])||'';
   const cc=CAT_COLORS[catColorIdx(pack.category)]||'#888';
-  const catPill=pack.category?`<span class="ed-cat-pill" style="background:${cc};margin-top:0">${esc(pack.category)}</span>`:'';
+  const catPill=pack.category?`<span class="ed-cat-pill" style="background:${cc};margin-top:0">${esc(edCatEn(pack.category))}</span>`:'';
   const linkBtn=(url,lbl,icon)=>url?`<a class="ed-link-btn" href="${esc(url)}" target="_blank" rel="noopener">${icon} ${lbl}</a>`:'';
   if(ro){
     host.innerHTML=`<div class="ed-detail">
@@ -2459,7 +2462,7 @@ function renderEditoraDetail(host,packId,ro){
         <div class="ed-card-num" style="margin-bottom:4px">TUTORIAL ${esc(pack.name||'—')}</div>
         <div style="margin-bottom:14px">${catPill}</div>
         <div class="ed-field"><label>Look name / title</label><input type="text" value="${esc(e.title||'')}" onchange="updEd('${esc(packId)}','title',this.value)"></div>
-        <div class="ed-field"><label>Category</label><input type="text" value="${esc(pack.category||'')}" disabled style="opacity:.6"></div>
+        <div class="ed-field"><label>Category</label><input type="text" value="${esc(edCatEn(pack.category)||'')}" disabled style="opacity:.6"></div>
       </div>
     </div>
     <div class="ed-field"><label>Technical info (scarf sizes)</label><textarea style="min-height:70px" onchange="updEd('${esc(packId)}','titleChars',this.value)">${esc(e.titleChars||'')}</textarea></div>
@@ -2499,7 +2502,7 @@ window.exportEditoraDossier=async function(){
         <div style="width:72mm;flex-shrink:0">
           ${ph?`<img src="${ph}" style="width:72mm;border-radius:2mm;display:block">`:''}
           ${e.illu?`<img src="${e.illu}" style="width:72mm;max-height:88mm;object-fit:contain;border:0.3mm solid #eee;border-radius:2mm;display:block;margin-top:4mm;background:#fff">`:''}
-          ${p.category?`<span style="display:inline-block;margin-top:3mm;background:${cc};color:#fff;font-family:'JetBrains Mono',monospace;font-size:2.6mm;letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:1.6mm 3mm;border-radius:1.2mm">${p.category.replace(/</g,'&lt;')}</span>`:''}
+          ${p.category?`<span style="display:inline-block;margin-top:3mm;background:${cc};color:#fff;font-family:'JetBrains Mono',monospace;font-size:2.6mm;letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:1.6mm 3mm;border-radius:1.2mm">${edCatEn(p.category).replace(/</g,'&lt;')}</span>`:''}
           <div style="margin-top:5mm">${link(e.pdfUrl,'Tutorial drawing PDF')}${link(e.psdUrl,'Photoshop file')}${link(e.hiresUrl,'High-res photo 1')}${link(e.hiresUrl2,'High-res photo 2')}</div>
         </div>
         <div style="flex:1;min-width:0">
