@@ -2363,7 +2363,7 @@ let __edSort=localStorage.getItem('aos_ed_sort')||'id';
 function edEntry(packId){
   if(!Array.isArray(state.editora))state.editora=[];
   let e=state.editora.find(x=>x.packId===packId);
-  if(!e){e={packId,title:'',pdfUrl:'',psdUrl:'',hiresUrl:'',hiresUrl2:'',titleChars:'',intro:'',steps:'',photo:''};state.editora.push(e);}
+  if(!e){e={packId,title:'',pdfUrl:'',psdUrl:'',hiresUrl:'',hiresUrl2:'',titleChars:'',intro:'',steps:'',photo:'',illu:''};state.editora.push(e);}
   return e;
 }
 function edFilled(e){if(!e)return 0;return ED_FIELDS.reduce((n,f)=>n+((e[f]||'').toString().trim()?1:0),0);}
@@ -2426,6 +2426,7 @@ function renderEditoraDetail(host,packId,ro){
       <button class="ed-back" onclick="closeEditoraLook()">← BACK TO GALLERY</button>
       <div class="ed-detail-head">
         ${ph?`<div class="ed-detail-photo"><img src="${ph}"></div>`:''}
+        ${e.illu?`<div class="ed-detail-photo" style="background:#fff"><img src="${e.illu}" style="object-fit:contain"></div>`:''}
         <div style="flex:1;min-width:240px">
           ${e.title?`<h2 style="margin:0 0 4px;font-size:1.3rem;letter-spacing:-.01em">${esc(e.title)}</h2>`:''}
           <div class="ed-card-num" style="margin-bottom:8px">TUTORIAL ${esc(pack.name||'—')}</div>
@@ -2442,10 +2443,17 @@ function renderEditoraDetail(host,packId,ro){
   host.innerHTML=`<div class="ed-detail">
     <button class="ed-back" onclick="closeEditoraLook()">← BACK TO GALLERY</button>
     <div class="ed-detail-head">
-      <div style="flex-shrink:0">
-        <div class="ed-detail-photo">${ph?`<img src="${ph}">`:`<div class="ed-card-ph">📷</div>`}</div>
-        <input type="file" id="ed-photo-inp" accept="image/*,.heic,.heif" style="display:none" onchange="updEdPhoto('${esc(packId)}',this)">
-        <button class="mini-btn" style="width:200px;margin-top:8px" onclick="document.getElementById('ed-photo-inp').click()">📷 Change photo</button>
+      <div style="flex-shrink:0;display:flex;gap:12px;flex-wrap:wrap">
+        <div>
+          <div class="ed-detail-photo">${ph?`<img src="${ph}">`:`<div class="ed-card-ph">📷</div>`}</div>
+          <input type="file" id="ed-photo-inp" accept="image/*,.heic,.heif" style="display:none" onchange="updEdPhoto('${esc(packId)}','photo',this)">
+          <button class="mini-btn" style="width:200px;margin-top:8px" onclick="document.getElementById('ed-photo-inp').click()">📷 Change photo</button>
+        </div>
+        <div>
+          <div class="ed-detail-photo" style="background:#fff">${e.illu?`<img src="${e.illu}" style="object-fit:contain">`:`<div class="ed-card-ph">✏️</div>`}</div>
+          <input type="file" id="ed-illu-inp" accept="image/*,.heic,.heif" style="display:none" onchange="updEdPhoto('${esc(packId)}','illu',this)">
+          <button class="mini-btn" style="width:200px;margin-top:8px" onclick="document.getElementById('ed-illu-inp').click()">✏️ Tutorial illustration</button>
+        </div>
       </div>
       <div style="flex:1;min-width:240px">
         <div class="ed-card-num" style="margin-bottom:4px">TUTORIAL ${esc(pack.name||'—')}</div>
@@ -2464,11 +2472,11 @@ function renderEditoraDetail(host,packId,ro){
   </div>`;
 }
 window.updEd=function(packId,field,val){const e=edEntry(packId);e[field]=val;scheduleSave();};
-window.updEdPhoto=async function(packId,input){
+window.updEdPhoto=async function(packId,field,input){
   if(!input.files[0])return;
   const c=await compressImage(input.files[0],600,0.7);
   if(!c)return;
-  const e=edEntry(packId);e.photo=c;scheduleSave();renderEditora();
+  const e=edEntry(packId);e[field||'photo']=c;scheduleSave();renderEditora();
 };
 window.exportEditoraDossier=async function(){
   if(!window.jspdf||!window.html2canvas){alert('One moment, still loading…');return;}
@@ -2484,12 +2492,13 @@ window.exportEditoraDossier=async function(){
     const txt=(t,ttl)=>t?`<div style="margin-top:5mm"><div style="font-family:'JetBrains Mono',monospace;font-size:2.4mm;letter-spacing:.1em;text-transform:uppercase;color:#999;margin-bottom:1.5mm">${ttl}</div><div style="white-space:pre-wrap;font-size:3.4mm;line-height:1.55">${t.replace(/</g,'&lt;')}</div></div>`:'';
     return `<div class="a4-sheet" style="padding:14mm;display:flex;flex-direction:column">
       <div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:0.4mm solid #e5e5e5;padding-bottom:3mm;margin-bottom:6mm">
-        <span style="font-size:5mm;font-weight:700">Art of Scarves</span>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:2.6mm;letter-spacing:.12em;color:#999">TUTORIAL ${(p.name||'').toString().replace(/</g,'&lt;')}</span>
+        <span style="font-size:4mm;font-weight:700;color:#888">Art of Scarves</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8mm;font-weight:700;letter-spacing:.04em;color:#161814">TUTORIAL ${(p.name||'').toString().replace(/</g,'&lt;')}</span>
       </div>
       <div style="display:flex;gap:8mm;flex:1;min-height:0">
         <div style="width:72mm;flex-shrink:0">
           ${ph?`<img src="${ph}" style="width:72mm;border-radius:2mm;display:block">`:''}
+          ${e.illu?`<img src="${e.illu}" style="width:72mm;max-height:88mm;object-fit:contain;border:0.3mm solid #eee;border-radius:2mm;display:block;margin-top:4mm;background:#fff">`:''}
           ${p.category?`<span style="display:inline-block;margin-top:3mm;background:${cc};color:#fff;font-family:'JetBrains Mono',monospace;font-size:2.6mm;letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:1.6mm 3mm;border-radius:1.2mm">${p.category.replace(/</g,'&lt;')}</span>`:''}
           <div style="margin-top:5mm">${link(e.pdfUrl,'Tutorial drawing PDF')}${link(e.psdUrl,'Photoshop file')}${link(e.hiresUrl,'High-res photo 1')}${link(e.hiresUrl2,'High-res photo 2')}</div>
         </div>
