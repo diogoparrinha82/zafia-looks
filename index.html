@@ -312,6 +312,11 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .ed-ro-text{white-space:pre-wrap;font-size:.88rem;line-height:1.6;color:var(--c-text);background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-sm);padding:12px 14px;}
 .ed-back{position:fixed;top:70px;left:16px;z-index:40;background:var(--c-bg);border:1px solid var(--c-border);border-radius:999px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.1em;color:var(--c-text);padding:10px 16px;box-shadow:0 2px 10px rgba(0,0,0,.08);}
 .ed-back:hover{border-color:var(--c-accent);color:var(--c-accent);}
+.ed-nav{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:40;display:flex;align-items:center;gap:8px;background:var(--c-bg);border:1px solid var(--c-border);border-radius:999px;padding:8px 10px;box-shadow:0 4px 18px rgba(0,0,0,.12);}
+.ed-nav-btn{border:1px solid var(--c-border);background:var(--c-surface);border-radius:999px;width:38px;height:38px;cursor:pointer;font-size:1rem;color:var(--c-text);display:flex;align-items:center;justify-content:center;}
+.ed-nav-btn:hover{border-color:var(--c-accent);color:var(--c-accent);}
+.ed-nav-btn:disabled{opacity:.3;cursor:default;}
+.ed-nav-sel{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:.04em;background:var(--c-surface);border:1px solid var(--c-border);border-radius:999px;padding:9px 12px;outline:none;cursor:pointer;color:var(--c-text);max-width:230px;}
 .a4-notes{font-size:3.2mm;color:#444;font-style:italic;padding:2.5mm 3.5mm;background:#fafafa;border-left:2.5px solid #ddd;border-radius:1mm;margin-top:3mm;}
 .a4-footer{margin-top:auto;padding-top:2.5mm;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:2.8mm;color:#999;}
 
@@ -2432,6 +2437,16 @@ window.renderEditora=function(){
     <div class="ed-grid">${cards}</div>`;
 };
 window.openEditoraPack=function(id){__edOpenPack=id;renderEditora();const sc=document.getElementById('editora-scroll');if(sc)sc.scrollTop=0;};
+window.edNavGo=function(dir){const packs=edSortedPacks();const i=packs.findIndex(p=>p.id===__edOpenPack);if(i<0)return;const j=i+dir;if(j<0||j>=packs.length)return;openEditoraPack(packs[j].id);};
+function edNavBar(packId){
+  const packs=edSortedPacks();const i=packs.findIndex(p=>p.id===packId);
+  const opts=packs.map(p=>{const e=(state.editora||[]).find(x=>x.packId===p.id);const done=edFilled(e)>=ED_FIELDS.length;return `<option value="${esc(p.id)}"${p.id===packId?' selected':''}>${done?'✔ ':''}${esc(p.name||'—')}${e&&e.title?' · '+esc(e.title):''}</option>`;}).join('');
+  return `<div class="ed-nav">
+    <button class="ed-nav-btn" onclick="edNavGo(-1)" ${i<=0?'disabled':''} title="Previous">←</button>
+    <select class="ed-nav-sel" onchange="openEditoraPack(this.value)">${opts}</select>
+    <button class="ed-nav-btn" onclick="edNavGo(1)" ${i>=packs.length-1?'disabled':''} title="Next">→</button>
+  </div>`;
+}
 window.closeEditoraLook=function(){__edOpenPack=null;renderEditora();};
 function renderEditoraDetail(host,packId,ro){
   const pack=(state.photoPacks||[]).find(p=>p.id===packId);if(!pack){__edOpenPack=null;renderEditora();return;}
@@ -2456,7 +2471,7 @@ function renderEditoraDetail(host,packId,ro){
       </div>
       ${e.intro?`<div class="ed-field"><label>Introduction</label><div class="ed-ro-text">${esc(e.intro)}</div></div>`:''}
       ${e.steps?`<div class="ed-field"><label>Step-by-step description</label><div class="ed-ro-text">${esc(e.steps)}</div></div>`:''}
-    </div>`;
+    </div>${edNavBar(packId)}`;
     return;
   }
   host.innerHTML=`<div class="ed-detail">
@@ -2488,7 +2503,8 @@ function renderEditoraDetail(host,packId,ro){
     <div class="ed-field"><label>Link · Photoshop file</label><input type="url" placeholder="https://…" value="${esc(e.psdUrl||'')}" oninput="updEdLive('${esc(packId)}','psdUrl',this.value)" onchange="updEd('${esc(packId)}','psdUrl',this.value)"></div>
     <div class="ed-field"><label>Link · High-res photo 1</label><input type="url" placeholder="https://…" value="${esc(e.hiresUrl||'')}" oninput="updEdLive('${esc(packId)}','hiresUrl',this.value)" onchange="updEd('${esc(packId)}','hiresUrl',this.value)"></div>
     <div class="ed-field"><label>Link · High-res photo 2 (optional)</label><input type="url" placeholder="https://…" value="${esc(e.hiresUrl2||'')}" oninput="updEdLive('${esc(packId)}','hiresUrl2',this.value)" onchange="updEd('${esc(packId)}','hiresUrl2',this.value)"></div>
-  </div>`;
+    <div style="height:70px"></div>
+  </div>${edNavBar(packId)}`;
 }
 window.updEdLive=function(packId,field,val){const e=edEntry(packId);e[field]=val;e.ts=Date.now();};
 window.updEd=function(packId,field,val){const e=edEntry(packId);e[field]=val;e.ts=Date.now();try{saveCache(state);}catch(_){/*quota*/}scheduleSave();};
