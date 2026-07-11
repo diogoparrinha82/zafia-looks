@@ -293,6 +293,8 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .ed-card-body{padding:9px 11px;}
 .ed-card-num{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--c-text3);}
 .ed-card-title{font-size:.8rem;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ed-card-id{position:absolute;bottom:10px;left:12px;color:#fff;font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;letter-spacing:.02em;text-shadow:0 1px 8px rgba(0,0,0,.55),0 0 2px rgba(0,0,0,.4);pointer-events:none;z-index:2;}
+.ed-cat-pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;font-weight:600;padding:5px 10px;border-radius:4px;margin-top:7px;}
 .ed-card-state{position:absolute;top:8px;right:8px;font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.06em;padding:3px 7px;border-radius:3px;background:rgba(22,24,20,.72);color:#fff;}
 .ed-card-state.done{background:var(--c-accent);}
 .ed-detail{max-width:860px;margin:0 auto;padding:22px;}
@@ -2392,8 +2394,9 @@ window.renderEditora=function(){
     const cc=CAT_COLORS[catColorIdx(p.category)]||'#888';
     return `<div class="ed-card" onclick="openEditoraPack('${esc(p.id)}')">
       ${ph?`<img class="ed-card-img" src="${ph}" alt="">`:`<div class="ed-card-ph">📷</div>`}
+      <span class="ed-card-id">${esc(p.name||'')}</span>
       <span class="ed-card-state${st==='done'?' done':''}">${stLbl}</span>
-      <div class="ed-card-body"><div class="ed-card-num">TUTORIAL ${esc(p.name||'—')}</div><div class="ed-card-title">${esc((e&&e.title)||'—')}</div>${p.category?`<span class="gallery-cell-cat" style="background:${cc}22;color:${cc};display:inline-block;margin-top:5px">${esc(p.category)}</span>`:''}</div>
+      <div class="ed-card-body"><div class="ed-card-title">${esc((e&&e.title)||'—')}</div>${p.category?`<span class="ed-cat-pill" style="background:${cc}">${esc(p.category)}</span>`:''}</div>
     </div>`;
   }).join('');
   host.innerHTML=`
@@ -2414,7 +2417,7 @@ function renderEditoraDetail(host,packId,ro){
   const e=edEntry(packId);
   const ph=(e.photo)||(pack.photos&&pack.photos[0])||'';
   const cc=CAT_COLORS[catColorIdx(pack.category)]||'#888';
-  const catPill=pack.category?`<span class="gallery-cell-cat" style="background:${cc}22;color:${cc}">${esc(pack.category)}</span>`:'';
+  const catPill=pack.category?`<span class="ed-cat-pill" style="background:${cc};margin-top:0">${esc(pack.category)}</span>`:'';
   const linkBtn=(url,lbl,icon)=>url?`<a class="ed-link-btn" href="${esc(url)}" target="_blank" rel="noopener">${icon} ${lbl}</a>`:'';
   if(ro){
     host.innerHTML=`<div class="ed-detail">
