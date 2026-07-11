@@ -270,6 +270,45 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .a4-items-block.big .a4-item{width:90mm;gap:3mm;}
 .a4-items-block.big .a4-item-photo{width:90mm;height:118mm;}
 .a4-items-block.big .a4-item-name{width:90mm;font-size:4.2mm;}
+.a4-photos-sheet{padding:14mm;}
+.a4-photos-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7mm;border-bottom:0.4mm solid #e5e5e5;padding-bottom:4mm;}
+.a4-photos-head .ttl{font-family:'Inter Tight',sans-serif;font-size:6mm;font-weight:700;letter-spacing:-.01em;}
+.a4-photos-head .sub{font-family:'JetBrains Mono',monospace;font-size:2.6mm;letter-spacing:.12em;text-transform:uppercase;color:#999;}
+.a4-photos-grid{display:grid;grid-template-columns:1fr 1fr;gap:8mm;}
+.a4-photo-cell{display:flex;flex-direction:column;gap:2mm;}
+.a4-photo-cell-img{width:100%;height:76mm;background:#f5f5f5;border-radius:1.5mm;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid #e8e8e8;}
+.a4-photo-cell-img img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;}
+.a4-photo-cell-cap{font-family:'Inter Tight',sans-serif;font-size:3.2mm;color:#222;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.a4-photo-cell-cat{font-family:'JetBrains Mono',monospace;font-size:2.2mm;letter-spacing:.08em;text-transform:uppercase;color:#aaa;margin-top:-1mm;}
+/* ── EDITORA ── */
+.ed-toolbar{display:flex;align-items:center;gap:12px;padding:16px 22px;border-bottom:1px solid var(--c-border);flex-wrap:wrap;}
+.ed-progress{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.08em;color:var(--c-text2);}
+.ed-grid{padding:18px 22px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+@media(max-width:1100px){.ed-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.ed-grid{grid-template-columns:1fr;}}
+.ed-card{background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--radius-sm);overflow:hidden;cursor:pointer;transition:transform .12s;position:relative;}
+.ed-card:hover{transform:scale(.98);}
+.ed-card-img{aspect-ratio:3/4;width:100%;object-fit:cover;display:block;background:var(--c-surface);}
+.ed-card-ph{aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;font-size:1.8rem;background:var(--c-surface);color:var(--c-text3);}
+.ed-card-body{padding:9px 11px;}
+.ed-card-num{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--c-text3);}
+.ed-card-title{font-size:.8rem;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ed-card-state{position:absolute;top:8px;right:8px;font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.06em;padding:3px 7px;border-radius:3px;background:rgba(22,24,20,.72);color:#fff;}
+.ed-card-state.done{background:var(--c-accent);}
+.ed-detail{max-width:860px;margin:0 auto;padding:22px;}
+.ed-detail-head{display:flex;gap:18px;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;}
+.ed-detail-photo{width:200px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--c-border);flex-shrink:0;}
+.ed-detail-photo img{width:100%;display:block;}
+.ed-field{margin-bottom:16px;}
+.ed-field label{display:block;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--c-text2);margin-bottom:6px;}
+.ed-field input[type=text],.ed-field input[type=url]{width:100%;padding:10px 12px;border:1px solid var(--c-border);border-radius:var(--radius-sm);background:var(--c-surface);font-family:'Inter Tight',sans-serif;font-size:.85rem;color:var(--c-text);outline:none;}
+.ed-field textarea{width:100%;min-height:110px;padding:10px 12px;border:1px solid var(--c-border);border-radius:var(--radius-sm);background:var(--c-surface);font-family:'Inter Tight',sans-serif;font-size:.85rem;line-height:1.5;color:var(--c-text);outline:none;resize:vertical;}
+.ed-field input:focus,.ed-field textarea:focus{border-color:var(--c-accent);}
+.ed-links-row{display:flex;gap:10px;flex-wrap:wrap;}
+.ed-link-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border:1px solid var(--c-border);border-radius:var(--radius-sm);background:var(--c-surface);font-size:.8rem;font-weight:600;color:var(--c-text);text-decoration:none;transition:border-color .15s;}
+.ed-link-btn:hover{border-color:var(--c-accent);color:var(--c-accent);}
+.ed-ro-text{white-space:pre-wrap;font-size:.88rem;line-height:1.6;color:var(--c-text);background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-sm);padding:12px 14px;}
+.ed-back{background:none;border:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.1em;color:var(--c-text2);padding:8px 0;}
 .a4-notes{font-size:3.2mm;color:#444;font-style:italic;padding:2.5mm 3.5mm;background:#fafafa;border-left:2.5px solid #ddd;border-radius:1mm;margin-top:3mm;}
 .a4-footer{margin-top:auto;padding-top:2.5mm;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:2.8mm;color:#999;}
 
@@ -687,7 +726,17 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .photos-counter{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--c-text3);font-weight:600;flex:1;min-width:80px;}
 .photos-filter-sel{background:var(--c-bg);border:1.5px solid var(--c-border);border-radius:var(--radius-sm);color:var(--c-text);font-family:'Inter Tight',sans-serif;font-size:.78rem;padding:6px 10px;outline:none;cursor:pointer;flex-shrink:0;}
 .photos-filter-sel:focus{border-color:var(--c-accent);}
-.photos-grid{padding:18px 22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;}
+.photos-grid{padding:18px 22px;display:grid;grid-template-columns:repeat(5,1fr);gap:18px;}
+@media(max-width:1100px){.photos-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:760px){.photos-grid{grid-template-columns:repeat(2,1fr);}}
+.db-photos-grid{padding:4px 24px 10px;display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+@media(max-width:1100px){.db-photos-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:560px){.db-photos-grid{grid-template-columns:repeat(2,1fr);}}
+.db-photo{cursor:pointer;border-radius:var(--radius-sm);overflow:hidden;background:var(--c-card);border:1px solid var(--c-border);transition:transform .12s;}
+.db-photo:hover{transform:scale(.98);}
+.db-photo-img{aspect-ratio:3/4;width:100%;object-fit:cover;display:block;background:var(--c-surface);}
+.db-photo-ph{aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;font-size:1.6rem;background:var(--c-surface);color:var(--c-text3);}
+.db-photo-name{padding:7px 9px;font-size:.68rem;color:var(--c-text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .photos-empty{padding:60px 20px;text-align:center;color:var(--c-text3);font-family:'Inter Tight',sans-serif;font-size:.95rem;font-style:italic;grid-column:1/-1;}
 .pp-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-sm);overflow:hidden;display:flex;flex-direction:column;}
 .pp-photos{display:flex;background:var(--c-bg);position:relative;aspect-ratio:4/3;}
@@ -1274,12 +1323,27 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
         <option value="name">Nome A-Z</option>
       </select>
       <input type="file" id="photos-bulk-inp" accept="image/*,.heic,.heif" multiple style="display:none" onchange="handlePhotoPackPick(this)">
+      <button class="mini-btn" onclick="exportPhotosPdf()" style="padding:8px 16px;flex-shrink:0" title="Exportar PDF das fotos para partilhar">⬇ Exportar PDF</button>
       <button class="mini-btn accent" onclick="createPhotoPack()" style="padding:8px 16px;flex-shrink:0">＋ Novo pack</button>
     </div>
     <div class="photos-grid" id="photos-grid"></div>
     <div style="height:90px"></div>
   </div>
   <button class="photos-save-fab" id="photos-save-fab" onclick="forceSavePhotos()">Guardar alterações</button>
+</div>
+
+<!-- EDITORA -->
+<div class="screen hidden" id="screen-editora">
+  <div class="nav-bar">
+    <button class="menu-btn" id="ed-menu-btn" onclick="openDrawer()" aria-label="Menu"><span></span><span></span><span></span></button>
+    <div><div class="nav-title">Editora</div></div>
+    <button class="nav-btn" id="ed-logout-btn" onclick="doLogout()" style="color:#C72A1C;display:none">Sair</button>
+    <button class="nav-btn" id="ed-export-btn" onclick="exportEditoraDossier()" title="Exportar dossier HTML">⬇</button>
+  </div>
+  <div class="scroll-area" id="editora-scroll">
+    <div id="editora-content"></div>
+    <div style="height:60px"></div>
+  </div>
 </div>
 
 <!-- DRAWER MENU -->
@@ -1297,6 +1361,7 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
     <button class="drawer-item" id="drw-shooting" onclick="switchTab('shooting');closeDrawer()">Shooting</button>
     <button class="drawer-item" id="drw-equipa" onclick="switchTab('equipa');closeDrawer()">Equipa & Custos</button>
     <button class="drawer-item" id="drw-photos" onclick="switchTab('photos');closeDrawer()">Fotos</button>
+    <button class="drawer-item" id="drw-editora" onclick="switchTab('editora');closeDrawer()">Editora</button>
   </nav>
   <div class="drawer-foot">
     <div class="drawer-foot-sync" onclick="recheckSync()" title="Click para verificar ligação"><div class="sync-dot" id="sync-dot"></div><span id="sync-txt">sync</span></div>
@@ -1355,6 +1420,7 @@ import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc, onSn
 const fbApp=initializeApp({apiKey:"AIzaSyAZZ-q7zM8gLZb8MMOL8Pj9zFeLLrtDAhk",authDomain:"book-claudya.firebaseapp.com",projectId:"book-claudya",storageBucket:"book-claudya.firebasestorage.app",messagingSenderId:"724090676677",appId:"1:724090676677:web:520ddb7efc45f839d917ac"});
 const db=getFirestore(fbApp);
 const ACCESS_PASSWORD="bookcm2026";
+const EDITORA_PASSWORD="quadrille2026";
 const SESSION_KEY="zafia_auth";
 const CACHE_KEY="zafia_cache_v5_olive";
 
@@ -1387,7 +1453,7 @@ window.state={
     locations:[],
     theme:{...DEFAULT_THEME}
   },
-  looks:[],team:[],production:{costs:[]},photoPacks:[],ui:{currentIdx:0,filter:'',galleryView:'grid',compareBin:[]}
+  looks:[],team:[],production:{costs:[]},photoPacks:[],editora:[],ui:{currentIdx:0,filter:'',galleryView:'grid',compareBin:[]}
 };
 window.currentScreen='screen-looks';
 const outfitSlideIdx={};
@@ -1552,7 +1618,7 @@ function catsFromFS(arr){if(!arr||!arr.length)return[];const conv=x=>{const num=
 function collectTutorialPhotos(){const out=[];(state.config.cats||[]).forEach(c=>{(c[2]||[]).forEach(t=>{if(t&&t.id&&t.photo)out.push({id:t.id,photo:t.photo});});});return out;}
 function applyTutorialPhotos(list){if(!list||!list.length)return;const map={};list.forEach(x=>{if(x&&x.id)map[x.id]=x.photo;});(state.config.cats||[]).forEach(c=>{(c[2]||[]).forEach(t=>{if(t&&t.id&&map[t.id])t.photo=map[t.id];});});}
 let saveTimer=null;
-function scheduleSave(){clearTimeout(saveTimer);setSyncStatus('syncing');saveTimer=setTimeout(doSave,3500);}
+function scheduleSave(){if(isEditoraRole())return;clearTimeout(saveTimer);setSyncStatus('syncing');saveTimer=setTimeout(doSave,3500);}
 let __doSaveInProgress=false;
 let __savePendingAgain=false;
 // Per-section snapshot of what was last successfully written, so we only re-upload
@@ -1561,6 +1627,7 @@ let lastSavedJSON={};
 // Per-pack snapshot (id → serialized pack) for one-doc-per-pack photoPacks storage.
 let lastSavedPacks={};
 async function doSave(){
+  if(isEditoraRole())return;
   // If a save is already running, don't drop this request — flag it so we run again after.
   // (Previously this returned early and silently lost edits made during a long save.)
   if(__doSaveInProgress){__savePendingAgain=true;return;}
@@ -1675,6 +1742,7 @@ async function doSave(){
       {name:'locations',snap:JSON.stringify(state.config.locations||[]),fn:()=>saveChunked('locations',state.config.locations||[])},
       {name:'looks',snap:JSON.stringify(state.looks),fn:()=>saveChunked('looks',state.looks)},
       {name:'photoPacks',snap:null,fn:()=>savePhotoPacks()},
+      {name:'editora',snap:JSON.stringify(state.editora||[]),fn:()=>saveChunked('editora',stripUndef(state.editora||[]))},
       {name:'team',snap:JSON.stringify(teamData),fn:()=>setDocT(base('team'),stripUndef({...teamData,ts:Date.now(),_writer:writerTagOp}))}
     ];
     const failed=[];
@@ -1809,6 +1877,7 @@ async function loadFromFirestore(){
       {name:'locations',label:'Locais',fn:()=>loadChunked(base,'locations')},
       {name:'looks',label:'Looks',fn:()=>loadChunked(base,'looks')},
       {name:'tutPhotos',label:'Fotos tutoriais',fn:()=>loadChunked(base,'tutorialPhotos')},
+      {name:'editora',label:'Editora',fn:()=>loadChunked(base,'editora')},
       {name:'photoPacks',label:'Fotos',fn:()=>loadPhotoPacks()}
     ];
     const total=sections.length;
@@ -1822,7 +1891,7 @@ async function loadFromFirestore(){
       setLoadProgress(pct,`Sincronizando · ${s.label} (${done}/${total})`);
     })));
     const cfgSnap=results.cfgSnap,teamSnap=results.teamSnap;
-    const {outfits,joias,sapatos,scarves,models,locations,looks,photoPacks,tutPhotos}=results;
+    const {outfits,joias,sapatos,scarves,models,locations,looks,photoPacks,tutPhotos,editora}=results;
     setLoadProgress(93,'A aplicar dados…');
     // ── SHRINK GUARD ──
     // Count embedded photos (any "photo" key, at any depth) in a value.
@@ -1884,6 +1953,7 @@ async function loadFromFirestore(){
       if(locations!==null)state.config.locations=accept('Locais',locations,state.config.locations);
       if(looks!==null)state.looks=migrateLooks(accept('Looks',looks,state.looks));
       if(photoPacks!==null)state.photoPacks=Array.isArray(photoPacks)?accept('Fotos',photoPacks,state.photoPacks):state.photoPacks;
+      if(editora!==null&&Array.isArray(editora))state.editora=editora;
       if(teamSnap.exists()){state.team=teamSnap.data().items||[];const prod=teamSnap.data().production;if(prod&&Array.isArray(prod.costs))state.production={costs:prod.costs};if(teamSnap.data().ui){const {currentIdx,filter,...restUi}=teamSnap.data().ui;state.ui={...state.ui,...restUi};}}
     }
     if(shrinkWarnings.length){
@@ -1907,6 +1977,7 @@ async function loadFromFirestore(){
         models:JSON.stringify(state.config.models),
         locations:JSON.stringify(state.config.locations||[]),
         looks:JSON.stringify(state.looks),
+        editora:JSON.stringify(state.editora||[]),
         team:JSON.stringify({items:state.team,production:state.production||{costs:[]},ui:state.ui})
       };
       if(__tutMigrating){console.log(`[tutorialPhotos] Migrating ${collectTutorialPhotos().length} tutorial photo(s) out of config.`);scheduleSave();}
@@ -1922,6 +1993,7 @@ async function loadFromFirestore(){
       }
     }catch(e){lastSavedJSON={};lastSavedPacks={};}
     migrateAccentColor();applyTheme();renderFilters();buildCarousel();updateCounter();setSyncStatus('ok');saveCache(state);
+    if(window.currentScreen==='screen-editora')renderEditora();
     startRemoteWatch();
     setLoadProgress(100,'Sincronizado ✓');
   }catch(e){console.error('Firebase:',e);setSyncStatus('offline');setLoadProgress(100);}
@@ -2001,8 +2073,8 @@ function startRemoteWatch(){
   if(remoteWatchActive)return;
   remoteWatchActive=true;
   const myTag=sessionStorage.getItem('aos_tab_id')||'unknown';
-  const watched=['looks','locations','outfits','scarves','models','joias','sapatos','photoPacks','config','team'];
-  const labels={looks:'Looks',locations:'Locações',outfits:'Roupas',scarves:'Lenços',models:'Modelos',joias:'Jóias',sapatos:'Sapatos',photoPacks:'Fotos',config:'Configuração',team:'Equipa'};
+  const watched=['looks','locations','outfits','scarves','models','joias','sapatos','photoPacks','config','team','editora'];
+  const labels={looks:'Looks',locations:'Locações',outfits:'Roupas',scarves:'Lenços',models:'Modelos',joias:'Jóias',sapatos:'Sapatos',photoPacks:'Fotos',config:'Configuração',team:'Equipa',editora:'Editora'};
   // Track timestamps observed at watch-start (so we don't fire for "current" state)
   const seenTs={};
   watched.forEach(prefix=>{
@@ -2261,7 +2333,8 @@ function showBackupReminder(days){
 }
 
 // ── AUTH ──
-window.doLogin=function(){const pwd=document.getElementById('login-pwd').value.trim();if(pwd===ACCESS_PASSWORD){localStorage.setItem(SESSION_KEY,'1');document.getElementById('screen-login').classList.add('hidden');initApp();startPresence();}else{document.getElementById('login-err').textContent='⛔ Senha incorrecta.';document.getElementById('login-pwd').value='';}};
+window.doLogin=function(){const pwd=document.getElementById('login-pwd').value.trim();if(pwd===ACCESS_PASSWORD){localStorage.setItem(SESSION_KEY,'1');document.getElementById('screen-login').classList.add('hidden');initApp();startPresence();}else if(pwd===EDITORA_PASSWORD){localStorage.setItem(SESSION_KEY,'editora');document.getElementById('screen-login').classList.add('hidden');initApp();}else{document.getElementById('login-err').textContent='⛔ Senha incorrecta.';document.getElementById('login-pwd').value='';}};
+function isEditoraRole(){return localStorage.getItem(SESSION_KEY)==='editora';}
 window.doLogout=function(){if(!confirm('Sair?'))return;localStorage.removeItem(SESSION_KEY);document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById('screen-login').classList.remove('hidden');};
 
 function initApp(){
@@ -2272,7 +2345,7 @@ if(!sessionStorage.getItem('aos_tab_id')){
   const id=(crypto&&crypto.randomUUID)?crypto.randomUUID():('tab_'+Date.now()+'_'+Math.random().toString(36).slice(2,9));
   sessionStorage.setItem('aos_tab_id',id);
 }
-loadCache();loadCompareBin();state.ui.currentIdx=0;state.ui.filter='';state.config.theme={...DEFAULT_THEME,...(state.config.theme||{})};migrateAccentColor();applyTheme();document.getElementById('loading').classList.add('hidden');renderFilters();buildCarousel();updateCounter();renderCompareBin();maybePulseHowToFab();switchTab('dashboard');
+loadCache();loadCompareBin();state.ui.currentIdx=0;state.ui.filter='';state.config.theme={...DEFAULT_THEME,...(state.config.theme||{})};migrateAccentColor();applyTheme();document.getElementById('loading').classList.add('hidden');if(isEditoraRole()){switchTab('editora');}else{renderFilters();buildCarousel();updateCounter();renderCompareBin();maybePulseHowToFab();switchTab('dashboard');}
 // Initial status reflects browser network state, not assumed offline
 if(navigator.onLine===false)setSyncStatus('offline');
 else setSyncStatus('syncing');
@@ -2282,6 +2355,130 @@ loadFromFirestore().then(()=>{clearTimeout(fbTO);if(window.currentScreen==='scre
 // Expose render functions to window so inline event handlers (onchange, onclick in HTML attributes)
 // can find them — module scope is not the global scope.
 window.renderPhotos=renderPhotos;
+// ══════ EDITORA ══════
+const ED_FIELDS=['title','pdfUrl','psdUrl','hiresUrl','tutNum','titleChars','intro','steps'];
+function edEntry(num){
+  if(!Array.isArray(state.editora))state.editora=[];
+  let e=state.editora.find(x=>x.num===num);
+  if(!e){e={num,title:'',pdfUrl:'',psdUrl:'',hiresUrl:'',tutNum:'',titleChars:'',intro:'',steps:'',packId:''};state.editora.push(e);}
+  return e;
+}
+function edPackForLook(look){
+  const e=(state.editora||[]).find(x=>x.num===look.num);
+  const packs=state.photoPacks||[];
+  if(e&&e.packId){const p=packs.find(p=>p.id===e.packId);if(p)return p;}
+  // auto-match: pack name contains the look number as a standalone number
+  const rx=new RegExp('(^|\\D)'+look.num+'(\\D|$)');
+  return packs.find(p=>rx.test(p.name||''))||null;
+}
+function edFilled(e){if(!e)return 0;return ED_FIELDS.reduce((n,f)=>n+((e[f]||'').toString().trim()?1:0),0);}
+let __edOpenNum=null;
+window.renderEditora=function(){
+  const ro=isEditoraRole();
+  const menuBtn=document.getElementById('ed-menu-btn');const outBtn=document.getElementById('ed-logout-btn');
+  if(menuBtn)menuBtn.style.display=ro?'none':'';
+  if(outBtn)outBtn.style.display=ro?'':'none';
+  const host=document.getElementById('editora-content');if(!host)return;
+  if(__edOpenNum!==null){renderEditoraDetail(host,__edOpenNum,ro);return;}
+  const looks=[...(state.looks||[])].sort((a,b)=>(a.num||0)-(b.num||0));
+  const totalFields=looks.length*ED_FIELDS.length;
+  let filled=0;looks.forEach(l=>{filled+=edFilled((state.editora||[]).find(x=>x.num===l.num));});
+  const cards=looks.map(l=>{
+    const pack=edPackForLook(l);
+    const ph=pack&&pack.photos&&pack.photos[0]||'';
+    const e=(state.editora||[]).find(x=>x.num===l.num);
+    const n=edFilled(e);
+    const st=n>=ED_FIELDS.length?'done':(n>0?'part':'empty');
+    const stLbl=n>=ED_FIELDS.length?'✓ completo':`${n}/${ED_FIELDS.length}`;
+    return `<div class="ed-card" onclick="openEditoraLook(${l.num})">
+      ${ph?`<img class="ed-card-img" src="${ph}" alt="">`:`<div class="ed-card-ph">📷</div>`}
+      <span class="ed-card-state${st==='done'?' done':''}">${stLbl}</span>
+      <div class="ed-card-body"><div class="ed-card-num">LOOK #${l.num} · ${esc(l.category||'')}</div><div class="ed-card-title">${esc((e&&e.title)||(pack?pack.name:'')||'—')}</div></div>
+    </div>`;
+  }).join('');
+  host.innerHTML=`
+    <div class="ed-toolbar">
+      <div class="ed-progress">${ro?`${looks.length} looks`:`Preenchido: ${filled}/${totalFields} campos`}</div>
+      ${ro?'':`<button class="mini-btn" style="margin-left:auto" onclick="exportEditoraDossier()">⬇ Exportar dossier</button>`}
+    </div>
+    <div class="ed-grid">${cards}</div>`;
+};
+window.openEditoraLook=function(num){__edOpenNum=num;renderEditora();const sc=document.getElementById('editora-scroll');if(sc)sc.scrollTop=0;};
+window.closeEditoraLook=function(){__edOpenNum=null;renderEditora();};
+function renderEditoraDetail(host,num,ro){
+  const look=(state.looks||[]).find(l=>l.num===num);if(!look){__edOpenNum=null;renderEditora();return;}
+  const e=edEntry(num);
+  const pack=edPackForLook(look);
+  const ph=pack&&pack.photos&&pack.photos[0]||'';
+  const packs=state.photoPacks||[];
+  const linkBtn=(url,lbl,icon)=>url?`<a class="ed-link-btn" href="${esc(url)}" target="_blank" rel="noopener">${icon} ${lbl}</a>`:'';
+  if(ro){
+    host.innerHTML=`<div class="ed-detail">
+      <button class="ed-back" onclick="closeEditoraLook()">← VOLTAR À GALERIA</button>
+      <div class="ed-detail-head">
+        ${ph?`<div class="ed-detail-photo"><img src="${ph}"></div>`:''}
+        <div style="flex:1;min-width:240px">
+          ${e.title?`<h2 style="margin:0 0 4px;font-size:1.3rem;letter-spacing:-.01em">${esc(e.title)}</h2>`:''}
+          <div class="ed-card-num" style="margin-bottom:12px">LOOK #${num} · ${esc(look.category||'')}${e.tutNum?` · TUTORIAL ${esc(e.tutNum)}`:''}</div>
+          ${e.titleChars?`<div class="ed-field"><label>Info técnica</label><div class="ed-ro-text">${esc(e.titleChars)}</div></div>`:''}
+          <div class="ed-links-row">${linkBtn(e.pdfUrl,'Desenho tutorial (PDF)','📄')}${linkBtn(e.psdUrl,'Photoshop','🎨')}${linkBtn(e.hiresUrl,'Foto alta resolução','🖼')}</div>
+        </div>
+      </div>
+      ${e.intro?`<div class="ed-field"><label>Introdução ao look</label><div class="ed-ro-text">${esc(e.intro)}</div></div>`:''}
+      ${e.steps?`<div class="ed-field"><label>Descritivo do look</label><div class="ed-ro-text">${esc(e.steps)}</div></div>`:''}
+    </div>`;
+    return;
+  }
+  const packOpts=['<option value="">— auto (por número no nome) —</option>'].concat(packs.map(p=>`<option value="${esc(p.id)}"${e.packId===p.id?' selected':''}>${esc(p.name||p.id)}</option>`)).join('');
+  host.innerHTML=`<div class="ed-detail">
+    <button class="ed-back" onclick="closeEditoraLook()">← VOLTAR À GALERIA</button>
+    <div class="ed-detail-head">
+      ${ph?`<div class="ed-detail-photo"><img src="${ph}"></div>`:`<div class="ed-detail-photo"><div class="ed-card-ph">📷</div></div>`}
+      <div style="flex:1;min-width:240px">
+        <div class="ed-card-num" style="margin-bottom:10px">LOOK #${num} · ${esc(look.category||'')}</div>
+        <div class="ed-field"><label>Pack de foto associado</label><select class="photos-filter-sel" style="width:100%" onchange="updEd(${num},'packId',this.value)">${packOpts}</select></div>
+        <div class="ed-field"><label>4 · Número do tutorial</label><input type="text" value="${esc(e.tutNum||'')}" onchange="updEd(${num},'tutNum',this.value)"></div>
+      </div>
+    </div>
+    <div class="ed-field"><label>Nome / Título do look</label><input type="text" value="${esc(e.title||'')}" onchange="updEd(${num},'title',this.value)"></div>
+    <div class="ed-field"><label>Categoria do look</label><input type="text" value="${esc(look.category||'')}" disabled style="opacity:.6"></div>
+    <div class="ed-field"><label>Info técnica (tamanhos dos lenços)</label><textarea style="min-height:70px" onchange="updEd(${num},'titleChars',this.value)">${esc(e.titleChars||'')}</textarea></div>
+    <div class="ed-field"><label>Introdução ao look</label><textarea onchange="updEd(${num},'intro',this.value)">${esc(e.intro||'')}</textarea></div>
+    <div class="ed-field"><label>Descritivo do look (passo a passo)</label><textarea style="min-height:170px" onchange="updEd(${num},'steps',this.value)">${esc(e.steps||'')}</textarea></div>
+    <div class="ed-field"><label>Link · Desenho tutorial PDF</label><input type="url" placeholder="https://…" value="${esc(e.pdfUrl||'')}" onchange="updEd(${num},'pdfUrl',this.value)"></div>
+    <div class="ed-field"><label>Link · Ficheiro Photoshop</label><input type="url" placeholder="https://…" value="${esc(e.psdUrl||'')}" onchange="updEd(${num},'psdUrl',this.value)"></div>
+    <div class="ed-field"><label>Link · Foto alta resolução</label><input type="url" placeholder="https://…" value="${esc(e.hiresUrl||'')}" onchange="updEd(${num},'hiresUrl',this.value)"></div>
+  </div>`;
+}
+window.updEd=function(num,field,val){const e=edEntry(num);e[field]=val;scheduleSave();};
+window.exportEditoraDossier=function(){
+  const looks=[...(state.looks||[])].sort((a,b)=>(a.num||0)-(b.num||0));
+  if(!looks.length){alert('Não há looks.');return;}
+  const secs=looks.map(l=>{
+    const e=(state.editora||[]).find(x=>x.num===l.num)||{};
+    const pack=edPackForLook(l);const ph=pack&&pack.photos&&pack.photos[0]||'';
+    const link=(u,t)=>u?`<a href="${u}" target="_blank" style="display:inline-block;margin:4px 10px 4px 0;padding:9px 14px;border:1px solid #ddd;border-radius:4px;color:#113af0;text-decoration:none;font-weight:600;font-size:14px">${t}</a>`:'';
+    const txt=(t,ttl)=>t?`<h4 style="margin:16px 0 6px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#888">${ttl}</h4><div style="white-space:pre-wrap;font-size:15px;line-height:1.6">${t.replace(/</g,'&lt;')}</div>`:'';
+    return `<section style="padding:28px 0;border-bottom:1px solid #eee;display:flex;gap:24px;flex-wrap:wrap">
+      <div style="width:220px;flex-shrink:0">${ph?`<img src="${ph}" style="width:100%;border-radius:6px">`:''}</div>
+      <div style="flex:1;min-width:280px">
+        ${e.title?`<h2 style="margin:0 0 2px;font-size:22px">${e.title.replace(/</g,'&lt;')}</h2>`:''}
+        <div style="font-family:monospace;font-size:12px;color:#999">LOOK #${l.num} · ${(l.category||'').toUpperCase()}${e.tutNum?` · TUTORIAL ${e.tutNum}`:''}</div>
+        ${txt(e.titleChars,'Info técnica')}
+        ${txt(e.intro,'Introdução ao look')}${txt(e.steps,'Descritivo do look')}
+        <div style="margin:12px 0">${link(e.pdfUrl,'📄 Desenho tutorial (PDF)')}${link(e.psdUrl,'🎨 Photoshop')}${link(e.hiresUrl,'🖼 Foto alta resolução')}</div>
+      </div>
+    </section>`;
+  }).join('');
+  const html=`<!DOCTYPE html><html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Art of Scarves · Dossier Editora</title></head>
+  <body style="font-family:-apple-system,'Inter Tight',sans-serif;color:#161814;max-width:960px;margin:0 auto;padding:40px 24px">
+  <h1 style="font-size:28px;margin-bottom:2px">Art of Scarves</h1><p style="color:#888;margin-top:0">Dossier para a editora · Claudya Moreira · ${new Date().toLocaleDateString('pt-PT')}</p>
+  ${secs}</body></html>`;
+  const blob=new Blob([html],{type:'text/html'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`art-of-scarves-dossier-${Date.now()}.html`;a.click();URL.revokeObjectURL(a.href);
+  showToast('✓ Dossier exportado');
+};
+
 
 window.exportData=function(){return window.exportBackup();};
 window.importData=function(input){if(!input.files[0])return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(!d.config||!d.looks)throw new Error();window.state=d;state.looks=migrateLooks(state.looks);state.config.outfits=normaliseOutfits(state.config.outfits);state.config.joias=normaliseSimple(state.config.joias,DEFAULT_JOIAS);state.config.sapatos=normaliseSimple(state.config.sapatos,DEFAULT_SAPATOS);applyTheme();renderFilters();buildCarousel();updateCounter();scheduleSave();showToast('⬆ Importado!');}catch(e){showToast('✗ Ficheiro inválido');}};r.readAsText(input.files[0]);input.value='';};
@@ -2339,7 +2536,7 @@ function genLooksEmpty(){
 function defaultTeam(){return[{id:1,name:'',role:'Fotógrafo Principal',location:'PT Est+Ext+CV',phone:'',email:'',notes:'',photo:'',viagem:0,estadia:0,alimentacao:0,cachet:0,outros:0,open:true}];}
 
 // ── SCREENS ──
-window.switchTab=function(tab){if(tab==='equipa'&&!state.ui.equipaUnlocked){promptPIN(()=>{state.ui.equipaUnlocked=true;switchTab('equipa');});return;}const map={dashboard:'screen-dashboard',looks:'screen-looks',gallery:'screen-gallery',config:'screen-config',shooting:'screen-shooting',equipa:'screen-equipa',photos:'screen-photos'};document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById(map[tab]).classList.remove('hidden');document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('on'));const el=document.getElementById('tab-'+tab);if(el)el.classList.add('on');document.querySelectorAll('.drawer-item').forEach(d=>d.classList.remove('on'));const di=document.getElementById('drw-'+tab);if(di)di.classList.add('on');window.currentScreen=map[tab];if(tab==='dashboard'){renderDashboard();maybeShowBackupReminder();}if(tab==='gallery')renderGallery();if(tab==='config')renderConfig();if(tab==='shooting')renderShooting();if(tab==='equipa')renderTeam();if(tab==='photos')renderPhotos();};
+window.switchTab=function(tab){if(isEditoraRole())tab='editora';if(tab==='equipa'&&!state.ui.equipaUnlocked){promptPIN(()=>{state.ui.equipaUnlocked=true;switchTab('equipa');});return;}const map={dashboard:'screen-dashboard',looks:'screen-looks',gallery:'screen-gallery',config:'screen-config',shooting:'screen-shooting',equipa:'screen-equipa',photos:'screen-photos',editora:'screen-editora'};document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById(map[tab]).classList.remove('hidden');document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('on'));const el=document.getElementById('tab-'+tab);if(el)el.classList.add('on');document.querySelectorAll('.drawer-item').forEach(d=>d.classList.remove('on'));const di=document.getElementById('drw-'+tab);if(di)di.classList.add('on');window.currentScreen=map[tab];if(tab==='dashboard'){renderDashboard();maybeShowBackupReminder();}if(tab==='gallery')renderGallery();if(tab==='config')renderConfig();if(tab==='shooting')renderShooting();if(tab==='equipa')renderTeam();if(tab==='photos')renderPhotos();if(tab==='editora')renderEditora();};
 window.toggleCS=function(id){document.getElementById(id).classList.toggle('open');};
 
 // sub-tabs inside Roupas & Peças
@@ -2851,6 +3048,53 @@ function buildA4Sheet(look){
   </div>`;
 }
 
+function buildPhotoSheet(cells,pageNum,totalPages){
+  return `<div class="a4-sheet a4-photos-sheet">
+    <div class="a4-photos-head"><span class="ttl">Art of Scarves · Fotos</span><span class="sub">Claudya Moreira</span></div>
+    <div class="a4-photos-grid">${cells.map(c=>`<div class="a4-photo-cell"><div class="a4-photo-cell-img">${c.photo?`<img src="${c.photo}">`:''}</div><div class="a4-photo-cell-cap">${esc(c.name||'—')}</div>${c.category?`<div class="a4-photo-cell-cat">${esc(c.category)}</div>`:''}</div>`).join('')}</div>
+    <div class="a4-footer"><span></span><span>Página ${pageNum} de ${totalPages}</span></div>
+  </div>`;
+}
+window.exportPhotosPdf=async function(){
+  if(!window.jspdf||!window.html2canvas){alert('Aguarda um momento, a carregar…');return;}
+  // Same sort + filter as the Fotos page
+  const sortSel=document.getElementById('photos-sort');const sortVal=sortSel?sortSel.value:'recent';
+  const filterSel=document.getElementById('photos-filter');const filterVal=filterSel?filterSel.value:'';
+  let packs=[...(state.photoPacks||[])];
+  if(sortVal==='oldest')packs.sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+  else if(sortVal==='name')packs.sort((a,b)=>(a.name||'').toLowerCase().localeCompare((b.name||'').toLowerCase()));
+  else if(sortVal==='category')packs.sort((a,b)=>(a.category||'').localeCompare(b.category||'')||(b.createdAt||0)-(a.createdAt||0));
+  else packs.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  if(filterVal==='__none')packs=packs.filter(p=>!p.category);
+  else if(filterVal)packs=packs.filter(p=>p.category===filterVal);
+  // Expand each pack into its individual photos
+  const cells=[];
+  packs.forEach(p=>{(p.photos||[]).forEach(ph=>{if(ph)cells.push({photo:ph,name:p.name||'',category:p.category||''});});});
+  if(!cells.length){alert('Não há fotos para exportar.');return;}
+  const perPage=6;const pages=[];for(let i=0;i<cells.length;i+=perPage)pages.push(cells.slice(i,i+perPage));
+  showToast('⏳ A gerar PDF…');
+  const area=document.getElementById('sheets-print-area');
+  area.style.cssText='position:fixed;left:-10000px;top:0;display:block;background:#fff;z-index:-1;width:210mm;';
+  area.innerHTML=`<div class="sheets-container" style="padding:0;gap:0;background:#fff;width:210mm">${pages.map((pg,i)=>buildPhotoSheet(pg,i+1,pages.length)).join('')}</div>`;
+  area.querySelectorAll('.a4-sheet').forEach(s=>{s.style.width='210mm';s.style.maxWidth='210mm';s.style.height='297mm';s.style.aspectRatio='auto';});
+  const imgs=area.querySelectorAll('img');
+  await Promise.all([...imgs].map(img=>img.complete?Promise.resolve():new Promise(res=>{img.onload=img.onerror=res;})));
+  await new Promise(r=>setTimeout(r,200));
+  const {jsPDF}=window.jspdf;
+  const sheets=area.querySelectorAll('.a4-sheet');
+  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  for(let i=0;i<sheets.length;i++){
+    try{
+      const canvas=await html2canvas(sheets[i],{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false,width:sheets[i].offsetWidth,height:sheets[i].offsetHeight,windowWidth:sheets[i].offsetWidth,windowHeight:sheets[i].offsetHeight});
+      const imgData=canvas.toDataURL('image/jpeg',0.92);
+      if(i>0)pdf.addPage();
+      pdf.addImage(imgData,'JPEG',0,0,210,297);
+    }catch(e){console.error('Photo PDF page '+i+':',e);}
+  }
+  area.style.display='none';area.innerHTML='';
+  pdf.save(`art-of-scarves-fotos-${Date.now()}.pdf`);
+  showToast('✓ PDF gerado');
+};
 window.downloadPdf=async function(){
   if(!window.jspdf||!window.html2canvas){alert('Aguarda um momento, a carregar…');return;}
   const fl=getSortedLooks();
@@ -3572,6 +3816,9 @@ window.renderDashboard=function(){const el=document.getElementById('dashboard-sc
     <div class="db-metric"><span class="db-metric-k">📸 Looks Totais</span><span class="db-metric-v">${all.length}</span><span class="db-metric-sub">${done} prontos · ${inProg} em curso · ${todo} por fazer</span></div>
     <div class="db-metric"><span class="db-metric-k">🕐 Próximo Shooting</span><span class="db-metric-v" style="font-size:1.1rem;line-height:1.2">${nextLoc?esc(nextLoc.name):'—'}</span><span class="db-metric-sub">${nextLoc?esc(nextLabel):'Sem agendamentos'}</span></div>
   </div>
+  ${(state.photoPacks||[]).length?`<div class="db-sec"><div class="db-sec-head"><div class="db-sec-title">Fotos selecionadas <span class="count">${(state.photoPacks||[]).length}</span></div><button class="db-sec-more" onclick="switchTab('photos')">Ver todas →</button></div></div>
+  <div class="db-photos-grid">${(state.photoPacks||[]).slice(0,10).map(p=>renderDbPhoto(p)).join('')}</div>
+  ${(state.photoPacks||[]).length>10?`<div style="padding:0 24px 14px"><button class="db-sec-more" style="width:100%;padding:10px;border:1px solid var(--c-border);border-radius:var(--radius-sm);background:var(--c-surface);cursor:pointer" onclick="switchTab('photos')">Ver mais ${(state.photoPacks||[]).length-10} →</button></div>`:''}`:''}
   ${featured.length?`<div class="db-sec"><div class="db-sec-head"><div class="db-sec-title">Looks em foco <span class="count">${featured.length} de ${all.length}</span></div><button class="db-sec-more" onclick="switchTab('looks')">Ver todos →</button></div></div>
   <div class="db-scroller">${featured.map(l=>renderDbLook(l)).join('')}</div>`:`<div class="db-empty-line">Ainda não há looks. Configura categorias e gera a lista em "Configuração".</div>`}
   ${locs.length?`<div class="db-sec"><div class="db-sec-head"><div class="db-sec-title">Locações <span class="count">${upcoming.length} próxima${upcoming.length!==1?'s':''} de ${locs.length}</span></div><button class="db-sec-more" onclick="switchTab('shooting')">Ver Shooting →</button></div></div>
@@ -3584,6 +3831,7 @@ window.renderDashboard=function(){const el=document.getElementById('dashboard-sc
   // Bind alert click handlers (can't inline arrow functions easily)
   el.querySelectorAll('.db-alert').forEach((node,i)=>{node.addEventListener('click',()=>alerts[i].go());});
 };
+function renderDbPhoto(p){const ph=(p.photos&&p.photos[0])||'';const nm=p.name||'Sem nome';const safe=esc(nm).replace(/'/g,'');return `<div class="db-photo" onclick="${ph?`openLb('${ph}','${safe}')`:`switchTab('photos')`}">${ph?`<img class="db-photo-img" src="${ph}" alt="">`:`<div class="db-photo-ph">📷</div>`}<div class="db-photo-name">${esc(nm)}</div></div>`;}
 function renderDbLook(l){const tut=tutorialOf(l);const tPhoto=tut?.photo||'';const st=statusLabel(l.status);const stLbl=l.status==='done'?'✓ Pronto':l.status==='progress'?'Em curso':'Por fazer';const locMatch=l.locationId?(state.config.locations||[]).find(L=>L.id===l.locationId):null;const locName=locMatch?locMatch.name:'';const mPhoto=l.model?photoOf('models',l.model):'';const hasModel=!!l.model;return `<div class="db-look" onclick="window.openLookModal(${l.num})">
   <div class="db-look-photo">${tPhoto?`<img src="${tPhoto}" alt="">`:`<div class="db-look-photo-ph">📋</div>`}<span class="db-look-idx">№${String(l.num).padStart(2,'0')}</span><span class="db-look-status ${st.cls}">${stLbl}</span>${tutNameBadge(tut,'lg')}</div>
   <div class="db-look-body${hasModel?' has-model':''}">
@@ -4843,6 +5091,7 @@ function startPresence(){
 // ── BOOT ──
 document.getElementById('loading').classList.add('hidden');
 if(localStorage.getItem(SESSION_KEY)==='1'){initApp();startPresence();}
+else if(localStorage.getItem(SESSION_KEY)==='editora'){initApp();}
 else document.getElementById('screen-login').classList.remove('hidden');
 
 // Pipeline overlay (lazy-loaded iframe)
