@@ -1956,7 +1956,7 @@ async function loadFromFirestore(){
       if(locations!==null)state.config.locations=accept('Locais',locations,state.config.locations);
       if(looks!==null)state.looks=migrateLooks(accept('Looks',looks,state.looks));
       if(photoPacks!==null)state.photoPacks=Array.isArray(photoPacks)?accept('Fotos',photoPacks,state.photoPacks):state.photoPacks;
-      if(editora!==null&&Array.isArray(editora))state.editora=editora;
+      if(editora!==null&&Array.isArray(editora))state.editora=mergeEditora(editora,state.editora||[]);
       if(teamSnap.exists()){state.team=teamSnap.data().items||[];const prod=teamSnap.data().production;if(prod&&Array.isArray(prod.costs))state.production={costs:prod.costs};if(teamSnap.data().ui){const {currentIdx,filter,...restUi}=teamSnap.data().ui;state.ui={...state.ui,...restUi};}}
     }
     if(shrinkWarnings.length){
@@ -2370,6 +2370,22 @@ function edEntry(packId){
   return e;
 }
 function edFilled(e){if(!e)return 0;return ED_FIELDS.reduce((n,f)=>n+((e[f]||'').toString().trim()?1:0),0);}
+// Merge incoming (Firestore) with local editora entries by packId.
+// Prefer the newer ts; if no timestamps, prefer the entry with more filled fields.
+// Prevents a slow background load from wiping edits made right after boot.
+function mergeEditora(incoming,local){
+  const map={};
+  (incoming||[]).forEach(e=>{if(e&&e.packId)map[e.packId]=e;});
+  (local||[]).forEach(le=>{
+    if(!le||!le.packId)return;
+    const ie=map[le.packId];
+    if(!ie){map[le.packId]=le;return;}
+    const lts=le.ts||0,its=ie.ts||0;
+    if(lts>its)map[le.packId]=le;
+    else if(lts===its&&edFilled(le)>edFilled(ie))map[le.packId]=le;
+  });
+  return Object.values(map);
+}
 function edSortedPacks(){
   const packs=[...(state.photoPacks||[])];
   if(__edSort==='category')packs.sort((a,b)=>(a.category||'').localeCompare(b.category||'')||String(a.name||'').localeCompare(String(b.name||''),undefined,{numeric:true}));
@@ -2432,7 +2448,7 @@ function renderEditoraDetail(host,packId,ro){
         ${e.illu?`<div class="ed-detail-photo" style="background:#fff"><img src="${e.illu}" style="object-fit:contain"></div>`:''}
         <div style="flex:1;min-width:240px">
           ${e.title?`<h2 style="margin:0 0 4px;font-size:1.3rem;letter-spacing:-.01em">${esc(e.title)}</h2>`:''}
-          <div class="ed-card-num" style="margin-bottom:8px">TUTORIAL ${esc(pack.name||'—')}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:2.4rem;font-weight:700;letter-spacing:.02em;color:var(--c-text);line-height:1.1;margin-bottom:10px">TUTORIAL ${esc(pack.name||'—')}</div>
           <div style="margin-bottom:12px">${catPill}</div>
           ${e.titleChars?`<div class="ed-field"><label>Technical info</label><div class="ed-ro-text">${esc(e.titleChars)}</div></div>`:''}
           <div class="ed-links-row">${linkBtn(e.pdfUrl,'Tutorial drawing (PDF)','📄')}${linkBtn(e.psdUrl,'Photoshop file','🎨')}${linkBtn(e.hiresUrl,'High-res photo 1','🖼')}${linkBtn(e.hiresUrl2,'High-res photo 2','🖼')}</div>
@@ -2459,27 +2475,28 @@ function renderEditoraDetail(host,packId,ro){
         </div>
       </div>
       <div style="flex:1;min-width:240px">
-        <div class="ed-card-num" style="margin-bottom:4px">TUTORIAL ${esc(pack.name||'—')}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:2.4rem;font-weight:700;letter-spacing:.02em;color:var(--c-text);line-height:1.1;margin-bottom:8px">TUTORIAL ${esc(pack.name||'—')}</div>
         <div style="margin-bottom:14px">${catPill}</div>
-        <div class="ed-field"><label>Look name / title</label><input type="text" value="${esc(e.title||'')}" onchange="updEd('${esc(packId)}','title',this.value)"></div>
+        <div class="ed-field"><label>Look name / title</label><input type="text" value="${esc(e.title||'')}" oninput="updEdLive('${esc(packId)}','title',this.value)" onchange="updEd('${esc(packId)}','title',this.value)"></div>
         <div class="ed-field"><label>Category</label><input type="text" value="${esc(edCatEn(pack.category)||'')}" disabled style="opacity:.6"></div>
       </div>
     </div>
-    <div class="ed-field"><label>Technical info (scarf sizes)</label><textarea style="min-height:70px" onchange="updEd('${esc(packId)}','titleChars',this.value)">${esc(e.titleChars||'')}</textarea></div>
-    <div class="ed-field"><label>Introduction</label><textarea onchange="updEd('${esc(packId)}','intro',this.value)">${esc(e.intro||'')}</textarea></div>
-    <div class="ed-field"><label>Step-by-step description</label><textarea style="min-height:170px" onchange="updEd('${esc(packId)}','steps',this.value)">${esc(e.steps||'')}</textarea></div>
-    <div class="ed-field"><label>Link · Tutorial drawing PDF</label><input type="url" placeholder="https://…" value="${esc(e.pdfUrl||'')}" onchange="updEd('${esc(packId)}','pdfUrl',this.value)"></div>
-    <div class="ed-field"><label>Link · Photoshop file</label><input type="url" placeholder="https://…" value="${esc(e.psdUrl||'')}" onchange="updEd('${esc(packId)}','psdUrl',this.value)"></div>
-    <div class="ed-field"><label>Link · High-res photo 1</label><input type="url" placeholder="https://…" value="${esc(e.hiresUrl||'')}" onchange="updEd('${esc(packId)}','hiresUrl',this.value)"></div>
-    <div class="ed-field"><label>Link · High-res photo 2 (optional)</label><input type="url" placeholder="https://…" value="${esc(e.hiresUrl2||'')}" onchange="updEd('${esc(packId)}','hiresUrl2',this.value)"></div>
+    <div class="ed-field"><label>Technical info (scarf sizes)</label><textarea style="min-height:70px" oninput="updEdLive('${esc(packId)}','titleChars',this.value)" onchange="updEd('${esc(packId)}','titleChars',this.value)">${esc(e.titleChars||'')}</textarea></div>
+    <div class="ed-field"><label>Introduction</label><textarea oninput="updEdLive('${esc(packId)}','intro',this.value)" onchange="updEd('${esc(packId)}','intro',this.value)">${esc(e.intro||'')}</textarea></div>
+    <div class="ed-field"><label>Step-by-step description</label><textarea style="min-height:170px" oninput="updEdLive('${esc(packId)}','steps',this.value)" onchange="updEd('${esc(packId)}','steps',this.value)">${esc(e.steps||'')}</textarea></div>
+    <div class="ed-field"><label>Link · Tutorial drawing PDF</label><input type="url" placeholder="https://…" value="${esc(e.pdfUrl||'')}" oninput="updEdLive('${esc(packId)}','pdfUrl',this.value)" onchange="updEd('${esc(packId)}','pdfUrl',this.value)"></div>
+    <div class="ed-field"><label>Link · Photoshop file</label><input type="url" placeholder="https://…" value="${esc(e.psdUrl||'')}" oninput="updEdLive('${esc(packId)}','psdUrl',this.value)" onchange="updEd('${esc(packId)}','psdUrl',this.value)"></div>
+    <div class="ed-field"><label>Link · High-res photo 1</label><input type="url" placeholder="https://…" value="${esc(e.hiresUrl||'')}" oninput="updEdLive('${esc(packId)}','hiresUrl',this.value)" onchange="updEd('${esc(packId)}','hiresUrl',this.value)"></div>
+    <div class="ed-field"><label>Link · High-res photo 2 (optional)</label><input type="url" placeholder="https://…" value="${esc(e.hiresUrl2||'')}" oninput="updEdLive('${esc(packId)}','hiresUrl2',this.value)" onchange="updEd('${esc(packId)}','hiresUrl2',this.value)"></div>
   </div>`;
 }
-window.updEd=function(packId,field,val){const e=edEntry(packId);e[field]=val;scheduleSave();};
+window.updEdLive=function(packId,field,val){const e=edEntry(packId);e[field]=val;e.ts=Date.now();};
+window.updEd=function(packId,field,val){const e=edEntry(packId);e[field]=val;e.ts=Date.now();try{saveCache(state);}catch(_){/*quota*/}scheduleSave();};
 window.updEdPhoto=async function(packId,field,input){
   if(!input.files[0])return;
   const c=await compressImage(input.files[0],600,0.7);
   if(!c)return;
-  const e=edEntry(packId);e[field||'photo']=c;scheduleSave();renderEditora();
+  const e=edEntry(packId);e[field||'photo']=c;e.ts=Date.now();try{saveCache(state);}catch(_){/*quota*/}scheduleSave();renderEditora();
 };
 window.exportEditoraDossier=async function(){
   if(!window.jspdf||!window.html2canvas){alert('One moment, still loading…');return;}
@@ -5151,6 +5168,9 @@ function startPresence(){
 
 // ── BOOT ──
 document.getElementById('loading').classList.add('hidden');
+window.addEventListener('pagehide',()=>{if(saveTimer){clearTimeout(saveTimer);saveTimer=null;try{saveCache(state);}catch(_){}
+try{doSave();}catch(_){}}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&saveTimer){try{saveCache(state);}catch(_){}}});
 if(localStorage.getItem(SESSION_KEY)==='1'){initApp();startPresence();}
 else if(localStorage.getItem(SESSION_KEY)==='editora'){initApp();}
 else document.getElementById('screen-login').classList.remove('hidden');
