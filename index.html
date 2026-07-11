@@ -1634,6 +1634,8 @@ let __savePendingAgain=false;
 let lastSavedJSON={};
 // Per-pack snapshot (id → serialized pack) for one-doc-per-pack photoPacks storage.
 let lastSavedPacks={};
+// Per-entry snapshot for one-doc-per-entry editora storage.
+let lastSavedEditora={};
 async function doSave(){
   if(isEditoraRole())return;
   // If a save is already running, don't drop this request — flag it so we run again after.
@@ -1733,6 +1735,37 @@ async function doSave(){
       }
       if(skipped.length)throw new Error(`photoPacks: ${skipped.length} pack(s) demasiado grandes não gravados: ${skipped.join(', ')}`);
     }
+    async function saveEditora(){
+      const items=(state.editora||[]).filter(x=>x&&x.packId);
+      const ref=(id)=>doc(db,'shared','data','editora_items',id);
+      const currentIds=new Set();
+      const toWrite=[];
+      for(const it of items){
+        currentIds.add(it.packId);
+        const snap=JSON.stringify(it);
+        if(lastSavedEditora[it.packId]!==snap)toWrite.push({it:stripUndef(it),id:it.packId,snap});
+      }
+      const toDelete=Object.keys(lastSavedEditora).filter(id=>!currentIds.has(id));
+      const writerTag=sessionStorage.getItem('aos_tab_id')||'unknown';
+      const BATCH=10;
+      for(let i=0;i<toWrite.length;i+=BATCH){
+        const slice=toWrite.slice(i,i+BATCH);
+        const batch=writeBatch(db);
+        slice.forEach(({it,id})=>batch.set(ref(id),it));
+        await Promise.race([batch.commit(),new Promise((_,rej)=>setTimeout(()=>rej(new Error('editora: batch timeout (30s)')),30000))]);
+        slice.forEach(({id,snap})=>{lastSavedEditora[id]=snap;});
+      }
+      for(let i=0;i<toDelete.length;i+=BATCH){
+        const slice=toDelete.slice(i,i+BATCH);
+        const batch=writeBatch(db);
+        slice.forEach(id=>batch.delete(ref(id)));
+        await Promise.race([batch.commit(),new Promise((_,rej)=>setTimeout(()=>rej(new Error('editora: delete timeout (30s)')),30000))]);
+        slice.forEach(id=>{delete lastSavedEditora[id];});
+      }
+      if(toWrite.length||toDelete.length){
+        await setDocT(doc(db,'shared','data','docs','editora'),{itemsCol:true,count:items.length,ts:Date.now(),_writer:writerTag});
+      }
+    }
     const writerTagOp=sessionStorage.getItem('aos_tab_id')||'unknown';
     // Each op carries a `snap` = serialized current data. We compare against lastSavedJSON
     // and skip ops whose data is byte-for-byte identical to what we last wrote.
@@ -1750,7 +1783,7 @@ async function doSave(){
       {name:'locations',snap:JSON.stringify(state.config.locations||[]),fn:()=>saveChunked('locations',state.config.locations||[])},
       {name:'looks',snap:JSON.stringify(state.looks),fn:()=>saveChunked('looks',state.looks)},
       {name:'photoPacks',snap:null,fn:()=>savePhotoPacks()},
-      {name:'editora',snap:JSON.stringify(state.editora||[]),fn:()=>saveChunked('editora',stripUndef(state.editora||[]))},
+      {name:'editora',snap:null,fn:()=>saveEditora()},
       {name:'team',snap:JSON.stringify(teamData),fn:()=>setDocT(base('team'),stripUndef({...teamData,ts:Date.now(),_writer:writerTagOp}))}
     ];
     const failed=[];
@@ -1869,6 +1902,23 @@ async function loadPhotoPacks(){
     try{return await loadChunked(n=>doc(db,'shared','data','docs',n),'photoPacks');}catch(_){return null;}
   }
 }
+let __editoraMigrating=false;
+async function loadEditora(){
+  try{
+    const col=collection(db,'shared','data','editora_items');
+    const snap=await getDocs(col);
+    if(!snap.empty){
+      const items=[];snap.forEach(d=>{const x=d.data();if(x&&x.packId)items.push(x);});
+      __editoraMigrating=false;
+      return items;
+    }
+    const legacy=await loadChunked(n=>doc(db,'shared','data','docs',n),'editora');
+    if(legacy&&legacy.length){__editoraMigrating=true;console.log(`[editora] Migrating ${legacy.length} entries to per-doc storage.`);return legacy;}
+    __editoraMigrating=false;return null;
+  }catch(e){console.warn('[loadEditora] failed, falling back to legacy:',e?.message);
+    try{return await loadChunked(n=>doc(db,'shared','data','docs',n),'editora');}catch(_){return null;}
+  }
+}
 async function loadFromFirestore(){
   try{
     const base=n=>doc(db,'shared','data','docs',n);
@@ -1885,7 +1935,7 @@ async function loadFromFirestore(){
       {name:'locations',label:'Locais',fn:()=>loadChunked(base,'locations')},
       {name:'looks',label:'Looks',fn:()=>loadChunked(base,'looks')},
       {name:'tutPhotos',label:'Fotos tutoriais',fn:()=>loadChunked(base,'tutorialPhotos')},
-      {name:'editora',label:'Editora',fn:()=>loadChunked(base,'editora')},
+      {name:'editora',label:'Editora',fn:()=>loadEditora()},
       {name:'photoPacks',label:'Fotos',fn:()=>loadPhotoPacks()}
     ];
     const total=sections.length;
@@ -1985,13 +2035,15 @@ async function loadFromFirestore(){
         models:JSON.stringify(state.config.models),
         locations:JSON.stringify(state.config.locations||[]),
         looks:JSON.stringify(state.looks),
-        editora:JSON.stringify(state.editora||[]),
         team:JSON.stringify({items:state.team,production:state.production||{costs:[]},ui:state.ui})
       };
       if(__tutMigrating){console.log(`[tutorialPhotos] Migrating ${collectTutorialPhotos().length} tutorial photo(s) out of config.`);scheduleSave();}
       // Baseline per-pack tracker so the first save only writes changed packs.
       // EXCEPTION: if we just migrated from the legacy format, leave it empty so the
       // first save persists every pack into the new subcollection.
+      lastSavedEditora={};
+      if(!__editoraMigrating){(state.editora||[]).forEach(x=>{if(x&&x.packId)lastSavedEditora[x.packId]=JSON.stringify(x);});}
+      else{console.log('[editora] Will write all entries to per-doc storage on next save.');scheduleSave();}
       lastSavedPacks={};
       if(!__photoPacksMigrating){
         (state.photoPacks||[]).forEach(p=>{if(p&&p.id)lastSavedPacks[p.id]=JSON.stringify(p);});
