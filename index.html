@@ -295,8 +295,8 @@ html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text)
 .ed-card-title{font-size:.8rem;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .ed-card-id{position:absolute;bottom:10px;left:12px;color:#fff;font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;letter-spacing:.02em;text-shadow:0 1px 8px rgba(0,0,0,.55),0 0 2px rgba(0,0,0,.4);pointer-events:none;z-index:2;}
 .ed-cat-pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;font-weight:600;padding:5px 10px;border-radius:4px;margin-top:7px;}
-.ed-card-state{position:absolute;top:8px;right:8px;font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.06em;padding:3px 7px;border-radius:3px;background:rgba(22,24,20,.72);color:#fff;}
-.ed-card-state.done{background:var(--c-accent);}
+.ed-card-state{position:absolute;top:8px;right:8px;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.06em;padding:4px 9px;border-radius:3px;background:rgba(255,255,255,.92);color:var(--c-text);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.18);}
+.ed-card-state.done{background:#1d9e4f;color:#fff;}
 .ed-detail{max-width:860px;margin:0 auto;padding:22px;}
 .ed-detail-head{display:flex;gap:18px;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;}
 .ed-detail-photo{width:200px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--c-border);flex-shrink:0;}
@@ -2390,7 +2390,7 @@ window.renderEditora=function(){
     const ph=(e&&e.photo)||(p.photos&&p.photos[0])||'';
     const n=edFilled(e);
     const st=n>=ED_FIELDS.length?'done':(n>0?'part':'empty');
-    const stLbl=n>=ED_FIELDS.length?'✓ complete':`${n}/${ED_FIELDS.length}`;
+    const stLbl=n>=ED_FIELDS.length?'✔ READY':`${n}/${ED_FIELDS.length}`;
     const cc=CAT_COLORS[catColorIdx(p.category)]||'#888';
     return `<div class="ed-card" onclick="openEditoraPack('${esc(p.id)}')">
       <div style="position:relative">
@@ -2470,32 +2470,60 @@ window.updEdPhoto=async function(packId,input){
   if(!c)return;
   const e=edEntry(packId);e.photo=c;scheduleSave();renderEditora();
 };
-window.exportEditoraDossier=function(){
+window.exportEditoraDossier=async function(){
+  if(!window.jspdf||!window.html2canvas){alert('One moment, still loading…');return;}
   const packs=edSortedPacks();
   if(!packs.length){alert('No tutorials to export.');return;}
-  const secs=packs.map(p=>{
+  showToast('⏳ Generating PDF…');
+  // One A4 sheet per tutorial
+  const sheets=packs.map(p=>{
     const e=(state.editora||[]).find(x=>x.packId===p.id)||{};
     const ph=(e.photo)||(p.photos&&p.photos[0])||'';
-    const link=(u,t)=>u?`<a href="${u}" target="_blank" style="display:inline-block;margin:4px 10px 4px 0;padding:9px 14px;border:1px solid #ddd;border-radius:4px;color:#113af0;text-decoration:none;font-weight:600;font-size:14px">${t}</a>`:'';
-    const txt=(t,ttl)=>t?`<h4 style="margin:16px 0 6px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#888">${ttl}</h4><div style="white-space:pre-wrap;font-size:15px;line-height:1.6">${t.replace(/</g,'&lt;')}</div>`:'';
-    return `<section style="padding:28px 0;border-bottom:1px solid #eee;display:flex;gap:24px;flex-wrap:wrap">
-      <div style="width:220px;flex-shrink:0">${ph?`<img src="${ph}" style="width:100%;border-radius:6px">`:''}</div>
-      <div style="flex:1;min-width:280px">
-        ${e.title?`<h2 style="margin:0 0 2px;font-size:22px">${e.title.replace(/</g,'&lt;')}</h2>`:''}
-        <div style="font-family:monospace;font-size:12px;color:#999">TUTORIAL ${(p.name||'').toString().replace(/</g,'&lt;')} · ${(p.category||'').toUpperCase()}</div>
-        ${txt(e.titleChars,'Technical info')}
-        ${txt(e.intro,'Introduction')}${txt(e.steps,'Step-by-step description')}
-        <div style="margin:12px 0">${link(e.pdfUrl,'📄 Tutorial drawing (PDF)')}${link(e.psdUrl,'🎨 Photoshop file')}${link(e.hiresUrl,'🖼 High-res photo 1')}${link(e.hiresUrl2,'🖼 High-res photo 2')}</div>
+    const cc=CAT_COLORS[catColorIdx(p.category)]||'#888';
+    const link=(u,t)=>u?`<div style="font-size:3.2mm;margin:1.2mm 0"><span style="color:#888">${t}:</span> <span style="color:#113af0;word-break:break-all">${u.replace(/</g,'&lt;')}</span></div>`:'';
+    const txt=(t,ttl)=>t?`<div style="margin-top:5mm"><div style="font-family:'JetBrains Mono',monospace;font-size:2.4mm;letter-spacing:.1em;text-transform:uppercase;color:#999;margin-bottom:1.5mm">${ttl}</div><div style="white-space:pre-wrap;font-size:3.4mm;line-height:1.55">${t.replace(/</g,'&lt;')}</div></div>`:'';
+    return `<div class="a4-sheet" style="padding:14mm;display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:0.4mm solid #e5e5e5;padding-bottom:3mm;margin-bottom:6mm">
+        <span style="font-size:5mm;font-weight:700">Art of Scarves</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:2.6mm;letter-spacing:.12em;color:#999">TUTORIAL ${(p.name||'').toString().replace(/</g,'&lt;')}</span>
       </div>
-    </section>`;
-  }).join('');
-  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Art of Scarves · Publisher Dossier</title></head>
-  <body style="font-family:-apple-system,'Inter Tight',sans-serif;color:#161814;max-width:960px;margin:0 auto;padding:40px 24px">
-  <h1 style="font-size:28px;margin-bottom:2px">Art of Scarves</h1><p style="color:#888;margin-top:0">Publisher dossier · Claudya Moreira · ${new Date().toLocaleDateString('en-GB')}</p>
-  ${secs}</body></html>`;
-  const blob=new Blob([html],{type:'text/html'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`art-of-scarves-dossier-${Date.now()}.html`;a.click();URL.revokeObjectURL(a.href);
-  showToast('✓ Dossier exported');
+      <div style="display:flex;gap:8mm;flex:1;min-height:0">
+        <div style="width:72mm;flex-shrink:0">
+          ${ph?`<img src="${ph}" style="width:72mm;border-radius:2mm;display:block">`:''}
+          ${p.category?`<span style="display:inline-block;margin-top:3mm;background:${cc};color:#fff;font-family:'JetBrains Mono',monospace;font-size:2.6mm;letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:1.6mm 3mm;border-radius:1.2mm">${p.category.replace(/</g,'&lt;')}</span>`:''}
+          <div style="margin-top:5mm">${link(e.pdfUrl,'Tutorial drawing PDF')}${link(e.psdUrl,'Photoshop file')}${link(e.hiresUrl,'High-res photo 1')}${link(e.hiresUrl2,'High-res photo 2')}</div>
+        </div>
+        <div style="flex:1;min-width:0">
+          ${e.title?`<div style="font-size:6mm;font-weight:700;letter-spacing:-.01em;margin-bottom:2mm">${e.title.replace(/</g,'&lt;')}</div>`:''}
+          ${txt(e.titleChars,'Technical info')}
+          ${txt(e.intro,'Introduction')}
+          ${txt(e.steps,'Step-by-step description')}
+        </div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:2.2mm;color:#bbb;text-align:right;padding-top:3mm">Claudya Moreira · Publisher dossier</div>
+    </div>`;
+  });
+  const area=document.getElementById('sheets-print-area');
+  area.style.cssText='position:fixed;left:-10000px;top:0;display:block;background:#fff;z-index:-1;width:210mm;';
+  area.innerHTML=`<div class="sheets-container" style="padding:0;gap:0;background:#fff;width:210mm">${sheets.join('')}</div>`;
+  area.querySelectorAll('.a4-sheet').forEach(sh=>{sh.style.width='210mm';sh.style.maxWidth='210mm';sh.style.height='297mm';sh.style.aspectRatio='auto';});
+  const imgs=area.querySelectorAll('img');
+  await Promise.all([...imgs].map(img=>img.complete?Promise.resolve():new Promise(res=>{img.onload=img.onerror=res;})));
+  await new Promise(r=>setTimeout(r,200));
+  const {jsPDF}=window.jspdf;
+  const els=area.querySelectorAll('.a4-sheet');
+  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  for(let i=0;i<els.length;i++){
+    try{
+      const canvas=await html2canvas(els[i],{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false,width:els[i].offsetWidth,height:els[i].offsetHeight,windowWidth:els[i].offsetWidth,windowHeight:els[i].offsetHeight});
+      const imgData=canvas.toDataURL('image/jpeg',0.92);
+      if(i>0)pdf.addPage();
+      pdf.addImage(imgData,'JPEG',0,0,210,297);
+    }catch(err){console.error('Dossier page '+i+':',err);}
+  }
+  area.style.display='none';area.innerHTML='';
+  pdf.save(`art-of-scarves-publisher-dossier-${Date.now()}.pdf`);
+  showToast('✓ Dossier PDF exported');
 };
 
 
