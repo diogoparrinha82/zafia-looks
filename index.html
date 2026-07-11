@@ -2393,9 +2393,11 @@ window.renderEditora=function(){
     const stLbl=n>=ED_FIELDS.length?'✓ complete':`${n}/${ED_FIELDS.length}`;
     const cc=CAT_COLORS[catColorIdx(p.category)]||'#888';
     return `<div class="ed-card" onclick="openEditoraPack('${esc(p.id)}')">
-      ${ph?`<img class="ed-card-img" src="${ph}" alt="">`:`<div class="ed-card-ph">📷</div>`}
-      <span class="ed-card-id">${esc(p.name||'')}</span>
-      <span class="ed-card-state${st==='done'?' done':''}">${stLbl}</span>
+      <div style="position:relative">
+        ${ph?`<img class="ed-card-img" src="${ph}" alt="">`:`<div class="ed-card-ph">📷</div>`}
+        <span class="ed-card-id">${esc(p.name||'')}</span>
+        <span class="ed-card-state${st==='done'?' done':''}">${stLbl}</span>
+      </div>
       <div class="ed-card-body"><div class="ed-card-title">${esc((e&&e.title)||'—')}</div>${p.category?`<span class="ed-cat-pill" style="background:${cc}">${esc(p.category)}</span>`:''}</div>
     </div>`;
   }).join('');
