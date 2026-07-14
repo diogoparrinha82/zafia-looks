@@ -2706,7 +2706,8 @@ window.updEdPhoto=async function(packId,field,input){
 window.exportEditoraDossier=async function(){
   if(!window.jspdf||!window.html2canvas){alert('One moment, still loading…');return;}
   const packs=edSortedPacks();
-  if(!packs.length){alert('No tutorials to export.');return;}
+  const extras=(state.editoraExtras||[]);
+  if(!packs.length&&!extras.length){alert('Nothing to export.');return;}
   showToast('⏳ Generating PDF…');
   // One A4 sheet per tutorial
   const sheets=packs.map(p=>{
@@ -2739,9 +2740,33 @@ window.exportEditoraDossier=async function(){
       <div style="font-family:'JetBrains Mono',monospace;font-size:2.2mm;color:#bbb;text-align:right;padding-top:3mm">Claudya Moreira · Publisher dossier</div>
     </div>`;
   });
+  // OTHERS section: 2 photos per A4 page
+  const exPages=[];
+  for(let i=0;i<extras.length;i+=2){
+    const pair=extras.slice(i,i+2).map((x,k)=>{
+      const idx=i+k+1;
+      return `<div style="display:flex;gap:8mm;flex:1;min-height:0;padding:5mm 0;border-bottom:${i+k<extras.length-1?'0.3mm solid #eee':'none'}">
+        <div style="width:72mm;flex-shrink:0">${x.photo?`<img src="${x.photo}" style="width:72mm;max-height:105mm;object-fit:contain;border-radius:2mm;display:block">`:''}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:6mm;font-weight:700;margin-bottom:3mm">PHOTO ${idx}</div>
+          ${x.placement?`<div style="font-family:'JetBrains Mono',monospace;font-size:2.4mm;letter-spacing:.1em;text-transform:uppercase;color:#999;margin-bottom:1.5mm">Placement in the book</div><div style="white-space:pre-wrap;font-size:3.4mm;line-height:1.55">${x.placement.replace(/</g,'&lt;')}</div>`:''}
+          ${x.hiresUrl?`<div style="font-size:3.2mm;margin-top:3mm"><span style="color:#888">High-res photo:</span> <span style="color:#113af0;word-break:break-all">${x.hiresUrl.replace(/</g,'&lt;')}</span></div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+    exPages.push(`<div class="a4-sheet" style="padding:14mm;display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:0.4mm solid #e5e5e5;padding-bottom:3mm;margin-bottom:4mm">
+        <span style="font-size:4mm;font-weight:700;color:#888">Art of Scarves</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:8mm;font-weight:700;letter-spacing:.04em;color:#161814">OTHERS</span>
+      </div>
+      <div style="display:flex;flex-direction:column;flex:1;min-height:0">${pair}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:2.2mm;color:#bbb;text-align:right;padding-top:3mm">Claudya Moreira · Publisher dossier</div>
+    </div>`);
+  }
+  const allSheets=sheets.concat(exPages);
   const area=document.getElementById('sheets-print-area');
   area.style.cssText='position:fixed;left:-10000px;top:0;display:block;background:#fff;z-index:-1;width:210mm;';
-  area.innerHTML=`<div class="sheets-container" style="padding:0;gap:0;background:#fff;width:210mm">${sheets.join('')}</div>`;
+  area.innerHTML=`<div class="sheets-container" style="padding:0;gap:0;background:#fff;width:210mm">${allSheets.join('')}</div>`;
   area.querySelectorAll('.a4-sheet').forEach(sh=>{sh.style.width='210mm';sh.style.maxWidth='210mm';sh.style.height='297mm';sh.style.aspectRatio='auto';});
   const imgs=area.querySelectorAll('img');
   await Promise.all([...imgs].map(img=>img.complete?Promise.resolve():new Promise(res=>{img.onload=img.onerror=res;})));
