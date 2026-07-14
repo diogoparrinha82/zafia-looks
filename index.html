@@ -1428,7 +1428,7 @@ import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc, onSn
 const fbApp=initializeApp({apiKey:"AIzaSyAZZ-q7zM8gLZb8MMOL8Pj9zFeLLrtDAhk",authDomain:"book-claudya.firebaseapp.com",projectId:"book-claudya",storageBucket:"book-claudya.firebasestorage.app",messagingSenderId:"724090676677",appId:"1:724090676677:web:520ddb7efc45f839d917ac"});
 const db=getFirestore(fbApp);
 const ACCESS_PASSWORD="bookcm2026";
-const EDITORA_PASSWORD="quadrille2026";
+const EDITORA_PASSWORD="artscarves2026";
 const SESSION_KEY="zafia_auth";
 const CACHE_KEY="zafia_cache_v5_olive";
 
@@ -1461,7 +1461,7 @@ window.state={
     locations:[],
     theme:{...DEFAULT_THEME}
   },
-  looks:[],team:[],production:{costs:[]},photoPacks:[],editora:[],ui:{currentIdx:0,filter:'',galleryView:'grid',compareBin:[]}
+  looks:[],team:[],production:{costs:[]},photoPacks:[],editora:[],editoraExtras:[],ui:{currentIdx:0,filter:'',galleryView:'grid',compareBin:[]}
 };
 window.currentScreen='screen-looks';
 const outfitSlideIdx={};
@@ -1636,6 +1636,7 @@ let lastSavedJSON={};
 let lastSavedPacks={};
 // Per-entry snapshot for one-doc-per-entry editora storage.
 let lastSavedEditora={};
+let lastSavedExtras={};
 async function doSave(){
   if(isEditoraRole())return;
   // If a save is already running, don't drop this request — flag it so we run again after.
@@ -1735,6 +1736,30 @@ async function doSave(){
       }
       if(skipped.length)throw new Error(`photoPacks: ${skipped.length} pack(s) demasiado grandes não gravados: ${skipped.join(', ')}`);
     }
+    async function saveEditoraExtras(){
+      const items=(state.editoraExtras||[]).filter(x=>x&&x.id);
+      const ref=(id)=>doc(db,'shared','data','editora_extras',id);
+      const currentIds=new Set();const toWrite=[];
+      for(const it of items){currentIds.add(it.id);const snap=JSON.stringify(it);if(lastSavedExtras[it.id]!==snap)toWrite.push({it:stripUndef(it),id:it.id,snap});}
+      const toDelete=Object.keys(lastSavedExtras).filter(id=>!currentIds.has(id));
+      const writerTag=sessionStorage.getItem('aos_tab_id')||'unknown';
+      const BATCH=10;
+      for(let i=0;i<toWrite.length;i+=BATCH){
+        const slice=toWrite.slice(i,i+BATCH);const batch=writeBatch(db);
+        slice.forEach(({it,id})=>batch.set(ref(id),it));
+        await Promise.race([batch.commit(),new Promise((_,rej)=>setTimeout(()=>rej(new Error('extras: batch timeout (30s)')),30000))]);
+        slice.forEach(({id,snap})=>{lastSavedExtras[id]=snap;});
+      }
+      for(let i=0;i<toDelete.length;i+=BATCH){
+        const slice=toDelete.slice(i,i+BATCH);const batch=writeBatch(db);
+        slice.forEach(id=>batch.delete(ref(id)));
+        await Promise.race([batch.commit(),new Promise((_,rej)=>setTimeout(()=>rej(new Error('extras: delete timeout (30s)')),30000))]);
+        slice.forEach(id=>{delete lastSavedExtras[id];});
+      }
+      if(toWrite.length||toDelete.length){
+        await setDocT(doc(db,'shared','data','docs','editoraExtras'),{itemsCol:true,count:items.length,ts:Date.now(),_writer:writerTag});
+      }
+    }
     async function saveEditora(){
       const items=(state.editora||[]).filter(x=>x&&x.packId);
       const ref=(id)=>doc(db,'shared','data','editora_items',id);
@@ -1784,6 +1809,7 @@ async function doSave(){
       {name:'looks',snap:JSON.stringify(state.looks),fn:()=>saveChunked('looks',state.looks)},
       {name:'photoPacks',snap:null,fn:()=>savePhotoPacks()},
       {name:'editora',snap:null,fn:()=>saveEditora()},
+      {name:'editoraExtras',snap:null,fn:()=>saveEditoraExtras()},
       {name:'team',snap:JSON.stringify(teamData),fn:()=>setDocT(base('team'),stripUndef({...teamData,ts:Date.now(),_writer:writerTagOp}))}
     ];
     const failed=[];
@@ -1903,6 +1929,16 @@ async function loadPhotoPacks(){
   }
 }
 let __editoraMigrating=false;
+async function loadEditoraExtras(){
+  try{
+    const col=collection(db,'shared','data','editora_extras');
+    const snap=await getDocs(col);
+    if(snap.empty)return null;
+    const items=[];snap.forEach(d=>{const x=d.data();if(x&&x.id)items.push(x);});
+    items.sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+    return items;
+  }catch(e){console.warn('[loadEditoraExtras]',e?.message);return null;}
+}
 async function loadEditora(){
   try{
     const col=collection(db,'shared','data','editora_items');
@@ -1936,6 +1972,7 @@ async function loadFromFirestore(){
       {name:'looks',label:'Looks',fn:()=>loadChunked(base,'looks')},
       {name:'tutPhotos',label:'Fotos tutoriais',fn:()=>loadChunked(base,'tutorialPhotos')},
       {name:'editora',label:'Editora',fn:()=>loadEditora()},
+      {name:'editoraExtras',label:'Others',fn:()=>loadEditoraExtras()},
       {name:'photoPacks',label:'Fotos',fn:()=>loadPhotoPacks()}
     ];
     const total=sections.length;
@@ -1949,7 +1986,7 @@ async function loadFromFirestore(){
       setLoadProgress(pct,`Sincronizando · ${s.label} (${done}/${total})`);
     })));
     const cfgSnap=results.cfgSnap,teamSnap=results.teamSnap;
-    const {outfits,joias,sapatos,scarves,models,locations,looks,photoPacks,tutPhotos,editora}=results;
+    const {outfits,joias,sapatos,scarves,models,locations,looks,photoPacks,tutPhotos,editora,editoraExtras}=results;
     setLoadProgress(93,'A aplicar dados…');
     // ── SHRINK GUARD ──
     // Count embedded photos (any "photo" key, at any depth) in a value.
@@ -2012,6 +2049,11 @@ async function loadFromFirestore(){
       if(looks!==null)state.looks=migrateLooks(accept('Looks',looks,state.looks));
       if(photoPacks!==null)state.photoPacks=Array.isArray(photoPacks)?accept('Fotos',photoPacks,state.photoPacks):state.photoPacks;
       if(editora!==null&&Array.isArray(editora))state.editora=mergeEditora(editora,state.editora||[]);
+      if(editoraExtras!==null&&Array.isArray(editoraExtras)){
+        const map={};editoraExtras.forEach(x=>{if(x&&x.id)map[x.id]=x;});
+        (state.editoraExtras||[]).forEach(lx=>{if(!lx||!lx.id)return;const ix=map[lx.id];if(!ix||((lx.ts||0)>(ix.ts||0)))map[lx.id]=lx;});
+        state.editoraExtras=Object.values(map).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+      }
       if(teamSnap.exists()){state.team=teamSnap.data().items||[];const prod=teamSnap.data().production;if(prod&&Array.isArray(prod.costs))state.production={costs:prod.costs};if(teamSnap.data().ui){const {currentIdx,filter,...restUi}=teamSnap.data().ui;state.ui={...state.ui,...restUi};}}
     }
     if(shrinkWarnings.length){
@@ -2042,6 +2084,8 @@ async function loadFromFirestore(){
       // EXCEPTION: if we just migrated from the legacy format, leave it empty so the
       // first save persists every pack into the new subcollection.
       lastSavedEditora={};
+      lastSavedExtras={};
+      (state.editoraExtras||[]).forEach(x=>{if(x&&x.id)lastSavedExtras[x.id]=JSON.stringify(x);});
       if(!__editoraMigrating){(state.editora||[]).forEach(x=>{if(x&&x.packId)lastSavedEditora[x.packId]=JSON.stringify(x);});}
       else{console.log('[editora] Will write all entries to per-doc storage on next save.');scheduleSave();}
       lastSavedPacks={};
@@ -2133,8 +2177,8 @@ function startRemoteWatch(){
   if(remoteWatchActive)return;
   remoteWatchActive=true;
   const myTag=sessionStorage.getItem('aos_tab_id')||'unknown';
-  const watched=['looks','locations','outfits','scarves','models','joias','sapatos','photoPacks','config','team','editora'];
-  const labels={looks:'Looks',locations:'Locações',outfits:'Roupas',scarves:'Lenços',models:'Modelos',joias:'Jóias',sapatos:'Sapatos',photoPacks:'Fotos',config:'Configuração',team:'Equipa',editora:'Editora'};
+  const watched=['looks','locations','outfits','scarves','models','joias','sapatos','photoPacks','config','team','editora','editoraExtras'];
+  const labels={looks:'Looks',locations:'Locações',outfits:'Roupas',scarves:'Lenços',models:'Modelos',joias:'Jóias',sapatos:'Sapatos',photoPacks:'Fotos',config:'Configuração',team:'Equipa',editora:'Editora',editoraExtras:'Others'};
   // Track timestamps observed at watch-start (so we don't fire for "current" state)
   const seenTs={};
   watched.forEach(prefix=>{
@@ -2450,6 +2494,27 @@ function edSortedPacks(){
   return packs;
 }
 let __edOpenPack=null;
+let __edOpenExtra=null;
+let __edTab='looks';
+window.setEdTab=function(t){__edTab=t;__edOpenPack=null;__edOpenExtra=null;renderEditora();};
+const EX_FIELDS=['photo','hiresUrl','placement'];
+function exFilled(x){if(!x)return 0;return EX_FIELDS.reduce((n,f)=>n+((x[f]||'').toString().trim()?1:0),0);}
+window.addEditoraExtra=function(){
+  if(!Array.isArray(state.editoraExtras))state.editoraExtras=[];
+  const x={id:'ex-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),photo:'',hiresUrl:'',placement:'',createdAt:Date.now(),ts:Date.now()};
+  state.editoraExtras.push(x);try{saveCache(state);}catch(_){/*quota*/}scheduleSave();
+  __edOpenExtra=x.id;renderEditora();
+};
+window.deleteEditoraExtra=function(id){
+  if(!confirm('Delete this photo entry?'))return;
+  state.editoraExtras=(state.editoraExtras||[]).filter(x=>x.id!==id);
+  try{saveCache(state);}catch(_){/*quota*/}scheduleSave();__edOpenExtra=null;renderEditora();
+};
+window.updEx=function(id,field,val){const x=(state.editoraExtras||[]).find(e=>e.id===id);if(!x)return;x[field]=val;x.ts=Date.now();try{saveCache(state);}catch(_){/*quota*/}scheduleSave();};
+window.updExLive=function(id,field,val){const x=(state.editoraExtras||[]).find(e=>e.id===id);if(!x)return;x[field]=val;x.ts=Date.now();};
+window.updExPhoto=async function(id,input){if(!input.files[0])return;const c=await compressImage(input.files[0],600,0.7);if(!c)return;const x=(state.editoraExtras||[]).find(e=>e.id===id);if(!x)return;x.photo=c;x.ts=Date.now();try{saveCache(state);}catch(_){/*quota*/}scheduleSave();renderEditora();};
+window.openEditoraExtra=function(id){__edOpenExtra=id;renderEditora();const sc=document.getElementById('editora-scroll');if(sc)sc.scrollTop=0;};
+window.exNavGo=function(dir){const l=state.editoraExtras||[];const i=l.findIndex(x=>x.id===__edOpenExtra);if(i<0)return;const j=i+dir;if(j<0||j>=l.length)return;openEditoraExtra(l[j].id);};
 window.setEdSort=function(v){__edSort=v;localStorage.setItem('aos_ed_sort',v);renderEditora();};
 window.renderEditora=function(){
   const ro=isEditoraRole();
@@ -2457,6 +2522,14 @@ window.renderEditora=function(){
   if(menuBtn)menuBtn.style.display=ro?'none':'';
   if(outBtn)outBtn.style.display=ro?'':'none';
   const host=document.getElementById('editora-content');if(!host)return;
+  const tabs=`<div style="display:flex;gap:8px;padding:14px 22px 0">
+    <button class="mini-btn${__edTab==='looks'?' accent':''}" onclick="setEdTab('looks')">LOOKS</button>
+    <button class="mini-btn${__edTab==='others'?' accent':''}" onclick="setEdTab('others')">OTHERS</button>
+  </div>`;
+  if(__edTab==='others'){
+    if(__edOpenExtra!==null){renderExtraDetail(host,__edOpenExtra,ro,tabs);return;}
+    renderExtrasGrid(host,ro,tabs);return;
+  }
   if(__edOpenPack!==null){renderEditoraDetail(host,__edOpenPack,ro);return;}
   const packs=edSortedPacks();
   const totalFields=packs.length*ED_FIELDS.length;
@@ -2477,7 +2550,7 @@ window.renderEditora=function(){
       <div class="ed-card-body"><div class="ed-card-title">${esc((e&&e.title)||'—')}</div>${p.category?`<span class="ed-cat-pill" style="background:${cc}">${esc(edCatEn(p.category))}</span>`:''}</div>
     </div>`;
   }).join('');
-  host.innerHTML=`
+  host.innerHTML=`${tabs}
     <div class="ed-toolbar">
       <div class="ed-progress">${ro?`${packs.length} tutorials`:`Filled: ${filled}/${totalFields} fields · ${packs.length} tutorials`}</div>
       <select class="photos-filter-sel" onchange="setEdSort(this.value)" style="margin-left:auto">
@@ -2500,6 +2573,70 @@ function edNavBar(packId){
   </div>`;
 }
 window.closeEditoraLook=function(){__edOpenPack=null;renderEditora();};
+function renderExtrasGrid(host,ro,tabs){
+  const list=state.editoraExtras||[];
+  const cards=list.map((x,i)=>{
+    const n=exFilled(x);const done=n>=EX_FIELDS.length;
+    return `<div class="ed-card" onclick="openEditoraExtra('${esc(x.id)}')">
+      <div style="position:relative">
+        ${x.photo?`<img class="ed-card-img" src="${x.photo}" alt="">`:`<div class="ed-card-ph">📷</div>`}
+        <span class="ed-card-id">${i+1}</span>
+        <span class="ed-card-state${done?' done':''}">${done?'✔ READY':`${n}/${EX_FIELDS.length}`}</span>
+      </div>
+      <div class="ed-card-body"><div class="ed-card-title">${esc((x.placement||'').split('\n')[0]||'—')}</div></div>
+    </div>`;
+  }).join('');
+  host.innerHTML=`${tabs}
+    <div class="ed-toolbar">
+      <div class="ed-progress">${list.length} photos${ro?'':` · ${list.filter(x=>exFilled(x)>=EX_FIELDS.length).length} ready`}</div>
+      ${ro?'':`<button class="mini-btn accent" style="margin-left:auto" onclick="addEditoraExtra()">＋ Add photo</button>`}
+    </div>
+    <div class="ed-grid">${cards||'<p style="padding:22px;color:var(--c-text3)">No photos yet.</p>'}</div>`;
+}
+function exNavBar(id){
+  const l=state.editoraExtras||[];const i=l.findIndex(x=>x.id===id);
+  const opts=l.map((x,k)=>`<option value="${esc(x.id)}"${x.id===id?' selected':''}>${exFilled(x)>=EX_FIELDS.length?'✔ ':''}${k+1}${x.placement?' · '+esc(x.placement.split('\n')[0].slice(0,30)):''}</option>`).join('');
+  return `<div class="ed-nav">
+    <button class="ed-nav-btn" onclick="exNavGo(-1)" ${i<=0?'disabled':''}>←</button>
+    <select class="ed-nav-sel" onchange="openEditoraExtra(this.value)">${opts}</select>
+    <button class="ed-nav-btn" onclick="exNavGo(1)" ${i>=l.length-1?'disabled':''}>→</button>
+  </div>`;
+}
+function renderExtraDetail(host,id,ro,tabs){
+  const x=(state.editoraExtras||[]).find(e=>e.id===id);if(!x){__edOpenExtra=null;renderEditora();return;}
+  const idx=(state.editoraExtras||[]).indexOf(x)+1;
+  if(ro){
+    host.innerHTML=`${tabs}<div class="ed-detail">
+      <button class="ed-back" onclick="setEdTab('others')">← BACK TO GALLERY</button>
+      <div class="ed-detail-head">
+        ${x.photo?`<div class="ed-detail-photo"><img src="${x.photo}"></div>`:''}
+        <div style="flex:1;min-width:240px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:2.4rem;font-weight:700;color:var(--c-text);line-height:1.1;margin-bottom:10px">PHOTO ${idx}</div>
+          ${x.hiresUrl?`<div class="ed-links-row"><a class="ed-link-btn" href="${esc(x.hiresUrl)}" target="_blank" rel="noopener">🖼 High-res photo</a></div>`:''}
+        </div>
+      </div>
+      ${x.placement?`<div class="ed-field"><label>Placement in the book</label><div class="ed-ro-text">${esc(x.placement)}</div></div>`:''}
+    </div>${exNavBar(id)}`;
+    return;
+  }
+  host.innerHTML=`${tabs}<div class="ed-detail">
+    <button class="ed-back" onclick="setEdTab('others')">← BACK TO GALLERY</button>
+    <div class="ed-detail-head">
+      <div style="flex-shrink:0">
+        <div class="ed-detail-photo">${x.photo?`<img src="${x.photo}">`:`<div class="ed-card-ph">📷</div>`}</div>
+        <input type="file" id="ex-photo-inp" accept="image/*,.heic,.heif" style="display:none" onchange="updExPhoto('${esc(id)}',this)">
+        <button class="mini-btn" style="width:200px;margin-top:8px" onclick="document.getElementById('ex-photo-inp').click()">📷 ${x.photo?'Change photo':'Upload photo'}</button>
+      </div>
+      <div style="flex:1;min-width:240px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:2.4rem;font-weight:700;color:var(--c-text);line-height:1.1;margin-bottom:14px">PHOTO ${idx}</div>
+        <div class="ed-field"><label>Link · High-res photo</label><input type="url" placeholder="https://…" value="${esc(x.hiresUrl||'')}" oninput="updExLive('${esc(id)}','hiresUrl',this.value)" onchange="updEx('${esc(id)}','hiresUrl',this.value)"></div>
+      </div>
+    </div>
+    <div class="ed-field"><label>Placement in the book (where should this photo appear)</label><textarea style="min-height:120px" oninput="updExLive('${esc(id)}','placement',this.value)" onchange="updEx('${esc(id)}','placement',this.value)">${esc(x.placement||'')}</textarea></div>
+    <button class="mini-btn" style="color:#C72A1C;border-color:#C72A1C" onclick="deleteEditoraExtra('${esc(id)}')">✕ Delete</button>
+    <div style="height:70px"></div>
+  </div>${exNavBar(id)}`;
+}
 function renderEditoraDetail(host,packId,ro){
   const pack=(state.photoPacks||[]).find(p=>p.id===packId);if(!pack){__edOpenPack=null;renderEditora();return;}
   const e=edEntry(packId);
