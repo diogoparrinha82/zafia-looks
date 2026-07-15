@@ -2460,7 +2460,7 @@ loadFromFirestore().then(()=>{clearTimeout(fbTO);if(window.currentScreen==='scre
 // can find them — module scope is not the global scope.
 window.renderPhotos=renderPhotos;
 // ══════ EDITORA (Publisher area — pack-based, English UI) ══════
-const ED_CAT_EN={'Acessório':'Accessory','Acessorio':'Accessory','Cabelo':'Hair','Pescoço':'Neck','Pescoco':'Neck','Saia':'Skirt','Saias':'Skirts','Vestido':'Dress','Vestidos':'Dresses','Embrulho':'Wrap','Mala':'Bag','Tops':'Tops','Top':'Top','Cover Up':'Cover Up','Elevate Style':'Elevate Style'};
+const ED_CAT_EN={'Acessório':'Accessory','Acessorio':'Accessory','Cabelo':'Headwear','Pescoço':'Neck','Pescoco':'Neck','Saia':'Skirt','Saias':'Skirts','Vestido':'Dress','Vestidos':'Dresses','Embrulho':'Wrap','Mala':'Bag','Tops':'Tops','Top':'Top','Cover Up':'Cover Up','Elevate Style':'Fashion Statement'};
 function edCatEn(c){if(!c)return '';return ED_CAT_EN[c]||ED_CAT_EN[(c||'').trim()]||c;}
 const ED_FIELDS=['title','pdfUrl','psdUrl','hiresUrl','titleChars','intro','steps']; // hiresUrl2 is optional
 let __edSort=localStorage.getItem('aos_ed_sort')||'id';
